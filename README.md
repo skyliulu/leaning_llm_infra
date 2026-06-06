@@ -1,82 +1,87 @@
-# leaning_llm_infra
+# Learning LLM Infra
 
-一个围绕 **LLM Infra** 和 **RL Infra** 的个人学习资料收集库，主要用于沉淀：
+这个仓库用于沉淀我对 **LLM Infra**、**RL Infra** 以及相关基础系统的学习笔记。它不是资料堆放区，而是一个逐步长出来的学习地图：每个主题尽量回答“它解决什么问题、核心机制是什么、系统瓶颈在哪里、和其他模块如何连接”。
 
-- 学习路线
-- 主题拆分
-- 阅读笔记
-- 系统设计理解
-- 论文 / 项目 / 代码索引
-
-## 目录结构
+## 当前入口
 
 ```text
 .
-├── 00-foundations/
+├── 00-foundations/          # 共性基础：GPU、系统、分布式、工程工具链
+│   ├── README.md
+│   └── gpu-architecture/
+│       ├── README.md
+│       ├── nvidia_gpu_architecture_evolution.md
+│       └── assets/
+├── 01-llm-infra/            # LLM 训练、推理、服务化与平台工程
 │   └── README.md
-├── 01-llm-infra/
-│   └── README.md
-└── 02-rl-infra/
+└── 02-rl-infra/             # RL 训练系统、环境、采样与实验平台
     └── README.md
 ```
 
-## 子领域划分
+## 内容边界
 
 ### 00-foundations
 
-偏基础与共性能力，适合作为 LLM Infra / RL Infra 的前置知识。
+放 LLM Infra / RL Infra 都会依赖的底层知识。这里的笔记不追求覆盖所有基础课程，而是优先服务后续工程理解。
 
-- 计算机系统基础：OS、网络、存储、并发、容器化
-- 深度学习系统基础：训练流程、显存、算子、通信
-- 分布式系统基础：一致性、调度、容错、资源管理
-- GPU / CUDA 基础：Kernel、带宽、吞吐、访存
-- 工程工具链：Linux、Docker、K8s、Ray、监控与 profiling
+- GPU / CUDA / 加速器架构
+- Linux、网络、存储、并发与容器
+- 深度学习训练基础、显存、算子与通信
+- 分布式系统、调度、容错与资源管理
+- Profiling、Benchmark、可观测性与工程工具链
 
 ### 01-llm-infra
 
-聚焦大模型训练、推理、服务化与生产系统。
+放大模型系统链路相关内容，重点是训练、推理、服务化和生产平台。
 
-- 数据处理与 Tokenization
-- 预训练 / SFT 训练流水线
-- 并行训练：DP / TP / PP / ZeRO / FSDP
-- 推理加速与 Serving：KV Cache、PagedAttention、Batching、量化
-- RAG / Agent Runtime / Memory / Tool Use
-- 评测、可观测性与成本优化
-- 安全、权限、配额与多租户
+- 数据处理、Tokenization、数据配比与版本管理
+- Pretraining / SFT / Post-training 训练流水线
+- DP / TP / PP / ZeRO / FSDP 等并行训练机制
+- KV Cache、PagedAttention、Batching、量化与推理服务
+- RAG、Agent Runtime、Memory、Tool Use
+- 评测、可观测性、成本、安全、多租户与发布治理
 
 ### 02-rl-infra
 
-聚焦强化学习训练系统、环境系统和大规模实验平台。
+放强化学习系统相关内容，重点是环境、采样、训练、评测和大规模实验。
 
-- 环境与仿真平台
-- 采样、回放与数据管线
-- 单机 / 分布式训练架构
-- Offline RL / Batch RL 基础设施
-- 多智能体 / 自博弈 / 大规模实验编排
-- RLHF / RLAIF / Post-training 与 LLM 对接
-- 评测、奖励建模、安全与实验管理
+- 环境抽象、仿真平台与任务封装
+- Rollout、Replay Buffer、采样与数据管线
+- Actor / Learner、参数同步与分布式训练
+- Offline RL、Batch RL 与数据集基础设施
+- 多智能体、自博弈、实验编排与结果管理
+- RLHF / RLAIF / Post-training 与 LLM Infra 的交叉部分
 
-## 使用建议
+## 目录组织约定
 
-建议在每个主题目录下按下面方式继续补充个人笔记：
+后续新增主题时，优先按“领域 / 主题 / 资料”三级组织，而不是按资料类型直接堆在根目录。
 
 ```text
-主题目录/
-├── README.md                # 主题导览
-├── concepts/               # 核心概念
-├── papers/                 # 论文阅读
-├── projects/               # 开源项目拆解
-└── notes/                  # 自己的总结与实践记录
+领域目录/
+└── topic-name/
+    ├── README.md            # 主题导览、阅读顺序、关键问题
+    ├── xxx.md               # 主笔记或专题文章
+    └── assets/              # 当前主题笔记使用的图片、图表、附件
 ```
 
-每篇笔记可以优先回答 4 个问题：
+命名规则：
 
-1. 这个模块解决什么问题？
-2. 核心设计权衡是什么？
-3. 代表性系统 / 论文 / 项目有哪些？
-4. 我后续值得继续深挖的问题是什么？
+- 目录名使用英文 kebab-case，例如 `gpu-architecture`、`llm-serving`。
+- Markdown 文件名使用英文 snake_case，例如 `nvidia_gpu_architecture_evolution.md`。
+- 图片放在同主题目录的 `assets/` 下，文件名与文档引用保持语义一致。
+- 根目录只保留全局入口，不直接放具体专题笔记。
 
-## 当前阅读入口
+## 笔记写法
+
+每篇笔记尽量围绕这几个问题展开：
+
+1. 这个模块解决什么系统问题？
+2. 它的核心数据流 / 控制流是什么？
+3. 关键设计权衡和瓶颈在哪里？
+4. 代表性系统、论文、项目或官方资料有哪些？
+5. 它和 LLM Infra / RL Infra 的哪一层连接？
+
+## 阅读入口
 
 - [00-foundations](./00-foundations/README.md)
 - [01-llm-infra](./01-llm-infra/README.md)

@@ -1,78 +1,101 @@
 # 02 RL Infra
 
-这个目录用于整理强化学习相关基础设施，重点关注“**环境 - 采样 - 训练 - 评测 - 实验平台**”。
+这个目录整理强化学习基础设施相关笔记，重点关注环境、采样、训练、评测和大规模实验平台。
 
-## 子领域拆分
+这里不把重点放在单个 RL 算法推导上，而是关注算法要稳定、大规模、可复现地运行时，需要哪些系统组件。和 LLM 相关的 RLHF / RLAIF / post-training 内容也可以放在这里，但需要说明它和 [01-llm-infra](../01-llm-infra/README.md) 的连接点。
 
-### 1. 环境与仿真平台
+## 建议专题
 
-- Gym / Env 抽象
-- 模拟器与任务封装
-- 并行环境执行
-- 状态 / 动作 / 奖励定义
-- 环境版本管理
+### Environment Systems
 
-### 2. 采样与数据管线
+- Gym / Env 抽象、任务封装与环境版本管理
+- 模拟器、真实系统、在线环境与离线数据环境
+- 并行环境执行、状态同步、reset 与 episode 管理
+- 状态、动作、奖励、终止条件和安全约束定义
 
-- Rollout worker
-- Experience collection
-- Replay buffer
-- 优先级采样
-- 数据持久化与回放
+### Rollout and Data Pipeline
 
-### 3. 训练系统
+- Rollout worker、actor pool 与采样调度
+- Experience collection、trajectory storage 与 replay buffer
+- On-policy 数据新鲜度、off-policy 数据复用与优先级采样
+- 数据持久化、回放、过滤、重加权与样本质量分析
 
-- On-policy / Off-policy 流程
-- Learner / Actor 架构
-- 参数同步
-- 分布式训练
-- Checkpoint 与恢复
+### Training Systems
 
-### 4. Offline RL / Batch RL
+- Actor / Learner 架构与参数同步
+- On-policy、off-policy、offline RL 的系统差异
+- 单机、多机、异步、同步训练流程
+- Checkpoint、恢复、随机性控制与复现实验
+- 吞吐、样本效率、稳定性和资源利用率之间的权衡
 
-- 静态数据集管理
-- Dataset quality
-- OPE（Off-policy Evaluation）
-- 数据过滤与重加权
-- 训练可复现性
+### Experiment Platform
 
-### 5. 大规模实验平台
+- 实验编排、配置管理和超参数搜索
+- 多任务、多智能体、自博弈和联赛系统
+- 指标记录、结果对比、回归测试与实验归档
+- 失败任务恢复、资源调度、队列与优先级管理
 
-- 实验编排
-- 超参数搜索
-- 多任务 / 多智能体训练
-- 自博弈系统
-- 结果对比与回归
+### Offline RL and Dataset Infra
 
-### 6. RLHF / Post-training
+- 静态数据集管理、质量评估和覆盖度分析
+- OPE（Off-policy Evaluation）与评测可信度
+- 数据切分、版本、污染、偏差和复现
+- Batch RL 数据管线与训练任务解耦
 
-- Preference data pipeline
-- Reward model training
-- PPO / DPO / GRPO 等训练流程
-- Online feedback loop
-- 与 LLM Serving / Data Infra 的联动
+### RLHF and Post-training
 
-### 7. 评测与安全
+- Preference data pipeline、reward model 训练与数据版本
+- PPO、DPO、GRPO 等训练流程的系统边界
+- Online feedback loop、采样服务、模型服务和训练任务联动
+- Reward hacking、评测、安全约束与人工审核闭环
 
-- Reward hacking 分析
-- 泛化评测
-- 稳定性评测
-- 安全约束
-- 训练过程可观测性
+### Safety and Evaluation
 
-## 建议记录方式
+- 泛化评测、稳定性评测和压力测试
+- Reward hacking、specification gaming 与异常行为分析
+- 安全约束、干预机制和训练过程可观测性
+- 不同 seed、环境版本和策略版本之间的可比性
 
-可以从下面几个角度持续补充：
+## 推荐新增目录
 
-1. 算法假设依赖什么样的基础设施？
-2. 训练吞吐和样本效率如何平衡？
-3. 环境、采样器、训练器之间如何解耦？
-4. 哪些模块最容易成为实验不稳定来源？
+后续可以按专题逐步新增目录：
 
-## 可优先跟进的代表方向
+```text
+02-rl-infra/
+├── environment-systems/
+├── rollout-data-pipeline/
+├── training-systems/
+├── experiment-platform/
+├── offline-rl-dataset-infra/
+├── rlhf-post-training/
+└── safety-evaluation/
+```
 
-- Gymnasium / EnvPool / Isaac Gym
-- Ray RLlib / CleanRL / Acme
-- Replay buffer 与大规模 rollout 系统
-- Offline RL 数据集基础设施
-- RLHF / Post-training 与 LLM Infra 的交叉地带
+每个专题目录内先保持简单：
+
+```text
+topic-name/
+├── README.md
+├── main_note.md
+└── assets/
+```
+
+等某个专题变大后，再拆 `concepts/`、`papers/`、`projects/`、`notes/`。
+
+## 推荐阅读顺序
+
+1. 先看 `environment-systems`，明确 RL 系统里的任务边界和数据来源。
+2. 再看 `rollout-data-pipeline`，理解样本如何产生、存储、复用和调度。
+3. 接着看 `training-systems`，把 actor、learner、参数同步和 checkpoint 串起来。
+4. 然后看 `experiment-platform`，理解为什么 RL 实验管理比普通监督训练更麻烦。
+5. 最后看 `rlhf-post-training` 和 `safety-evaluation`，连接到 LLM 后训练与安全评测。
+
+## 笔记关注点
+
+每篇 RL Infra 笔记尽量回答：
+
+1. 这个模块服务的是环境、采样、训练、评测还是实验管理？
+2. 数据是在线产生、离线读取，还是两者混合？
+3. 系统瓶颈在样本生成、训练吞吐、同步通信、评测成本还是实验稳定性？
+4. 算法假设对基础设施提出了什么要求？
+5. 哪些问题最容易破坏可复现性和结果可信度？
