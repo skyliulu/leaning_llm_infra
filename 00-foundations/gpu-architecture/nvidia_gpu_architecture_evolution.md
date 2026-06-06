@@ -73,22 +73,7 @@ GPU 的许多概念只有放回它要解决的问题里才好理解。CPU 追求
 
 **吞吐量** 就是单位时间完成的总工作量。GPU 接受单个线程可能等待较久的事实，但通过同时驻留大量 warp 来隐藏等待。当一个 warp 等显存返回时，SM 调度另一个 ready warp，执行单元就不会停下来。
 
-```mermaid
-sequenceDiagram
-    participant W0 as Warp 0
-    participant SM as SM Warp Scheduler
-    participant MEM as Global Memory
-    participant W1 as Warp 1
-    participant W2 as Warp 2
-
-    W0->>SM: 发起 load
-    SM->>MEM: 访问显存
-    Note over W0,MEM: Warp 0 等待数百周期
-    SM->>W1: 切换执行 Warp 1
-    SM->>W2: 切换执行 Warp 2
-    MEM-->>SM: 数据返回
-    SM->>W0: Warp 0 恢复执行
-```
+![Warp 延迟隐藏时序图](assets/warp_latency_hiding_sequence.png)
 
 #### 1.2 NVIDIA GPU 的基本层级
 
@@ -434,19 +419,7 @@ Hyper-Q 和 Grid Management Unit 的意义就在这里：它们让 GPU 更直接
 
 Dynamic Parallelism 则把部分任务生成权交给 GPU。自适应网格、递归分治、图遍历等任务不必每一层都回到 CPU 发起新 kernel。
 
-```mermaid
-sequenceDiagram
-    participant CPU as CPU
-    participant K0 as Parent Kernel
-    participant GMU as Grid Management Unit
-    participant K1 as Child Kernel
-
-    CPU->>K0: 启动父 kernel
-    K0->>GMU: 在 GPU 端请求启动子 kernel
-    GMU->>K1: 调度子任务
-    K1-->>K0: 完成
-    K0-->>CPU: 返回
-```
+![Dynamic Parallelism 时序图](assets/dynamic_parallelism_sequence.png)
 
 ##### 5.5 Streams、shuffle 与 device-side launch
 
@@ -703,17 +676,7 @@ TF32 的价值是降低迁移门槛。很多训练代码原来使用 FP32，Ampe
 
 异步 copy 让 global memory 到 shared memory 的预取与计算重叠。
 
-```mermaid
-sequenceDiagram
-    participant GM as Global Memory
-    participant SH as Shared Memory
-    participant TC as Tensor/CUDA Core
-
-    GM->>SH: 预取 tile N+1
-    TC->>TC: 计算 tile N
-    Note over SH,TC: 搬运和计算重叠
-    SH->>TC: tile N+1 就绪
-```
+![异步 copy 与计算重叠时序图](assets/async_copy_compute_overlap_sequence.png)
 
 ##### 10.5 CUDA 11、MIG 管理与库默认路径
 
@@ -837,19 +800,7 @@ Hopper 的核心是让 Transformer 训练更快、更省、更可扩展：
 
 TMA 的工作方式可以理解为 tensor tile 的专用 DMA：
 
-```mermaid
-sequenceDiagram
-    participant HBM as HBM
-    participant TMA as Tensor Memory Accelerator
-    participant SH as Shared Memory
-    participant TC as Tensor Core
-
-    TMA->>HBM: 请求多维 tensor tile
-    HBM-->>TMA: 返回连续/多维数据块
-    TMA->>SH: 写入 shared memory
-    TC->>SH: 读取 tile
-    TC->>TC: 执行 MMA
-```
+![TMA tensor tile 搬运时序图](assets/tma_tensor_tile_sequence.png)
 
 ##### 12.5 Transformer Engine 与 CUDA cluster
 
@@ -1021,18 +972,7 @@ RT Core 出现，是因为光线追踪最重的一部分并不是材质表达，
 - SM 执行材质、阴影和递归逻辑。
 - Tensor Core 执行 denoising、super resolution 或 frame generation。
 
-```mermaid
-sequenceDiagram
-    participant SM as SM Shader
-    participant RT as RT Core
-    participant BVH as BVH/Geometry
-
-    SM->>RT: 发出 ray query
-    RT->>BVH: 遍历 BVH
-    RT->>BVH: 测试 box/triangle
-    RT-->>SM: 返回 hit/miss 和属性
-    SM->>SM: 执行材质/阴影 shader
-```
+![RT Core ray query 时序图](assets/rt_core_ray_query_sequence.png)
 
 ### 第 18 章 显存、缓存与互联
 
