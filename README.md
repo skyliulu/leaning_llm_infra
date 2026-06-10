@@ -6,6 +6,10 @@
 
 ```text
 .
+├── .agents/
+│   └── skills/              # 项目级 Codex 工作流与质量规范
+│       ├── write-technical-blog/
+│       └── design-technical-diagrams/
 ├── 00-foundations/          # 共性基础：GPU、系统、分布式、工程工具链
 │   ├── README.md
 │   └── gpu-architecture/
@@ -82,6 +86,13 @@
 3. 关键设计权衡和瓶颈在哪里？
 4. 代表性系统、论文、项目或官方资料有哪些？
 5. 它和 LLM Infra / RL Infra 的哪一层连接？
+
+## 项目级 Skills
+
+- [`write-technical-blog`](./.agents/skills/write-technical-blog/SKILL.md)：从资料分析、案例设计和术语铺垫，到公式推导、章节衔接、引用与发布验收。
+- [`design-technical-diagrams`](./.agents/skills/design-technical-diagrams/SKILL.md)：选择合适的制图方式，设计论文风格技术图，并通过结构检查和实际渲染完成验收。
+
+两个 Skill 可以独立使用，也可以组合使用：技术博客 Skill 负责文章主线，并在需要图解时调用技术图 Skill。
 
 ## 阅读入口
 

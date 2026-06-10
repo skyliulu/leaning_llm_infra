@@ -1,0 +1,4 @@
+interface:
+  display_name: "技术博客写作"
+  short_description: "从资料分析到连贯推导、图文组织与发布验收的技术博客写作流程"
+  default_prompt: "Use $write-technical-blog to turn source materials into a clear, rigorous technical article."

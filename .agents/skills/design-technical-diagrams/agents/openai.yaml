@@ -1,0 +1,4 @@
+interface:
+  display_name: "技术图设计"
+  short_description: "设计清晰、论文风格、语义准确并经过实际渲染验收的技术示意图"
+  default_prompt: "Use $design-technical-diagrams to create clear paper-style diagrams for a technical article."
