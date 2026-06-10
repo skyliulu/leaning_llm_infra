@@ -4,7 +4,7 @@
 
 ## 当前专题
 
-- [GPU Architecture](./gpu-architecture/README.md)：NVIDIA GPU 硬件层级、CUDA 编程模型、存储层级、Tensor Core / RT Core / NVLink，以及从 G80 到 Rubin / Vera Rubin 的架构演进。
+- [GPU Architecture](./gpu-architecture/README.md)：CUDA 编程模型、NVIDIA GPU 硬件层级、存储层级、Tensor Core / RT Core / NVLink，以及从 G80 到 Rubin / Vera Rubin 的架构演进。
 
 ## 建议补充方向
 
