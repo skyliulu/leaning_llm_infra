@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <defs>
+    <style>
+      .title{font:700 28px Arial,'Noto Sans CJK SC',sans-serif;fill:#111827}.label{font:700 18px Arial,'Noto Sans CJK SC',sans-serif;fill:#111827}.text{font:15px Arial,'Noto Sans CJK SC',sans-serif;fill:#374151}.small{font:13px Arial,'Noto Sans CJK SC',sans-serif;fill:#4b5563}.box{fill:#f8fafc;stroke:#334155;stroke-width:2;rx:15}.py{fill:#fef3c7;stroke:#d97706}.fw{fill:#dbeafe;stroke:#2563eb}.lib{fill:#dcfce7;stroke:#16a34a}.rt{fill:#ede9fe;stroke:#7c3aed}.hw{fill:#fee2e2;stroke:#dc2626}.arrow{stroke:#334155;stroke-width:3;fill:none;marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M2,2 L10,6 L2,10 Z" fill="#334155"/></marker>
+  </defs>
+  <text x="48" y="48" class="title">LLM Infra 中 CUDA 所处的软件栈</text>
+  <rect x="90" y="90" width="1090" height="72" class="box py"/><text x="125" y="125" class="label">Python / Model Code</text><text x="350" y="125" class="text">Transformer layer、optimizer、serving scheduler、batching、KV cache policy</text>
+  <rect x="90" y="190" width="1090" height="72" class="box fw"/><text x="125" y="225" class="label">Framework / Compiler</text><text x="350" y="225" class="text">PyTorch eager、torch.compile、XLA、TensorRT-LLM、vLLM、Triton codegen</text>
+  <rect x="90" y="290" width="1090" height="72" class="box lib"/><text x="125" y="325" class="label">CUDA Libraries</text><text x="350" y="325" class="text">cuBLAS / cuBLASLt、cuDNN、NCCL、CUTLASS、custom CUDA kernels</text>
+  <rect x="90" y="390" width="1090" height="72" class="box rt"/><text x="125" y="425" class="label">CUDA Runtime / Driver</text><text x="350" y="425" class="text">device context、memory allocation、streams / events、kernel launch、graph capture</text>
+  <rect x="90" y="490" width="1090" height="72" class="box hw"/><text x="125" y="525" class="label">NVIDIA GPU Hardware</text><text x="350" y="525" class="text">SM、warp scheduler、Tensor Core、L2、HBM、NVLink、copy engine、MIG / isolation</text>
+  <path d="M635 162 V190" class="arrow"/><path d="M635 262 V290" class="arrow"/><path d="M635 362 V390" class="arrow"/><path d="M635 462 V490" class="arrow"/>
+  <text x="110" y="600" class="small">排障时从上往下看：延迟尖刺可能来自 Python 同步或调度；吞吐不足可能来自 kernel 形态、library 选择、内存访问、通信重叠或硬件利用率。</text>
+</svg>
