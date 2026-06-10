@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520" viewBox="0 0 1000 520" role="img" aria-label="Generalized policy iteration">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#111"/>
+    </marker>
+    <style>
+      .box { fill:#f8f8f8; stroke:#111; stroke-width:2; rx:6; }
+      .title { font-family:Arial, Helvetica, sans-serif; font-size:28px; fill:#111; font-weight:700; }
+      .text { font-family:Arial, Helvetica, sans-serif; font-size:22px; fill:#111; }
+      .small { font-family:Arial, Helvetica, sans-serif; font-size:18px; fill:#111; }
+      .math { font-family:"Times New Roman", Times, serif; font-size:26px; fill:#111; }
+      .line { stroke:#111; stroke-width:2.4; fill:none; marker-end:url(#arrow); }
+      .dash { stroke:#111; stroke-width:1.8; fill:none; stroke-dasharray:6 5; marker-end:url(#arrow); }
+    </style>
+  </defs>
+  <text x="260" y="54" class="title">Generalized Policy Iteration</text>
+
+  <rect x="85" y="155" width="320" height="160" class="box"/>
+  <text x="138" y="202" class="text">Policy evaluation</text>
+  <text x="128" y="250" class="math">v_pi = r_pi + gamma P_pi v_pi</text>
+  <text x="145" y="287" class="small">estimate how good the current policy is</text>
+
+  <rect x="595" y="155" width="320" height="160" class="box"/>
+  <text x="642" y="202" class="text">Policy improvement</text>
+  <text x="640" y="250" class="math">pi' = greedy(v_pi)</text>
+  <text x="640" y="287" class="small">choose actions with larger values</text>
+
+  <path d="M408 220 C475 170 520 170 590 220" class="line"/>
+  <path d="M592 286 C520 360 475 360 405 286" class="line"/>
+
+  <rect x="350" y="385" width="300" height="70" class="box"/>
+  <text x="408" y="430" class="text">stable fixed point: optimal policy</text>
+  <path d="M245 318 C280 390 318 420 350 420" class="dash"/>
+  <path d="M755 318 C720 390 682 420 650 420" class="dash"/>
+
+  <text x="120" y="105" class="small">Value iteration: shallow evaluation, frequent improvement.</text>
+  <text x="555" y="105" class="small">Policy iteration: exact evaluation, then improvement.</text>
+</svg>

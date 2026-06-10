@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1050" height="520" viewBox="0 0 1050 520" role="img" aria-label="MDP interaction loop">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#111"/>
+    </marker>
+    <style>
+      .box { fill:#f8f8f8; stroke:#111; stroke-width:2; rx:6; }
+      .text { font-family:Arial, Helvetica, sans-serif; fill:#111; font-size:24px; font-weight:700; }
+      .small { font-family:Arial, Helvetica, sans-serif; fill:#111; font-size:18px; }
+      .math { font-family:"Times New Roman", Times, serif; fill:#111; font-size:25px; }
+      .line { stroke:#111; stroke-width:2.2; fill:none; marker-end:url(#arrow); }
+    </style>
+  </defs>
+  <text x="325" y="54" class="text">Agent-environment interaction as an MDP</text>
+  <rect x="110" y="170" width="260" height="130" class="box"/>
+  <text x="202" y="222" class="text">Agent</text>
+  <text x="145" y="264" class="math">policy pi(a|s)</text>
+  <rect x="680" y="170" width="260" height="130" class="box"/>
+  <text x="748" y="222" class="text">Environment</text>
+  <text x="708" y="264" class="math">p(s', r | s, a)</text>
+  <path d="M370 210 L678 210" class="line"/>
+  <text x="485" y="190" class="small">action a_t</text>
+  <path d="M680 260 L372 260" class="line"/>
+  <text x="450" y="305" class="small">next state s_{t+1}, reward r_{t+1}</text>
+  <rect x="410" y="375" width="240" height="70" class="box"/>
+  <text x="440" y="420" class="math">G_t = sum gamma^k R</text>
+  <path d="M240 302 C260 380 335 410 410 410" class="line"/>
+  <path d="M810 302 C790 380 725 410 650 410" class="line"/>
+  <text x="118" y="108" class="small">The policy controls actions.</text>
+  <text x="692" y="108" class="small">The environment controls transitions and rewards.</text>
+</svg>

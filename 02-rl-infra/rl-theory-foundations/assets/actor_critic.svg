@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="560" viewBox="0 0 1120 560" role="img" aria-label="Actor critic architecture">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#111"/>
+    </marker>
+    <style>
+      .box { fill:#f8f8f8; stroke:#111; stroke-width:2; rx:6; }
+      .node { fill:#fff; stroke:#111; stroke-width:2; }
+      .text { font-family:Arial, Helvetica, sans-serif; font-size:23px; fill:#111; font-weight:700; }
+      .small { font-family:Arial, Helvetica, sans-serif; font-size:18px; fill:#111; }
+      .math { font-family:"Times New Roman", Times, serif; font-size:24px; fill:#111; }
+      .line { stroke:#111; stroke-width:2.2; fill:none; marker-end:url(#arrow); }
+      .dash { stroke:#111; stroke-width:2; fill:none; stroke-dasharray:7 5; marker-end:url(#arrow); }
+    </style>
+  </defs>
+  <text x="385" y="52" class="text">Actor-Critic: policy update plus value estimation</text>
+
+  <rect x="85" y="115" width="230" height="120" class="box"/>
+  <text x="160" y="160" class="text">Actor</text>
+  <text x="118" y="200" class="math">pi(a|s, theta)</text>
+
+  <rect x="445" y="115" width="230" height="120" class="box"/>
+  <text x="510" y="160" class="text">Environment</text>
+  <text x="485" y="200" class="math">s, a -> r, s'</text>
+
+  <rect x="805" y="115" width="230" height="120" class="box"/>
+  <text x="875" y="160" class="text">Critic</text>
+  <text x="832" y="200" class="math">V(s,w) or Q(s,a,w)</text>
+
+  <path d="M315 175 L443 175" class="line"/>
+  <text x="355" y="158" class="small">action</text>
+  <path d="M675 175 L803 175" class="line"/>
+  <text x="708" y="158" class="small">sample</text>
+  <path d="M920 238 C850 330 405 330 205 238" class="dash"/>
+  <text x="455" y="355" class="math">advantage / TD error</text>
+
+  <rect x="265" y="400" width="590" height="85" class="box"/>
+  <text x="305" y="451" class="math">theta &lt;- theta + alpha grad log pi(a|s,theta) * delta</text>
+  <path d="M560 400 C535 340 300 300 215 235" class="line"/>
+  <path d="M560 400 C610 340 800 300 910 235" class="line"/>
+</svg>

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="540" viewBox="0 0 1160 540" role="img" aria-label="DQN dataflow with replay buffer and target network">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#111"/>
+    </marker>
+    <style>
+      .box { fill:#f8f8f8; stroke:#111; stroke-width:2; rx:6; }
+      .text { font-family:Arial, Helvetica, sans-serif; fill:#111; font-size:23px; font-weight:700; }
+      .small { font-family:Arial, Helvetica, sans-serif; fill:#111; font-size:18px; }
+      .math { font-family:"Times New Roman", Times, serif; fill:#111; font-size:23px; }
+      .line { stroke:#111; stroke-width:2.2; fill:none; marker-end:url(#arrow); }
+      .dash { stroke:#111; stroke-width:2; fill:none; stroke-dasharray:7 5; marker-end:url(#arrow); }
+    </style>
+  </defs>
+  <text x="390" y="52" class="text">Deep Q-learning dataflow</text>
+  <rect x="60" y="150" width="190" height="95" class="box"/>
+  <text x="96" y="190" class="text">Environment</text>
+  <text x="88" y="222" class="math">(s, a, r, s')</text>
+  <rect x="340" y="145" width="210" height="105" class="box"/>
+  <text x="380" y="188" class="text">Replay buffer</text>
+  <text x="368" y="222" class="small">stores transitions</text>
+  <rect x="655" y="90" width="230" height="100" class="box"/>
+  <text x="708" y="132" class="text">Main network</text>
+  <text x="698" y="165" class="math">Q(s,a,w)</text>
+  <rect x="655" y="305" width="230" height="100" class="box"/>
+  <text x="704" y="347" class="text">Target network</text>
+  <text x="690" y="380" class="math">Q(s,a,w_T)</text>
+  <rect x="950" y="195" width="170" height="115" class="box"/>
+  <text x="990" y="236" class="text">Loss</text>
+  <text x="970" y="272" class="math">(y - Q)^2</text>
+  <path d="M250 198 L338 198" class="line"/>
+  <path d="M550 190 C610 145 625 140 653 140" class="line"/>
+  <text x="570" y="122" class="small">mini-batch</text>
+  <path d="M550 215 C620 300 625 355 653 355" class="line"/>
+  <text x="565" y="330" class="small">same mini-batch</text>
+  <path d="M885 140 C920 155 940 185 960 210" class="line"/>
+  <path d="M885 355 C930 335 948 305 960 285" class="line"/>
+  <path d="M1035 310 C990 455 770 455 770 405" class="line"/>
+  <text x="860" y="465" class="small">gradient update w</text>
+  <path d="M770 190 L770 303" class="dash"/>
+  <text x="795" y="255" class="small">periodic copy w -> w_T</text>
+</svg>

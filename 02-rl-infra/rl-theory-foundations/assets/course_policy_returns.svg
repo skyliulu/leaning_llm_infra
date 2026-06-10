@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="610" viewBox="0 0 1280 610" role="img" aria-label="Two policies and their returns in the course gridworld">
+  <defs>
+    <marker id="arrowA" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#111"/>
+    </marker>
+    <style>
+      .cell { fill:#fff; stroke:#111; stroke-width:1.5; }
+      .bad { fill:#d0d0d0; stroke:#111; stroke-width:1.8; stroke-dasharray:6 4; }
+      .goal { fill:#f3f3f3; stroke:#111; stroke-width:2.5; }
+      .title { font-family:Arial, Helvetica, sans-serif; font-size:23px; fill:#111; font-weight:700; }
+      .text { font-family:Arial, Helvetica, sans-serif; font-size:17px; fill:#111; }
+      .math { font-family:"Times New Roman", Times, serif; font-size:22px; fill:#111; }
+      .pathA { stroke:#111; stroke-width:4; fill:none; marker-end:url(#arrowA); }
+      .pathB { stroke:#111; stroke-width:3; fill:none; stroke-dasharray:8 5; marker-end:url(#arrowA); }
+    </style>
+  </defs>
+  <text x="385" y="42" class="title">Two policies can reach the same target but have different returns</text>
+
+  <g transform="translate(75,105)">
+    <text x="65" y="-25" class="title">Policy 1: avoid forbidden cells</text>
+    <rect x="0" y="0" width="95" height="95" class="cell"/><text x="34" y="53" class="math">s1</text>
+    <rect x="95" y="0" width="95" height="95" class="cell"/><text x="129" y="53" class="math">s2</text>
+    <rect x="190" y="0" width="95" height="95" class="cell"/><text x="224" y="53" class="math">s3</text>
+    <rect x="0" y="95" width="95" height="95" class="cell"/><text x="34" y="148" class="math">s4</text>
+    <rect x="95" y="95" width="95" height="95" class="cell"/><text x="129" y="148" class="math">s5</text>
+    <rect x="190" y="95" width="95" height="95" class="bad"/><text x="224" y="148" class="math">s6</text>
+    <rect x="0" y="190" width="95" height="95" class="bad"/><text x="34" y="243" class="math">s7</text>
+    <rect x="95" y="190" width="95" height="95" class="cell"/><text x="129" y="243" class="math">s8</text>
+    <rect x="190" y="190" width="95" height="95" class="goal"/><text x="224" y="243" class="math">s9</text>
+    <path d="M48 48 L142 48" class="pathA"/>
+    <path d="M142 48 L142 142" class="pathA"/>
+    <path d="M142 142 L142 237" class="pathA"/>
+    <path d="M142 237 L237 237" class="pathA"/>
+    <text x="5" y="330" class="math">s1 -> s2 -> s5 -> s8 -> s9</text>
+    <text x="5" y="367" class="math">return = 0 + 0 + 0 + 1 = 1</text>
+  </g>
+
+  <g transform="translate(700,105)">
+    <text x="55" y="-25" class="title">Policy 2: pass through forbidden s7</text>
+    <rect x="0" y="0" width="95" height="95" class="cell"/><text x="34" y="53" class="math">s1</text>
+    <rect x="95" y="0" width="95" height="95" class="cell"/><text x="129" y="53" class="math">s2</text>
+    <rect x="190" y="0" width="95" height="95" class="cell"/><text x="224" y="53" class="math">s3</text>
+    <rect x="0" y="95" width="95" height="95" class="cell"/><text x="34" y="148" class="math">s4</text>
+    <rect x="95" y="95" width="95" height="95" class="cell"/><text x="129" y="148" class="math">s5</text>
+    <rect x="190" y="95" width="95" height="95" class="bad"/><text x="224" y="148" class="math">s6</text>
+    <rect x="0" y="190" width="95" height="95" class="bad"/><text x="34" y="243" class="math">s7</text>
+    <rect x="95" y="190" width="95" height="95" class="cell"/><text x="129" y="243" class="math">s8</text>
+    <rect x="190" y="190" width="95" height="95" class="goal"/><text x="224" y="243" class="math">s9</text>
+    <path d="M48 48 L48 142" class="pathB"/>
+    <path d="M48 142 L48 237" class="pathB"/>
+    <path d="M48 237 L142 237" class="pathB"/>
+    <path d="M142 237 L237 237" class="pathB"/>
+    <text x="0" y="330" class="math">s1 -> s4 -> s7 -> s8 -> s9</text>
+    <text x="0" y="367" class="math">return = 0 - 1 + 0 + 1 = 0</text>
+  </g>
+
+  <text x="245" y="550" class="text">Return evaluates the whole trajectory: the first policy is better even though both eventually reach the target.</text>
+</svg>

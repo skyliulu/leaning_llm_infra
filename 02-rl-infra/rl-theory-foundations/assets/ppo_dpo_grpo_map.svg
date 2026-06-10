@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="700" viewBox="0 0 1480 700" role="img" aria-label="从 Actor-Critic 到 PPO-based RLHF、DPO 与 GRPO 的关系图">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#202124"/>
+    </marker>
+    <style>
+      .box { fill:#ffffff; stroke:#202124; stroke-width:2; rx:6; }
+      .foundation { fill:#eef3f8; }
+      .online { fill:#eef7f1; }
+      .offline { fill:#f8f1eb; }
+      .title { font-family:"Microsoft YaHei",Arial,sans-serif; font-size:26px; font-weight:700; fill:#161718; }
+      .head { font-family:"Microsoft YaHei",Arial,sans-serif; font-size:22px; font-weight:700; fill:#161718; }
+      .body { font-family:"Microsoft YaHei",Arial,sans-serif; font-size:17px; fill:#303236; }
+      .label { font-family:"Microsoft YaHei",Arial,sans-serif; font-size:16px; font-weight:700; fill:#4b4f54; }
+      .line { stroke:#202124; stroke-width:2.2; fill:none; marker-end:url(#arrow); }
+      .dash { stroke:#5f6368; stroke-width:2; fill:none; stroke-dasharray:7 6; marker-end:url(#arrow); }
+      .divider { stroke:#9aa0a6; stroke-width:1.5; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1480" height="700" fill="#ffffff"/>
+  <text x="420" y="44" class="title">从策略梯度到大语言模型偏好优化</text>
+
+  <rect x="45" y="95" width="250" height="130" class="box foundation"/>
+  <text x="93" y="137" class="head">Actor-Critic</text>
+  <text x="72" y="174" class="body">Actor 更新策略</text>
+  <text x="72" y="202" class="body">Critic 估计 advantage</text>
+
+  <rect x="355" y="95" width="250" height="130" class="box foundation"/>
+  <text x="455" y="137" class="head">PPO</text>
+  <text x="382" y="174" class="body">clipped probability ratio</text>
+  <text x="382" y="202" class="body">GAE + value critic</text>
+
+  <path d="M295 160 L353 160" class="line"/>
+  <text x="304" y="139" class="label">稳定更新</text>
+
+  <rect x="720" y="95" width="330" height="130" class="box offline"/>
+  <text x="748" y="137" class="head">偏好数据与 KL 正则目标</text>
+  <text x="748" y="174" class="body">chosen / rejected comparisons</text>
+  <text x="748" y="202" class="body">reward - reference KL</text>
+
+  <line x1="55" y1="276" x2="1425" y2="276" class="divider"/>
+  <text x="55" y="264" class="label">语言模型偏好或奖励优化</text>
+
+  <rect x="70" y="335" width="385" height="260" class="box online"/>
+  <text x="156" y="380" class="head">PPO-based RLHF</text>
+  <text x="100" y="425" class="body">数据：当前策略在线生成回答</text>
+  <text x="100" y="462" class="body">评价：显式 reward model</text>
+  <text x="100" y="499" class="body">baseline：value critic</text>
+  <text x="100" y="536" class="body">约束：相对 reference 的 KL</text>
+  <text x="100" y="573" class="label">在线 rollout + PPO update</text>
+
+  <rect x="548" y="335" width="385" height="260" class="box offline"/>
+  <text x="704" y="380" class="head">DPO</text>
+  <text x="578" y="425" class="body">数据：离线 chosen / rejected pairs</text>
+  <text x="578" y="462" class="body">评价：偏好分类损失</text>
+  <text x="578" y="499" class="body">baseline：不需要 value critic</text>
+  <text x="578" y="536" class="body">约束：相对 reference 的 log-ratio</text>
+  <text x="578" y="573" class="label">无在线 rollout，无显式 reward model</text>
+
+  <rect x="1025" y="335" width="385" height="260" class="box online"/>
+  <text x="1178" y="380" class="head">GRPO</text>
+  <text x="1055" y="425" class="body">数据：同一 prompt 在线采样一组回答</text>
+  <text x="1055" y="462" class="body">评价：reward model 或 verifier</text>
+  <text x="1055" y="499" class="body">baseline：组内相对分数</text>
+  <text x="1055" y="536" class="body">约束：PPO clip + reference KL</text>
+  <text x="1055" y="573" class="label">在线 rollout，不需要 value critic</text>
+
+  <path d="M455 225 C420 275 300 290 260 333" class="line"/>
+  <text x="235" y="304" class="label">PPO + reward model</text>
+
+  <path d="M535 225 C670 272 1080 275 1190 333" class="line"/>
+  <text x="1050" y="304" class="label">PPO clip + group baseline</text>
+
+  <path d="M885 225 L760 333" class="dash"/>
+  <text x="682" y="304" class="label">偏好目标直接改写</text>
+
+  <text x="67" y="650" class="body">绿色：训练中需要当前策略生成新回答（online）</text>
+  <text x="548" y="650" class="body">橙色：使用固定偏好数据训练（offline）</text>
+  <text x="1025" y="650" class="body">共同点：都提高高质量回答的相对概率</text>
+</svg>

@@ -1,5 +1,9 @@
 # 02 RL Infra
 
+## Theory Foundations
+
+- [RL Theory Foundations](./rl-theory-foundations/README.md)：从 MDP、Bellman 方程、动态规划、Monte Carlo、TD、函数近似、policy gradient、actor-critic 到 PPO、DPO 与 GRPO 的基础理论主线。
+
 这个目录整理强化学习基础设施相关笔记，重点关注环境、采样、训练、评测和大规模实验平台。
 
 这里不把重点放在单个 RL 算法推导上，而是关注算法要稳定、大规模、可复现地运行时，需要哪些系统组件。和 LLM 相关的 RLHF / RLAIF / post-training 内容也可以放在这里，但需要说明它和 [01-llm-infra](../01-llm-infra/README.md) 的连接点。

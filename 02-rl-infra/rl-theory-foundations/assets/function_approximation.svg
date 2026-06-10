@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="520" viewBox="0 0 1100 520" role="img" aria-label="Value function approximation">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#111"/>
+    </marker>
+    <style>
+      .box { fill:#f8f8f8; stroke:#111; stroke-width:2; }
+      .cell { fill:#fff; stroke:#111; stroke-width:1.5; }
+      .text { font-family:Arial, Helvetica, sans-serif; font-size:23px; fill:#111; font-weight:700; }
+      .small { font-family:Arial, Helvetica, sans-serif; font-size:18px; fill:#111; }
+      .math { font-family:"Times New Roman", Times, serif; font-size:25px; fill:#111; }
+      .line { stroke:#111; stroke-width:2.3; fill:none; marker-end:url(#arrow); }
+      .curve { stroke:#111; stroke-width:2.5; fill:none; }
+    </style>
+  </defs>
+  <text x="330" y="52" class="text">From table lookup to function approximation</text>
+
+  <rect x="70" y="105" width="340" height="310" class="box"/>
+  <text x="115" y="150" class="text">Tabular value</text>
+  <g transform="translate(115,185)">
+    <rect x="0" y="0" width="100" height="45" class="cell"/><text x="36" y="30" class="math">s1</text>
+    <rect x="100" y="0" width="100" height="45" class="cell"/><text x="136" y="30" class="math">s2</text>
+    <rect x="200" y="0" width="100" height="45" class="cell"/><text x="236" y="30" class="math">s3</text>
+    <rect x="0" y="45" width="100" height="55" class="cell"/><text x="30" y="82" class="math">v1</text>
+    <rect x="100" y="45" width="100" height="55" class="cell"/><text x="130" y="82" class="math">v2</text>
+    <rect x="200" y="45" width="100" height="55" class="cell"/><text x="230" y="82" class="math">v3</text>
+  </g>
+  <text x="105" y="360" class="small">store one value per state or state-action pair</text>
+
+  <path d="M430 260 L565 260" class="line"/>
+
+  <rect x="610" y="105" width="410" height="310" class="box"/>
+  <text x="665" y="150" class="text">Parameterized function</text>
+  <circle cx="700" cy="265" r="32" class="cell"/><text x="690" y="274" class="math">s</text>
+  <rect x="775" y="220" width="120" height="90" class="cell"/>
+  <text x="803" y="257" class="math">f_w</text>
+  <text x="790" y="287" class="small">features / NN</text>
+  <circle cx="955" cy="265" r="40" class="cell"/><text x="928" y="274" class="math">V(s,w)</text>
+  <path d="M733 265 L773 265" class="line"/>
+  <path d="M895 265 L913 265" class="line"/>
+  <text x="650" y="360" class="math">minimize E[(V_pi(S) - V(S,w))^2]</text>
+</svg>

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1050" height="500" viewBox="0 0 1050 500" role="img" aria-label="epsilon greedy policy">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#111"/>
+    </marker>
+    <style>
+      .box { fill:#f8f8f8; stroke:#111; stroke-width:2; rx:6; }
+      .node { fill:#fff; stroke:#111; stroke-width:2; }
+      .text { font-family:Arial, Helvetica, sans-serif; fill:#111; font-size:24px; font-weight:700; }
+      .small { font-family:Arial, Helvetica, sans-serif; fill:#111; font-size:18px; }
+      .math { font-family:"Times New Roman", Times, serif; fill:#111; font-size:24px; }
+      .line { stroke:#111; stroke-width:2.2; fill:none; marker-end:url(#arrow); }
+      .bar { fill:#ddd; stroke:#111; stroke-width:1.5; }
+      .bar2 { fill:#fff; stroke:#111; stroke-width:1.5; }
+    </style>
+  </defs>
+  <text x="355" y="52" class="text">epsilon-greedy: keep learning while exploiting</text>
+  <rect x="80" y="130" width="275" height="220" class="box"/>
+  <text x="126" y="178" class="text">Value estimates</text>
+  <rect x="125" y="285" width="36" height="35" class="bar2"/><text x="131" y="270" class="small">a1</text>
+  <rect x="180" y="240" width="36" height="80" class="bar"/><text x="186" y="225" class="small">a2</text>
+  <rect x="235" y="270" width="36" height="50" class="bar2"/><text x="241" y="255" class="small">a3</text>
+  <text x="128" y="388" class="math">a* = argmax_a q(s,a)</text>
+  <path d="M355 240 L480 240" class="line"/>
+  <rect x="500" y="130" width="200" height="220" class="box"/>
+  <text x="555" y="178" class="text">Policy</text>
+  <circle cx="600" cy="245" r="60" class="node"/>
+  <text x="548" y="238" class="math">mostly a*</text>
+  <text x="566" y="268" class="math">sometimes random</text>
+  <path d="M700 240 L820 185" class="line"/>
+  <path d="M700 260 L820 315" class="line"/>
+  <rect x="835" y="132" width="145" height="90" class="box"/>
+  <text x="866" y="170" class="small">exploit</text>
+  <text x="865" y="198" class="math">1 - epsilon</text>
+  <rect x="835" y="278" width="145" height="90" class="box"/>
+  <text x="866" y="316" class="small">explore</text>
+  <text x="888" y="344" class="math">epsilon</text>
+</svg>

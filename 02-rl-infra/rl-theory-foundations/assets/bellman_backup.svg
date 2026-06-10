@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-label="Bellman backup schematic">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#111"/>
+    </marker>
+    <style>
+      .box { fill:#f7f7f7; stroke:#111; stroke-width:2; }
+      .cell { fill:#fff; stroke:#333; stroke-width:1.5; }
+      .cur { fill:#d9d9d9; stroke:#111; stroke-width:2.5; }
+      .next { fill:#efefef; stroke:#111; stroke-width:2; }
+      .bad { fill:#cfcfcf; stroke:#111; stroke-width:1.5; stroke-dasharray:5 4; }
+      .text { font-family:Arial, Helvetica, sans-serif; fill:#111; font-size:24px; }
+      .small { font-family:Arial, Helvetica, sans-serif; fill:#111; font-size:18px; }
+      .math { font-family:"Times New Roman", Times, serif; fill:#111; font-size:25px; }
+      .line { stroke:#111; stroke-width:2; fill:none; marker-end:url(#arrow); }
+      .thin { stroke:#111; stroke-width:1.5; fill:none; marker-end:url(#arrow); }
+    </style>
+  </defs>
+
+  <text x="80" y="48" class="text">State space view</text>
+  <text x="650" y="48" class="text">One-step Bellman backup</text>
+
+  <g transform="translate(80,90)">
+    <rect x="0" y="0" width="360" height="360" class="box"/>
+    <g>
+      <rect x="0" y="0" width="90" height="90" class="cell"/>
+      <rect x="90" y="0" width="90" height="90" class="cell"/>
+      <rect x="180" y="0" width="90" height="90" class="cell"/>
+      <rect x="270" y="0" width="90" height="90" class="cell"/>
+      <rect x="0" y="90" width="90" height="90" class="cell"/>
+      <rect x="90" y="90" width="90" height="90" class="cur"/>
+      <rect x="180" y="90" width="90" height="90" class="next"/>
+      <rect x="270" y="90" width="90" height="90" class="cell"/>
+      <rect x="0" y="180" width="90" height="90" class="cell"/>
+      <rect x="90" y="180" width="90" height="90" class="next"/>
+      <rect x="180" y="180" width="90" height="90" class="bad"/>
+      <rect x="270" y="180" width="90" height="90" class="cell"/>
+      <rect x="0" y="270" width="90" height="90" class="cell"/>
+      <rect x="90" y="270" width="90" height="90" class="cell"/>
+      <rect x="180" y="270" width="90" height="90" class="cell"/>
+      <rect x="270" y="270" width="90" height="90" class="next"/>
+    </g>
+    <text x="120" y="145" class="math">s</text>
+    <text x="205" y="145" class="math">s'</text>
+    <text x="115" y="235" class="math">s'</text>
+    <text x="294" y="326" class="math">s'</text>
+    <path d="M135 135 L198 135" class="thin"/>
+    <path d="M135 135 L135 198" class="thin"/>
+    <path d="M160 162 C230 230 270 280 294 305" class="thin"/>
+  </g>
+
+  <g transform="translate(585,95)">
+    <circle cx="70" cy="180" r="36" class="cur"/>
+    <text x="61" y="188" class="math">s</text>
+    <circle cx="210" cy="180" r="34" class="box"/>
+    <text x="202" y="188" class="math">a</text>
+    <path d="M108 180 L174 180" class="line"/>
+
+    <circle cx="390" cy="75" r="34" class="next"/>
+    <circle cx="390" cy="180" r="34" class="next"/>
+    <circle cx="390" cy="285" r="34" class="next"/>
+    <text x="374" y="83" class="math">s'1</text>
+    <text x="374" y="188" class="math">s'2</text>
+    <text x="374" y="293" class="math">s'3</text>
+    <path d="M243 165 C285 130 320 96 354 83" class="line"/>
+    <path d="M244 180 L354 180" class="line"/>
+    <path d="M243 195 C285 230 320 264 354 277" class="line"/>
+    <text x="270" y="103" class="small">p1, r1</text>
+    <text x="278" y="165" class="small">p2, r2</text>
+    <text x="270" y="265" class="small">p3, r3</text>
+
+    <rect x="535" y="138" width="230" height="84" rx="4" class="box"/>
+    <text x="570" y="190" class="math">E[r + gamma V(s')]</text>
+    <path d="M424 75 C480 92 510 118 540 150" class="thin"/>
+    <path d="M424 180 L535 180" class="thin"/>
+    <path d="M424 285 C480 268 510 242 540 210" class="thin"/>
+
+    <circle cx="875" cy="180" r="42" class="cur"/>
+    <text x="846" y="188" class="math">V(s)</text>
+    <path d="M765 180 L830 180" class="line"/>
+  </g>
+
+  <text x="80" y="492" class="small">Current estimate is updated by immediate reward plus discounted next-state value.</text>
+</svg>
