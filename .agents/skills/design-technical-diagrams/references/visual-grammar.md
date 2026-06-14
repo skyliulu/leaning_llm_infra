@@ -12,9 +12,11 @@
 
 - Use a broadly available sans-serif font for labels.
 - Use a serif math font only for formulas.
+- Typeset mathematical notation with LaTeX rather than approximating it with ordinary SVG text.
 - Use no more than four text levels.
 - Keep labels concise and use zero letter spacing.
 - Avoid tiny footnotes inside figures; move them to captions.
+- Preserve visible padding between text or formulas and node borders.
 
 ## Color
 
@@ -70,6 +72,7 @@ Avoid:
 - Render at final width and at 50% scale.
 - Check the longest label, not only average labels.
 - Verify no text crosses a box edge.
+- Verify subscripts, superscripts, and formula descenders are not cropped.
 - Verify lines do not pass through unrelated labels.
 - Verify arrowheads remain visible against fills.
 - Verify the background is opaque when the article viewer may use dark mode.

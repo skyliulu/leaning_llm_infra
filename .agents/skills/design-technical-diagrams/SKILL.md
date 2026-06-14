@@ -92,6 +92,8 @@ Avoid decorative gradients, glow, shadows, mascots, floating shapes, pseudo-3D b
 
 ## Implement exact diagrams
 
+When a diagram contains mathematical notation or will be published through Markdown/GitHub, read [references/math-and-publication-pipeline.md](references/math-and-publication-pipeline.md).
+
 For SVG:
 
 - set explicit `width`, `height`, and `viewBox`;
@@ -102,6 +104,12 @@ For SVG:
 - avoid relying on a rare local font;
 - use XML-valid escaping;
 - keep all arrows visually attached to their intended nodes.
+
+For Markdown articles viewed across GitHub, IDEs, and operating systems, keep SVG as the editable source but prefer a rendered high-resolution PNG as the published asset. This prevents font substitution, text-baseline differences, and viewer-specific SVG behavior from changing the layout.
+
+Do not convert a flawed SVG blindly: fix the source, render it, inspect the pixels, then update the article to reference the PNG. Separate files into editable sources, published assets, required rebuild inputs, and disposable previews; commit only the first three.
+
+Do not imitate mathematical notation with ordinary SVG text. Keep prose as native diagram text and render formulas from LaTeX. Give every formula an explicit placement box and verify that the final rendered formula stays clear of node edges, labels, and arrows.
 
 Run:
 
@@ -115,10 +123,12 @@ Never stop after XML parsing or successful generation.
 
 1. Render the final asset to a bitmap or open it in a browser.
 2. Inspect the actual pixels at the intended article width.
-3. Check text overflow, overlap, contrast, arrow attachment, cropping, and reading order.
-4. Check both light and dark viewers when transparency is possible.
-5. Revise until the meaning is clear without reading surrounding implementation code.
-6. Delete temporary preview files.
+3. Inspect every final figure, not only a contact sheet or representative sample.
+4. Check text overflow, formula padding, overlap, contrast, arrow attachment, cropping, and reading order.
+5. Check both light and dark viewers when transparency is possible.
+6. Revise until the meaning is clear without reading surrounding implementation code.
+7. Re-run structural validation and article image-reference validation.
+8. Delete temporary previews and confirm the rebuild leaves no repository-local scratch files.
 
 Use structural validation and visual inspection together. Neither replaces the other.
 
@@ -158,7 +168,11 @@ A figure is finished only when:
 - its teaching goal can be stated in one sentence;
 - every visible element supports that goal;
 - labels are legible at article width;
+- formulas use standard mathematical typesetting;
+- no text or formula crosses a node or canvas boundary;
+- no arrow passes through an unrelated label;
 - colors have semantic meaning;
 - arrows and grouping encode the intended relationship;
 - the caption explains the takeaway;
-- the rendered output has been visually inspected.
+- every rendered output has been visually inspected;
+- published assets can be rebuilt without relying on uncommitted temporary files.
