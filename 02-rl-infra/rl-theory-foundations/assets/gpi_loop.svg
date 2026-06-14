@@ -1,38 +1,41 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520" viewBox="0 0 1000 520" role="img" aria-label="Generalized policy iteration">
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="700" viewBox="0 0 1400 700" role="img" aria-label="Generalized Policy Iteration loop">
   <defs>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L0,6 L9,3 z" fill="#111"/>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#202124"/>
     </marker>
     <style>
-      .box { fill:#f8f8f8; stroke:#111; stroke-width:2; rx:6; }
-      .title { font-family:Arial, Helvetica, sans-serif; font-size:28px; fill:#111; font-weight:700; }
-      .text { font-family:Arial, Helvetica, sans-serif; font-size:22px; fill:#111; }
-      .small { font-family:Arial, Helvetica, sans-serif; font-size:18px; fill:#111; }
-      .math { font-family:"Times New Roman", Times, serif; font-size:26px; fill:#111; }
-      .line { stroke:#111; stroke-width:2.4; fill:none; marker-end:url(#arrow); }
-      .dash { stroke:#111; stroke-width:1.8; fill:none; stroke-dasharray:6 5; marker-end:url(#arrow); }
+      .box { fill:#f7f8fa; stroke:#202124; stroke-width:2; }
+      .goal { fill:#eef5f0; stroke:#202124; stroke-width:2; }
+      .title { font:700 30px Arial, sans-serif; fill:#161718; }
+      .head { font:700 24px Arial, sans-serif; fill:#161718; }
+      .body { font:19px Arial, sans-serif; fill:#303236; }
+      .math { font:22px "Times New Roman", serif; fill:#161718; }
+      .line { stroke:#202124; stroke-width:2.5; fill:none; marker-end:url(#arrow); }
+      .dash { stroke:#5f6368; stroke-width:2; fill:none; stroke-dasharray:8 6; marker-end:url(#arrow); }
     </style>
   </defs>
-  <text x="260" y="54" class="title">Generalized Policy Iteration</text>
+  <rect width="1400" height="700" fill="#fff"/>
+  <text x="700" y="52" text-anchor="middle" class="title">Generalized Policy Iteration</text>
+  <text x="700" y="91" text-anchor="middle" class="body">Evaluation and improvement repeatedly pull value and policy toward mutual consistency.</text>
 
-  <rect x="85" y="155" width="320" height="160" class="box"/>
-  <text x="138" y="202" class="text">Policy evaluation</text>
-  <text x="128" y="250" class="math">v_pi = r_pi + gamma P_pi v_pi</text>
-  <text x="145" y="287" class="small">estimate how good the current policy is</text>
+  <rect x="115" y="225" width="430" height="190" rx="6" class="box"/>
+  <text x="330" y="277" text-anchor="middle" class="head">Policy evaluation</text>
+  <text x="330" y="323" text-anchor="middle" class="math">vπ = rπ + γPπvπ</text>
+  <text x="330" y="364" text-anchor="middle" class="body">Estimate how well the current policy performs.</text>
 
-  <rect x="595" y="155" width="320" height="160" class="box"/>
-  <text x="642" y="202" class="text">Policy improvement</text>
-  <text x="640" y="250" class="math">pi' = greedy(v_pi)</text>
-  <text x="640" y="287" class="small">choose actions with larger values</text>
+  <rect x="855" y="225" width="430" height="190" rx="6" class="box"/>
+  <text x="1070" y="277" text-anchor="middle" class="head">Policy improvement</text>
+  <text x="1070" y="323" text-anchor="middle" class="math">π′(s) ∈ arg maxa qπ(s,a)</text>
+  <text x="1070" y="364" text-anchor="middle" class="body">Prefer actions with larger estimated return.</text>
 
-  <path d="M408 220 C475 170 520 170 590 220" class="line"/>
-  <path d="M592 286 C520 360 475 360 405 286" class="line"/>
+  <path d="M545 278 C650 178 750 178 852 278" class="line"/>
+  <text x="700" y="178" text-anchor="middle" class="body">values guide a better policy</text>
+  <path d="M855 366 C750 470 650 470 548 366" class="line"/>
+  <text x="700" y="480" text-anchor="middle" class="body">the new policy changes the values to evaluate</text>
 
-  <rect x="350" y="385" width="300" height="70" class="box"/>
-  <text x="408" y="430" class="text">stable fixed point: optimal policy</text>
-  <path d="M245 318 C280 390 318 420 350 420" class="dash"/>
-  <path d="M755 318 C720 390 682 420 650 420" class="dash"/>
-
-  <text x="120" y="105" class="small">Value iteration: shallow evaluation, frequent improvement.</text>
-  <text x="555" y="105" class="small">Policy iteration: exact evaluation, then improvement.</text>
+  <rect x="465" y="555" width="470" height="90" rx="6" class="goal"/>
+  <text x="700" y="592" text-anchor="middle" class="head">Stable fixed point</text>
+  <text x="700" y="624" text-anchor="middle" class="body">an optimal policy and its optimal value function</text>
+  <path d="M330 418 C365 520 430 575 462 590" class="dash"/>
+  <path d="M1070 418 C1035 520 970 575 938 590" class="dash"/>
 </svg>

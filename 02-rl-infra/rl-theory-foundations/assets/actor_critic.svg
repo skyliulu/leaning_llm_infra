@@ -1,41 +1,52 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="560" viewBox="0 0 1120 560" role="img" aria-label="Actor critic architecture">
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="700" viewBox="0 0 1400 700" role="img" aria-label="Actor-Critic policy and value learning loop">
   <defs>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L0,6 L9,3 z" fill="#111"/>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#202124"/>
     </marker>
     <style>
-      .box { fill:#f8f8f8; stroke:#111; stroke-width:2; rx:6; }
-      .node { fill:#fff; stroke:#111; stroke-width:2; }
-      .text { font-family:Arial, Helvetica, sans-serif; font-size:23px; fill:#111; font-weight:700; }
-      .small { font-family:Arial, Helvetica, sans-serif; font-size:18px; fill:#111; }
-      .math { font-family:"Times New Roman", Times, serif; font-size:24px; fill:#111; }
-      .line { stroke:#111; stroke-width:2.2; fill:none; marker-end:url(#arrow); }
-      .dash { stroke:#111; stroke-width:2; fill:none; stroke-dasharray:7 5; marker-end:url(#arrow); }
+      .box { fill:#f7f8fa; stroke:#202124; stroke-width:2; }
+      .signal { fill:#eef5f0; stroke:#202124; stroke-width:2; }
+      .title { font:700 30px Arial, sans-serif; fill:#161718; }
+      .head { font:700 24px Arial, sans-serif; fill:#161718; }
+      .body { font:19px Arial, sans-serif; fill:#303236; }
+      .math { font:22px "Times New Roman", serif; fill:#161718; }
+      .line { stroke:#202124; stroke-width:2.5; fill:none; marker-end:url(#arrow); }
+      .dash { stroke:#4f5357; stroke-width:2.2; fill:none; stroke-dasharray:8 6; marker-end:url(#arrow); }
     </style>
   </defs>
-  <text x="385" y="52" class="text">Actor-Critic: policy update plus value estimation</text>
+  <rect width="1400" height="700" fill="#fff"/>
+  <text x="700" y="52" text-anchor="middle" class="title">Actor-Critic: policy improvement guided by value estimation</text>
 
-  <rect x="85" y="115" width="230" height="120" class="box"/>
-  <text x="160" y="160" class="text">Actor</text>
-  <text x="118" y="200" class="math">pi(a|s, theta)</text>
+  <rect x="90" y="125" width="290" height="145" rx="6" class="box"/>
+  <text x="235" y="172" text-anchor="middle" class="head">Actor</text>
+  <text x="235" y="212" text-anchor="middle" class="math">πθ(a | s)</text>
+  <text x="235" y="244" text-anchor="middle" class="body">selects an action</text>
 
-  <rect x="445" y="115" width="230" height="120" class="box"/>
-  <text x="510" y="160" class="text">Environment</text>
-  <text x="485" y="200" class="math">s, a -> r, s'</text>
+  <rect x="555" y="125" width="290" height="145" rx="6" class="box"/>
+  <text x="700" y="172" text-anchor="middle" class="head">Environment</text>
+  <text x="700" y="212" text-anchor="middle" class="math">(st, at) → (rt+1, st+1)</text>
+  <text x="700" y="244" text-anchor="middle" class="body">produces experience</text>
 
-  <rect x="805" y="115" width="230" height="120" class="box"/>
-  <text x="875" y="160" class="text">Critic</text>
-  <text x="832" y="200" class="math">V(s,w) or Q(s,a,w)</text>
+  <rect x="1020" y="125" width="290" height="145" rx="6" class="box"/>
+  <text x="1165" y="172" text-anchor="middle" class="head">Critic</text>
+  <text x="1165" y="212" text-anchor="middle" class="math">Vw(s) or Qw(s,a)</text>
+  <text x="1165" y="244" text-anchor="middle" class="body">estimates expected value</text>
 
-  <path d="M315 175 L443 175" class="line"/>
-  <text x="355" y="158" class="small">action</text>
-  <path d="M675 175 L803 175" class="line"/>
-  <text x="708" y="158" class="small">sample</text>
-  <path d="M920 238 C850 330 405 330 205 238" class="dash"/>
-  <text x="455" y="355" class="math">advantage / TD error</text>
+  <path d="M380 198 L552 198" class="line"/>
+  <text x="466" y="181" text-anchor="middle" class="body">selected action</text>
+  <path d="M845 198 L1017 198" class="line"/>
+  <text x="931" y="181" text-anchor="middle" class="body">transition sample</text>
 
-  <rect x="265" y="400" width="590" height="85" class="box"/>
-  <text x="305" y="451" class="math">theta &lt;- theta + alpha grad log pi(a|s,theta) * delta</text>
-  <path d="M560 400 C535 340 300 300 215 235" class="line"/>
-  <path d="M560 400 C610 340 800 300 910 235" class="line"/>
+  <rect x="980" y="360" width="370" height="115" rx="6" class="signal"/>
+  <text x="1165" y="402" text-anchor="middle" class="head">Learning signal</text>
+  <text x="1165" y="443" text-anchor="middle" class="math">δt = rt+1 + γVw(st+1) − Vw(st)</text>
+  <path d="M1165 270 L1165 357" class="line"/>
+
+  <rect x="320" y="525" width="760" height="105" rx="6" class="box"/>
+  <text x="700" y="565" text-anchor="middle" class="head">Actor update</text>
+  <text x="700" y="605" text-anchor="middle" class="math">θ ← θ + α ∇θ log πθ(at | st) δt</text>
+
+  <path d="M980 432 C900 455 850 488 825 522" class="line"/>
+  <path d="M320 578 C180 558 150 400 215 273" class="dash"/>
+  <text x="84" y="416" class="body">updated policy</text>
 </svg>

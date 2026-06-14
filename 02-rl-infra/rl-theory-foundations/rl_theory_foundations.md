@@ -24,7 +24,7 @@
 
 环境是一个 3×3 网格，共有 9 个格子。机器人从左上角 \(s_1\) 出发，目标格是右下角 \(s_9\)。\(s_6\) 和 \(s_7\) 是禁区，但禁区不是墙：机器人仍然可以进入，只是会受到惩罚。
 
-![Course gridworld](assets/running_gridworld.svg)
+![Course gridworld](assets/running_gridworld.png)
 
 <small>图 0-1：3×3 grid world。禁区可进入但有负奖励；机器人还可能撞击边界并停留在原状态。</small>
 
@@ -164,7 +164,7 @@ s_9,
 G=0-1+0+1=0.
 \]
 
-![Two course policies](assets/course_policy_returns.svg)
+![Two course policies](assets/course_policy_returns.png)
 
 <small>图 0-2：两条策略都能到达目标，但第一条避开禁区，因此 return 更高。return 开始把“好策略”从直觉变成可比较的数值。</small>
 
@@ -235,7 +235,7 @@ Markov 性质的直觉是：只要当前状态已经包含决策所需的信息�
 5. 如果状态空间太大，怎样从表格扩展到函数和神经网络？
 6. 如果不想通过 value 间接得到策略，怎样直接优化策略？
 
-![RL theory storyline](assets/rl_storyline.svg)
+![RL theory storyline](assets/rl_storyline.png)
 
 <small>图 0-3：全文故事线。后一个方法不是凭空出现，而是在解决前一个方法暴露出的限制。</small>
 
@@ -549,7 +549,7 @@ G_0
 
 折扣因子的作用有两层。第一，它表达“越近的奖励越重要”；第二，它让无限时域的累计回报在数学上更容易收敛。若 \(\gamma\) 越接近 1，智能体越看重长期结果；若 \(\gamma\) 越接近 0，智能体越短视。
 
-![MDP loop](assets/mdp_loop.svg)
+![MDP loop](assets/mdp_loop.png)
 
 <small>图 1：MDP 把强化学习的交互写成闭环。策略决定动作，环境决定转移和奖励，return 把未来奖励汇总成优化目标。</small>
 
@@ -672,7 +672,7 @@ v_\pi(s)
 
 这就是策略评价的核心：**一个状态的价值，等于当前一步的期望奖励，加上下一状态价值的折扣期望**。
 
-![Bellman backup](assets/bellman_backup.svg)
+![Bellman backup](assets/bellman_backup.png)
 
 <small>图 2：Bellman backup 的信息流。当前状态 \(s\) 经过动作 \(a\) 分支到多个下一状态 \(s'\)，每条分支带有转移概率和即时奖励，最后汇总成 \(V(s)\)。</small>
 
@@ -905,7 +905,7 @@ v_{\pi_k}=r_{\pi_k}+\gamma P_{\pi_k}v_{\pi_k}.
 
 这其实就是“先评估当前策略，再贪心地让策略变好”。
 
-![Generalized policy iteration](assets/gpi_loop.svg)
+![Generalized policy iteration](assets/gpi_loop.png)
 
 <small>图 3：Generalized Policy Iteration。许多 RL 算法都可以看成 value estimate 和 policy improvement 的相互追赶。</small>
 
@@ -1058,7 +1058,7 @@ a^*=\arg\max_a q(s,a).
 
 它同时包含 exploitation 和 exploration：大部分时间选择当前最优动作，小部分时间探索其他动作。
 
-![epsilon greedy](assets/epsilon_greedy.svg)
+![epsilon greedy](assets/epsilon_greedy.png)
 
 <small>图 4：\(\epsilon\)-greedy 用大概率利用当前最优动作，同时保留小概率探索其他动作，避免过早锁死在错误估计上。</small>
 
@@ -1145,7 +1145,7 @@ TD learning 结合了 Monte Carlo 和 dynamic programming 的思想。
 
 它像 MC 一样不需要模型，只使用经验样本；又像 DP 一样使用 bootstrap，也就是用当前 value estimate 来构造 target。
 
-![MC TD DP comparison](assets/mc_td_dp_comparison.svg)
+![MC TD DP comparison](assets/mc_td_dp_comparison.png)
 
 <small>图 5：DP 使用模型对所有下一状态求和，MC 等完整 return，TD 使用一步样本和下一状态的当前估计。</small>
 
@@ -1346,7 +1346,7 @@ R_{t+1}+\gamma\max_{a'}q_*(S_{t+1},a')
 \hat{q}(s,a,w)\approx q_\pi(s,a).
 \]
 
-![Function approximation](assets/function_approximation.svg)
+![Function approximation](assets/function_approximation.png)
 
 <small>图 6：从 tabular representation 到 function approximation。代价是引入近似误差，收益是泛化和存储效率。</small>
 
@@ -1492,7 +1492,7 @@ r+\gamma\max_{a'}\hat{q}(s',a',w_T)
 
 存起来，每次从 buffer 中近似均匀采样 mini-batch。这样既打散相关性，又提高样本复用率。
 
-![DQN dataflow](assets/dqn_dataflow.svg)
+![DQN dataflow](assets/dqn_dataflow.png)
 
 <small>图 7：DQN 的两个稳定化组件。Replay buffer 改变数据使用方式，target network 改变 target 的变化速度。</small>
 
@@ -1645,7 +1645,7 @@ Actor-Critic 仍然属于 policy gradient 方法。它的名字强调结构：
 - Actor：策略 \(\pi(a|s,\theta)\)，负责选择动作并更新策略参数。
 - Critic：价值函数 \(v(s,w)\) 或 \(q(s,a,w)\)，负责评价当前动作或状态。
 
-![Actor critic](assets/actor_critic.svg)
+![Actor critic](assets/actor_critic.png)
 
 <small>图 8：Actor-Critic 把 policy update 和 value estimation 放在同一个闭环中。Critic 给出 advantage 或 TD error，Actor 用它更新策略。</small>
 
@@ -1972,7 +1972,7 @@ PPO 没有离开 Actor-Critic：actor 仍是策略，critic 仍估计 value，ad
 
 语言模型的动作空间是巨大词表，episode 可能包含数百个 token，而许多任务只在完整回答结束后给出一个标量奖励。奖励稀疏、序列很长，因此 credit assignment 和稳定更新都更困难。
 
-![PPO, RLHF, DPO and GRPO](assets/ppo_dpo_grpo_map.svg)
+![PPO, RLHF, DPO and GRPO](assets/ppo_dpo_grpo_map.png)
 
 <small>图 9：PPO-based RLHF 与 GRPO 延续在线 rollout 和策略更新；DPO 从带 KL 正则的偏好目标出发，直接使用离线偏好对训练。三者不应被理解为一条简单的替代链。</small>
 

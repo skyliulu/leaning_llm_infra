@@ -14,6 +14,7 @@
       .pathB { stroke:#111; stroke-width:3; fill:none; stroke-dasharray:8 5; marker-end:url(#arrowA); }
     </style>
   </defs>
+  <rect width="100%" height="100%" fill="#fff"/>
   <text x="385" y="42" class="title">Two policies can reach the same target but have different returns</text>
 
   <g transform="translate(75,105)">

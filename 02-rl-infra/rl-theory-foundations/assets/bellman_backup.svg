@@ -1,84 +1,71 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-label="Bellman backup schematic">
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="720" viewBox="0 0 1500 720" role="img" aria-label="One-step Bellman backup from successor states to the current state">
   <defs>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L0,6 L9,3 z" fill="#111"/>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#202124"/>
     </marker>
     <style>
-      .box { fill:#f7f7f7; stroke:#111; stroke-width:2; }
-      .cell { fill:#fff; stroke:#333; stroke-width:1.5; }
-      .cur { fill:#d9d9d9; stroke:#111; stroke-width:2.5; }
-      .next { fill:#efefef; stroke:#111; stroke-width:2; }
-      .bad { fill:#cfcfcf; stroke:#111; stroke-width:1.5; stroke-dasharray:5 4; }
-      .text { font-family:Arial, Helvetica, sans-serif; fill:#111; font-size:24px; }
-      .small { font-family:Arial, Helvetica, sans-serif; fill:#111; font-size:18px; }
-      .math { font-family:"Times New Roman", Times, serif; fill:#111; font-size:25px; }
-      .line { stroke:#111; stroke-width:2; fill:none; marker-end:url(#arrow); }
-      .thin { stroke:#111; stroke-width:1.5; fill:none; marker-end:url(#arrow); }
+      .panel { fill:#f7f8fa; stroke:#202124; stroke-width:2; }
+      .cell { fill:#fff; stroke:#202124; stroke-width:1.6; }
+      .current { fill:#e8eef4; stroke:#202124; stroke-width:2.5; }
+      .next { fill:#eef5f0; stroke:#202124; stroke-width:2; }
+      .title { font:700 30px Arial, sans-serif; fill:#161718; }
+      .head { font:700 24px Arial, sans-serif; fill:#161718; }
+      .body { font:19px Arial, sans-serif; fill:#303236; }
+      .math { font:22px "Times New Roman", serif; fill:#161718; }
+      .line { stroke:#202124; stroke-width:2.4; fill:none; marker-end:url(#arrow); }
+      .thin { stroke:#5f6368; stroke-width:2; fill:none; marker-end:url(#arrow); }
     </style>
   </defs>
+  <rect width="1500" height="720" fill="#fff"/>
+  <text x="750" y="50" text-anchor="middle" class="title">One-step Bellman backup</text>
 
-  <text x="80" y="48" class="text">State space view</text>
-  <text x="650" y="48" class="text">One-step Bellman backup</text>
-
-  <g transform="translate(80,90)">
-    <rect x="0" y="0" width="360" height="360" class="box"/>
-    <g>
-      <rect x="0" y="0" width="90" height="90" class="cell"/>
-      <rect x="90" y="0" width="90" height="90" class="cell"/>
-      <rect x="180" y="0" width="90" height="90" class="cell"/>
-      <rect x="270" y="0" width="90" height="90" class="cell"/>
-      <rect x="0" y="90" width="90" height="90" class="cell"/>
-      <rect x="90" y="90" width="90" height="90" class="cur"/>
-      <rect x="180" y="90" width="90" height="90" class="next"/>
-      <rect x="270" y="90" width="90" height="90" class="cell"/>
-      <rect x="0" y="180" width="90" height="90" class="cell"/>
-      <rect x="90" y="180" width="90" height="90" class="next"/>
-      <rect x="180" y="180" width="90" height="90" class="bad"/>
-      <rect x="270" y="180" width="90" height="90" class="cell"/>
-      <rect x="0" y="270" width="90" height="90" class="cell"/>
-      <rect x="90" y="270" width="90" height="90" class="cell"/>
-      <rect x="180" y="270" width="90" height="90" class="cell"/>
-      <rect x="270" y="270" width="90" height="90" class="next"/>
-    </g>
-    <text x="120" y="145" class="math">s</text>
-    <text x="205" y="145" class="math">s'</text>
-    <text x="115" y="235" class="math">s'</text>
-    <text x="294" y="326" class="math">s'</text>
-    <path d="M135 135 L198 135" class="thin"/>
-    <path d="M135 135 L135 198" class="thin"/>
-    <path d="M160 162 C230 230 270 280 294 305" class="thin"/>
+  <rect x="60" y="95" width="590" height="535" rx="6" class="panel"/>
+  <text x="355" y="140" text-anchor="middle" class="head">State-space view</text>
+  <g transform="translate(155,185)">
+    <rect x="0" y="0" width="400" height="400" class="cell"/>
+    <path d="M100 0 V400 M200 0 V400 M300 0 V400 M0 100 H400 M0 200 H400 M0 300 H400" stroke="#202124" stroke-width="1.6"/>
+    <rect x="100" y="100" width="100" height="100" class="current"/>
+    <rect x="200" y="100" width="100" height="100" class="next"/>
+    <rect x="100" y="200" width="100" height="100" class="next"/>
+    <rect x="300" y="300" width="100" height="100" class="next"/>
+    <text x="150" y="160" text-anchor="middle" class="math">s</text>
+    <text x="250" y="160" text-anchor="middle" class="math">s′</text>
+    <text x="150" y="260" text-anchor="middle" class="math">s′</text>
+    <text x="350" y="360" text-anchor="middle" class="math">s′</text>
+    <path d="M180 150 L222 150" class="thin"/>
+    <path d="M150 180 L150 222" class="thin"/>
+    <path d="M180 180 C240 240 300 300 328 328" class="thin"/>
   </g>
 
-  <g transform="translate(585,95)">
-    <circle cx="70" cy="180" r="36" class="cur"/>
-    <text x="61" y="188" class="math">s</text>
-    <circle cx="210" cy="180" r="34" class="box"/>
-    <text x="202" y="188" class="math">a</text>
-    <path d="M108 180 L174 180" class="line"/>
+  <rect x="700" y="95" width="740" height="535" rx="6" class="panel"/>
+  <text x="1070" y="140" text-anchor="middle" class="head">Expected one-step target</text>
 
-    <circle cx="390" cy="75" r="34" class="next"/>
-    <circle cx="390" cy="180" r="34" class="next"/>
-    <circle cx="390" cy="285" r="34" class="next"/>
-    <text x="374" y="83" class="math">s'1</text>
-    <text x="374" y="188" class="math">s'2</text>
-    <text x="374" y="293" class="math">s'3</text>
-    <path d="M243 165 C285 130 320 96 354 83" class="line"/>
-    <path d="M244 180 L354 180" class="line"/>
-    <path d="M243 195 C285 230 320 264 354 277" class="line"/>
-    <text x="270" y="103" class="small">p1, r1</text>
-    <text x="278" y="165" class="small">p2, r2</text>
-    <text x="270" y="265" class="small">p3, r3</text>
+  <circle cx="785" cy="345" r="38" class="current"/>
+  <text x="785" y="353" text-anchor="middle" class="math">s</text>
+  <circle cx="925" cy="345" r="38" class="cell"/>
+  <text x="925" y="353" text-anchor="middle" class="math">a</text>
+  <path d="M825 345 L884 345" class="line"/>
 
-    <rect x="535" y="138" width="230" height="84" rx="4" class="box"/>
-    <text x="570" y="190" class="math">E[r + gamma V(s')]</text>
-    <path d="M424 75 C480 92 510 118 540 150" class="thin"/>
-    <path d="M424 180 L535 180" class="thin"/>
-    <path d="M424 285 C480 268 510 242 540 210" class="thin"/>
+  <circle cx="1095" cy="235" r="36" class="next"/>
+  <circle cx="1095" cy="345" r="36" class="next"/>
+  <circle cx="1095" cy="455" r="36" class="next"/>
+  <text x="1095" y="243" text-anchor="middle" class="math">s′1</text>
+  <text x="1095" y="353" text-anchor="middle" class="math">s′2</text>
+  <text x="1095" y="463" text-anchor="middle" class="math">s′3</text>
+  <path d="M963 329 C1010 285 1035 252 1058 242" class="line"/>
+  <path d="M965 345 L1056 345" class="line"/>
+  <path d="M963 361 C1010 405 1035 438 1058 448" class="line"/>
+  <text x="990" y="257" class="math">p1, r1</text>
+  <text x="990" y="330" class="math">p2, r2</text>
+  <text x="990" y="438" class="math">p3, r3</text>
 
-    <circle cx="875" cy="180" r="42" class="cur"/>
-    <text x="846" y="188" class="math">V(s)</text>
-    <path d="M765 180 L830 180" class="line"/>
-  </g>
+  <rect x="1210" y="280" width="190" height="130" rx="6" class="next"/>
+  <text x="1305" y="326" text-anchor="middle" class="head">Bellman target</text>
+  <text x="1305" y="367" text-anchor="middle" class="math">r + γV(s′)</text>
+  <path d="M1132 235 C1170 250 1185 275 1208 302" class="thin"/>
+  <path d="M1133 345 L1208 345" class="thin"/>
+  <path d="M1132 455 C1170 440 1185 415 1208 388" class="thin"/>
 
-  <text x="80" y="492" class="small">Current estimate is updated by immediate reward plus discounted next-state value.</text>
+  <text x="1070" y="555" text-anchor="middle" class="math">V(s) ← Eπ,p [ r + γV(s′) | s ]</text>
+  <text x="1070" y="592" text-anchor="middle" class="body">Average immediate reward and discounted successor value.</text>
 </svg>

@@ -1,79 +1,83 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="590" viewBox="0 0 1180 590" role="img" aria-label="Three by three gridworld from the course">
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="760" viewBox="0 0 1500 760" role="img" aria-label="Three by three gridworld with actions and reward rules">
   <defs>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L0,6 L9,3 z" fill="#111"/>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#202124"/>
     </marker>
     <style>
-      .cell { fill:#fff; stroke:#111; stroke-width:1.7; }
-      .start { fill:#e0e0e0; stroke:#111; stroke-width:2.4; }
-      .goal { fill:#f3f3f3; stroke:#111; stroke-width:3; }
-      .bad { fill:#c9c9c9; stroke:#111; stroke-width:2; stroke-dasharray:7 5; }
-      .title { font-family:Arial, Helvetica, sans-serif; font-size:24px; fill:#111; font-weight:700; }
-      .text { font-family:Arial, Helvetica, sans-serif; font-size:18px; fill:#111; }
-      .math { font-family:"Times New Roman", Times, serif; font-size:24px; fill:#111; }
-      .line { stroke:#111; stroke-width:2.2; fill:none; marker-end:url(#arrow); }
+      .cell { fill:#fff; stroke:#202124; stroke-width:2; }
+      .start { fill:#e8eef4; stroke:#202124; stroke-width:2.5; }
+      .goal { fill:#eaf4ed; stroke:#202124; stroke-width:3; }
+      .bad { fill:#f4e9e5; stroke:#202124; stroke-width:2; stroke-dasharray:8 6; }
+      .panel { fill:#f7f8fa; stroke:#202124; stroke-width:2; }
+      .title { font:700 30px Arial, sans-serif; fill:#161718; }
+      .head { font:700 24px Arial, sans-serif; fill:#161718; }
+      .body { font:19px Arial, sans-serif; fill:#303236; }
+      .math { font:22px "Times New Roman", serif; fill:#161718; }
+      .line { stroke:#202124; stroke-width:2.5; fill:none; marker-end:url(#arrow); }
     </style>
   </defs>
-  <text x="330" y="45" class="title">The 3 x 3 gridworld used throughout the course</text>
+  <rect width="1500" height="760" fill="#fff"/>
+  <text x="750" y="52" text-anchor="middle" class="title">The 3 × 3 gridworld used throughout the article</text>
 
-  <g transform="translate(90,110)">
-    <rect x="0" y="0" width="115" height="115" class="start"/>
-    <rect x="115" y="0" width="115" height="115" class="cell"/>
-    <rect x="230" y="0" width="115" height="115" class="cell"/>
-    <rect x="0" y="115" width="115" height="115" class="cell"/>
-    <rect x="115" y="115" width="115" height="115" class="cell"/>
-    <rect x="230" y="115" width="115" height="115" class="bad"/>
-    <rect x="0" y="230" width="115" height="115" class="bad"/>
-    <rect x="115" y="230" width="115" height="115" class="cell"/>
-    <rect x="230" y="230" width="115" height="115" class="goal"/>
+  <text x="275" y="112" text-anchor="middle" class="head">Environment</text>
+  <g transform="translate(80,145)">
+    <rect x="0" y="0" width="130" height="130" class="start"/>
+    <rect x="130" y="0" width="130" height="130" class="cell"/>
+    <rect x="260" y="0" width="130" height="130" class="cell"/>
+    <rect x="0" y="130" width="130" height="130" class="cell"/>
+    <rect x="130" y="130" width="130" height="130" class="cell"/>
+    <rect x="260" y="130" width="130" height="130" class="bad"/>
+    <rect x="0" y="260" width="130" height="130" class="bad"/>
+    <rect x="130" y="260" width="130" height="130" class="cell"/>
+    <rect x="260" y="260" width="130" height="130" class="goal"/>
 
-    <text x="45" y="58" class="math">s1</text>
-    <text x="160" y="58" class="math">s2</text>
-    <text x="275" y="58" class="math">s3</text>
-    <text x="45" y="173" class="math">s4</text>
-    <text x="160" y="173" class="math">s5</text>
-    <text x="275" y="173" class="math">s6</text>
-    <text x="45" y="288" class="math">s7</text>
-    <text x="160" y="288" class="math">s8</text>
-    <text x="275" y="288" class="math">s9</text>
+    <text x="65" y="55" text-anchor="middle" class="math">s1</text>
+    <text x="195" y="55" text-anchor="middle" class="math">s2</text>
+    <text x="325" y="55" text-anchor="middle" class="math">s3</text>
+    <text x="65" y="185" text-anchor="middle" class="math">s4</text>
+    <text x="195" y="185" text-anchor="middle" class="math">s5</text>
+    <text x="325" y="185" text-anchor="middle" class="math">s6</text>
+    <text x="65" y="315" text-anchor="middle" class="math">s7</text>
+    <text x="195" y="315" text-anchor="middle" class="math">s8</text>
+    <text x="325" y="315" text-anchor="middle" class="math">s9</text>
 
-    <text x="35" y="91" class="text">start</text>
-    <text x="249" y="207" class="text">forbidden</text>
-    <text x="20" y="322" class="text">forbidden</text>
-    <text x="269" y="322" class="text">target</text>
+    <text x="65" y="91" text-anchor="middle" class="body">start</text>
+    <text x="325" y="221" text-anchor="middle" class="body">forbidden</text>
+    <text x="65" y="351" text-anchor="middle" class="body">forbidden</text>
+    <text x="325" y="351" text-anchor="middle" class="body">target</text>
   </g>
 
-  <g transform="translate(525,90)">
-    <text x="0" y="20" class="title">Actions at every state</text>
-    <circle cx="155" cy="145" r="38" class="cell"/>
-    <text x="143" y="153" class="math">s</text>
-    <path d="M155 105 L155 52" class="line"/>
-    <path d="M195 145 L250 145" class="line"/>
-    <path d="M155 185 L155 240" class="line"/>
-    <path d="M115 145 L60 145" class="line"/>
-    <circle cx="155" cy="145" r="10" fill="#111"/>
-    <text x="174" y="66" class="text">a1: up</text>
-    <text x="254" y="151" class="text">a2: right</text>
-    <text x="174" y="238" class="text">a3: down</text>
-    <text x="0" y="151" class="text">a4: left</text>
-    <text x="174" y="181" class="text">a5: stay</text>
-  </g>
+  <rect x="575" y="145" width="355" height="390" rx="6" class="panel"/>
+  <text x="752" y="192" text-anchor="middle" class="head">Five actions at every state</text>
+  <circle cx="752" cy="338" r="44" class="cell"/>
+  <circle cx="752" cy="338" r="9" fill="#202124"/>
+  <path d="M752 292 L752 238" class="line"/>
+  <path d="M798 338 L852 338" class="line"/>
+  <path d="M752 384 L752 438" class="line"/>
+  <path d="M706 338 L652 338" class="line"/>
+  <text x="770" y="250" class="body">up</text>
+  <text x="857" y="344" class="body">right</text>
+  <text x="770" y="443" class="body">down</text>
+  <text x="615" y="344" class="body">left</text>
+  <text x="775" y="375" class="body">stay</text>
+  <text x="752" y="485" text-anchor="middle" class="body">Boundary collision:</text>
+  <text x="752" y="515" text-anchor="middle" class="body">the state remains unchanged.</text>
 
-  <g transform="translate(855,90)">
-    <text x="0" y="20" class="title">Reward rules</text>
-    <text x="0" y="72" class="text">hit boundary</text>
-    <text x="190" y="72" class="math">-1</text>
-    <text x="0" y="116" class="text">enter forbidden cell</text>
-    <text x="190" y="116" class="math">-1</text>
-    <text x="0" y="160" class="text">reach target s9</text>
-    <text x="190" y="160" class="math">+1</text>
-    <text x="0" y="204" class="text">all other moves</text>
-    <text x="190" y="204" class="math">0</text>
-    <rect x="0" y="255" width="260" height="105" class="cell"/>
-    <text x="18" y="288" class="text">Forbidden cells are accessible.</text>
-    <text x="18" y="320" class="text">The penalty discourages entry.</text>
-    <text x="18" y="352" class="text">Boundary collision keeps state.</text>
-  </g>
+  <rect x="1010" y="145" width="410" height="390" rx="6" class="panel"/>
+  <text x="1215" y="192" text-anchor="middle" class="head">Reward rules</text>
+  <text x="1050" y="250" class="body">Hit a boundary</text>
+  <text x="1370" y="250" text-anchor="end" class="math">−1</text>
+  <text x="1050" y="305" class="body">Enter s6 or s7</text>
+  <text x="1370" y="305" text-anchor="end" class="math">−1</text>
+  <text x="1050" y="360" class="body">Reach target s9</text>
+  <text x="1370" y="360" text-anchor="end" class="math">+1</text>
+  <text x="1050" y="415" class="body">Any other move</text>
+  <text x="1370" y="415" text-anchor="end" class="math">0</text>
+  <line x1="1050" y1="445" x2="1370" y2="445" stroke="#9aa0a6" stroke-width="1.5"/>
+  <text x="1050" y="482" class="body">Forbidden cells remain accessible.</text>
+  <text x="1050" y="512" class="body">The penalty discourages entry.</text>
 
-  <text x="90" y="520" class="text">Task: from any initial state, learn a policy that reaches s9 while avoiding forbidden cells, detours, and boundary collisions.</text>
+  <rect x="80" y="620" width="1340" height="82" rx="6" class="panel"/>
+  <text x="750" y="654" text-anchor="middle" class="head">Learning task</text>
+  <text x="750" y="684" text-anchor="middle" class="body">Reach s9 while avoiding forbidden cells, detours, and boundary collisions.</text>
 </svg>

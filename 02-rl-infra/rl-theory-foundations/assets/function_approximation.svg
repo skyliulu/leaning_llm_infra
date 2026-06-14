@@ -13,6 +13,7 @@
       .curve { stroke:#111; stroke-width:2.5; fill:none; }
     </style>
   </defs>
+  <rect width="100%" height="100%" fill="#fff"/>
   <text x="330" y="52" class="text">From table lookup to function approximation</text>
 
   <rect x="70" y="105" width="340" height="310" class="box"/>
@@ -25,7 +26,8 @@
     <rect x="100" y="45" width="100" height="55" class="cell"/><text x="130" y="82" class="math">v2</text>
     <rect x="200" y="45" width="100" height="55" class="cell"/><text x="230" y="82" class="math">v3</text>
   </g>
-  <text x="105" y="360" class="small">store one value per state or state-action pair</text>
+  <text x="105" y="350" class="small">Store one value for every state</text>
+  <text x="105" y="378" class="small">or state-action pair.</text>
 
   <path d="M430 260 L565 260" class="line"/>
 
@@ -35,8 +37,8 @@
   <rect x="775" y="220" width="120" height="90" class="cell"/>
   <text x="803" y="257" class="math">f_w</text>
   <text x="790" y="287" class="small">features / NN</text>
-  <circle cx="955" cy="265" r="40" class="cell"/><text x="928" y="274" class="math">V(s,w)</text>
+  <rect x="900" y="230" width="110" height="70" rx="5" class="cell"/><text x="928" y="274" class="math">V(s,w)</text>
   <path d="M733 265 L773 265" class="line"/>
-  <path d="M895 265 L913 265" class="line"/>
+  <path d="M895 265 L898 265" class="line"/>
   <text x="650" y="360" class="math">minimize E[(V_pi(S) - V(S,w))^2]</text>
 </svg>

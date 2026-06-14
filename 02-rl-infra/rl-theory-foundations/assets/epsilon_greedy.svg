@@ -14,19 +14,21 @@
       .bar2 { fill:#fff; stroke:#111; stroke-width:1.5; }
     </style>
   </defs>
+  <rect width="100%" height="100%" fill="#fff"/>
   <text x="355" y="52" class="text">epsilon-greedy: keep learning while exploiting</text>
-  <rect x="80" y="130" width="275" height="220" class="box"/>
+  <rect x="80" y="130" width="275" height="260" class="box"/>
   <text x="126" y="178" class="text">Value estimates</text>
-  <rect x="125" y="285" width="36" height="35" class="bar2"/><text x="131" y="270" class="small">a1</text>
-  <rect x="180" y="240" width="36" height="80" class="bar"/><text x="186" y="225" class="small">a2</text>
-  <rect x="235" y="270" width="36" height="50" class="bar2"/><text x="241" y="255" class="small">a3</text>
-  <text x="128" y="388" class="math">a* = argmax_a q(s,a)</text>
+  <rect x="125" y="285" width="36" height="35" class="bar2"/><text x="131" y="270" class="math">a1</text>
+  <rect x="180" y="240" width="36" height="80" class="bar"/><text x="186" y="225" class="math">a2</text>
+  <rect x="235" y="270" width="36" height="50" class="bar2"/><text x="241" y="255" class="math">a3</text>
+  <text x="128" y="365" class="math">a* = argmax_a q(s,a)</text>
   <path d="M355 240 L480 240" class="line"/>
   <rect x="500" y="130" width="200" height="220" class="box"/>
   <text x="555" y="178" class="text">Policy</text>
-  <circle cx="600" cy="245" r="60" class="node"/>
-  <text x="548" y="238" class="math">mostly a*</text>
-  <text x="566" y="268" class="math">sometimes random</text>
+  <rect x="535" y="205" width="130" height="48" rx="5" class="node"/>
+  <text x="600" y="236" text-anchor="middle" class="small">best action</text>
+  <rect x="535" y="272" width="130" height="48" rx="5" class="node"/>
+  <text x="600" y="303" text-anchor="middle" class="small">random action</text>
   <path d="M700 240 L820 185" class="line"/>
   <path d="M700 260 L820 315" class="line"/>
   <rect x="835" y="132" width="145" height="90" class="box"/>
