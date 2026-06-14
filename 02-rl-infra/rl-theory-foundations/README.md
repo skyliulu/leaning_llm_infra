@@ -1,10 +1,10 @@
 # RL Theory Foundations
 
-这个目录整理强化学习基础理论主线，重点是从 MDP、Bellman 方程、动态规划、Monte Carlo、TD、函数近似一路走到 policy gradient、actor-critic、PPO、DPO 和 GRPO。
+这个目录整理强化学习基础理论主线，重点是从 MDP、Bellman 方程、动态规划、Monte Carlo、TD、函数近似一路走到 policy gradient、actor-critic、PPO、DPO、GRPO 和长程 Agent RL。
 
 ## 文章
 
-- [强化学习基础理论：从 Bellman 方程到 PPO、DPO 与 GRPO](./rl_theory_foundations.md)
+- [强化学习基础理论：从 Bellman 方程到 PPO、GRPO 与长程 Agent RL](./rl_theory_foundations.md)
 
 ## 图片资产
 

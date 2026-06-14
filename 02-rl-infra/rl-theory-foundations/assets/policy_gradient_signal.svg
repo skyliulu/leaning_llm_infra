@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="620" viewBox="0 0 1400 620" role="img" aria-label="Policy gradient update combines probability direction and action quality">
+  <defs>
+    <marker id="arrow-pgs" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#30343b"/>
+    </marker>
+    <style>
+      .title{font:700 29px Arial,sans-serif;fill:#17191c}
+      .head{font:700 22px Arial,sans-serif;fill:#17191c}
+      .body{font:18px Arial,sans-serif;fill:#30343b}
+      .small{font:16px Arial,sans-serif;fill:#4d535b}
+      .box{stroke:#30343b;stroke-width:2;rx:6}
+      .line{stroke:#30343b;stroke-width:2.2;fill:none;marker-end:url(#arrow-pgs)}
+    </style>
+  </defs>
+  <rect width="1400" height="620" fill="#ffffff"/>
+  <text x="410" y="48" class="title">Policy Gradient = Direction × Action Quality</text>
+
+  <rect x="70" y="220" width="250" height="118" class="box" fill="#eef3f8"/>
+  <text x="118" y="261" class="head">Sampled Action</text>
+  <text x="102" y="297" class="body">The policy selects an action</text>
+  <text x="116" y="324" class="body">in the current state</text>
+
+  <rect x="430" y="105" width="330" height="142" class="box" fill="#eef3f8"/>
+  <text x="493" y="148" class="head">Probability Direction</text>
+  <text x="460" y="184" class="body">How should parameters change</text>
+  <text x="470" y="214" class="body">to raise this action's probability?</text>
+
+  <rect x="430" y="345" width="330" height="142" class="box" fill="#f8f1eb"/>
+  <text x="500" y="388" class="head">Action-Quality Weight</text>
+  <text x="473" y="424" class="body">return、action value</text>
+  <text x="500" y="454" class="body">or advantage</text>
+
+  <rect x="895" y="220" width="420" height="118" class="box" fill="#eef7f1"/>
+  <text x="1004" y="261" class="head">Weighted Policy Update</text>
+  <text x="934" y="297" class="body">Good action: increase its probability</text>
+  <text x="934" y="324" class="body">Bad action: weaken or reverse the update</text>
+
+  <path d="M320 265 C365 238 385 200 428 180" class="line"/>
+  <path d="M320 294 C365 325 385 390 428 412" class="line"/>
+  <path d="M760 176 C825 190 840 235 893 260" class="line"/>
+  <path d="M760 416 C825 400 840 325 893 296" class="line"/>
+
+  <text x="88" y="535" class="body">Direction alone reinforces every sampled action</text>
+  <text x="505" y="535" class="body">Quality alone gives no parameter direction</text>
+  <text x="963" y="535" class="body">Their product creates a learning signal</text>
+</svg>

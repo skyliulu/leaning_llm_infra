@@ -75,6 +75,14 @@ Use this section pattern when appropriate:
 
 Vary the prose naturally; do not mechanically label every paragraph with these names.
 
+For a long multi-section tutorial, give every peer chapter the same visible entry and exit:
+
+- begin with a short roadmap that states the question and two or three conceptual moves;
+- end with a compact summary that states the result, the mechanism, and the remaining limitation;
+- keep these labels and their visual treatment consistent across all peer chapters.
+
+Do not add a roadmap or summary to only a few chapters. Structural inconsistency makes readers repeatedly relearn how to navigate the article.
+
 ### 6. Handle mathematics without losing the reader
 
 - Define every symbol before or immediately after first use.
@@ -84,6 +92,8 @@ Vary the prose naturally; do not mechanically label every paragraph with these n
 - Explain signs, normalization terms, baselines, and hyperparameters in words.
 - Follow a long derivation with a small numerical or conceptual example.
 - Never use a formula as a substitute for explaining why the result solves the motivating problem.
+- Keep required derivations visible in the normal reading flow. Do not hide core mathematics inside collapsible blocks by default.
+- Make the conceptual claim visually prominent before the derivation, then restate its operational meaning afterward. Formulas should support the idea rather than compete with it for attention.
 
 Read [references/editorial-checklist.md](references/editorial-checklist.md) for the detailed math and narrative review.
 
@@ -116,6 +126,7 @@ When adding newer methods:
 Rewrite when the draft shows these symptoms:
 
 - formulas arrive before the reader knows the problem;
+- core ideas are visually weaker than the equations that support them;
 - terms are used before definition;
 - sections can be reordered without changing the story;
 - examples appear as isolated decorations;
@@ -123,6 +134,7 @@ Rewrite when the draft shows these symptoms:
 - modern extensions feel appended rather than derived;
 - captions do not explain what to notice;
 - most paragraphs are equations with only one sentence of prose.
+- peer chapters use different roadmap, summary, or emphasis conventions.
 
 State established knowledge directly. Attribute specific claims and sources, not every paragraph.
 

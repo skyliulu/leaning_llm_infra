@@ -203,6 +203,12 @@ const diagrams = {
   ],
   "ppo_dpo_grpo_map.svg": [],
   "rl_storyline.svg": [],
+  "bellman_evaluation_control.svg": [],
+  "policy_gradient_signal.svg": [],
+  "ppo_clip_intuition.svg": [],
+  "dpo_pairwise_flow.svg": [],
+  "grpo_group_baseline.svg": [],
+  "long_horizon_credit.svg": [],
 };
 
 function formulaKey(latex) {

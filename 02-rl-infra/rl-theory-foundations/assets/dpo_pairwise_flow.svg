@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="620" viewBox="0 0 1400 620" role="img" aria-label="DPO learns directly from a preferred and rejected response pair">
+  <defs>
+    <marker id="arrow-dpf" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#30343b"/>
+    </marker>
+    <style>
+      .title{font:700 29px Arial,sans-serif;fill:#17191c}
+      .head{font:700 22px Arial,sans-serif;fill:#17191c}
+      .body{font:18px Arial,sans-serif;fill:#30343b}
+      .small{font:16px Arial,sans-serif;fill:#4d535b}
+      .box{stroke:#30343b;stroke-width:2;rx:6}
+      .line{stroke:#30343b;stroke-width:2.2;fill:none;marker-end:url(#arrow-dpf)}
+    </style>
+  </defs>
+  <rect width="1400" height="620" fill="#ffffff"/>
+  <text x="390" y="48" class="title">DPO Learns Directly from Preference Pairs</text>
+
+  <rect x="70" y="230" width="230" height="92" class="box" fill="#eef3f8"/>
+  <text x="150" y="270" class="head">Prompt</text>
+  <text x="108" y="301" class="body">Fixed offline sample</text>
+
+  <rect x="410" y="110" width="300" height="120" class="box" fill="#eef7f1"/>
+  <text x="482" y="151" class="head">Chosen response</text>
+  <text x="455" y="185" class="body">Preferred by humans or rules</text>
+  <text x="450" y="212" class="small">Relative probability should increase</text>
+
+  <rect x="410" y="350" width="300" height="120" class="box" fill="#f8f1eb"/>
+  <text x="476" y="391" class="head">Rejected response</text>
+  <text x="455" y="425" class="body">The less-preferred response</text>
+  <text x="450" y="452" class="small">Relative probability should decrease</text>
+
+  <rect x="835" y="185" width="490" height="180" class="box" fill="#ffffff"/>
+  <text x="945" y="228" class="head">Compare Changes Relative to Reference</text>
+  <text x="883" y="270" class="body">Do not only raise chosen probability</text>
+  <text x="883" y="302" class="body">Increase the chosen-rejected margin</text>
+  <text x="914" y="337" class="small">The reference policy provides a stable anchor</text>
+
+  <path d="M300 260 C345 220 365 178 408 170" class="line"/>
+  <path d="M300 292 C345 330 365 400 408 410" class="line"/>
+  <path d="M710 170 C765 180 790 225 833 250" class="line"/>
+  <path d="M710 410 C765 396 790 330 833 302" class="line"/>
+
+  <text x="188" y="545" class="body">No training-time rollout</text>
+  <text x="555" y="545" class="body">No explicit reward model</text>
+  <text x="1000" y="545" class="body">A pairwise classification objective</text>
+</svg>

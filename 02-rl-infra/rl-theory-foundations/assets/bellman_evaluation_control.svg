@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="660" viewBox="0 0 1400 660" role="img" aria-label="Bellman policy evaluation and optimal control comparison">
+  <defs>
+    <marker id="arrow-bec" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#30343b"/>
+    </marker>
+    <style>
+      .title{font:700 29px Arial,sans-serif;fill:#17191c}
+      .head{font:700 23px Arial,sans-serif;fill:#17191c}
+      .body{font:18px Arial,sans-serif;fill:#30343b}
+      .small{font:16px Arial,sans-serif;fill:#4d535b}
+      .box{stroke:#30343b;stroke-width:2;rx:6}
+      .line{stroke:#30343b;stroke-width:2.2;fill:none;marker-end:url(#arrow-bec)}
+      .dash{stroke:#69717b;stroke-width:2;fill:none;stroke-dasharray:7 6;marker-end:url(#arrow-bec)}
+    </style>
+  </defs>
+  <rect width="1400" height="660" fill="#ffffff"/>
+  <text x="407" y="48" class="title">Bellman Equations Differ at Action Selection</text>
+
+  <rect x="55" y="92" width="610" height="500" class="box" fill="#eef3f8"/>
+  <text x="176" y="136" class="head">Policy Evaluation: Average by Policy</text>
+  <rect x="260" y="185" width="200" height="66" class="box" fill="#ffffff"/>
+  <text x="304" y="227" class="body">Current State</text>
+  <rect x="105" y="330" width="190" height="78" class="box" fill="#ffffff"/>
+  <text x="145" y="365" class="body">Action A</text>
+  <text x="127" y="391" class="small">Higher policy probability</text>
+  <rect x="425" y="330" width="190" height="78" class="box" fill="#ffffff"/>
+  <text x="465" y="365" class="body">Action B</text>
+  <text x="447" y="391" class="small">Lower policy probability</text>
+  <path d="M330 251 C280 284 225 294 205 328" class="line"/>
+  <path d="M390 251 C440 284 490 294 515 328" class="line"/>
+  <rect x="205" y="475" width="310" height="70" class="box" fill="#dce8f2"/>
+  <text x="258" y="507" class="body">Both Actions Contribute</text>
+  <text x="246" y="533" class="small">Weighted by the current policy</text>
+  <path d="M200 408 C205 445 280 459 300 473" class="dash"/>
+  <path d="M520 408 C515 445 440 459 420 473" class="dash"/>
+
+  <rect x="735" y="92" width="610" height="500" class="box" fill="#eef7f1"/>
+  <text x="870" y="136" class="head">Optimal Control: Select the Maximum</text>
+  <rect x="940" y="185" width="200" height="66" class="box" fill="#ffffff"/>
+  <text x="984" y="227" class="body">Current State</text>
+  <rect x="785" y="330" width="190" height="78" class="box" fill="#ffffff"/>
+  <text x="825" y="365" class="body">Action A</text>
+  <text x="808" y="391" class="small">Lower long-term value</text>
+  <rect x="1105" y="330" width="190" height="78" class="box" fill="#d8efdf"/>
+  <text x="1145" y="365" class="body">Action B</text>
+  <text x="1128" y="391" class="small">Higher long-term value</text>
+  <path d="M1010 251 C960 284 905 294 885 328" class="line"/>
+  <path d="M1070 251 C1120 284 1170 294 1195 328" class="line"/>
+  <rect x="885" y="475" width="310" height="70" class="box" fill="#cde8d5"/>
+  <text x="954" y="507" class="body">Keep the Best Action</text>
+  <text x="917" y="533" class="small">Future randomness is still averaged</text>
+  <path d="M1200 408 L1085 473" class="line"/>
+  <path d="M880 408 C885 438 920 450 950 473" class="dash"/>
+  <text x="795" y="451" class="small">Compared, not selected</text>
+
+  <text x="264" y="628" class="body">Evaluation asks: How good is this policy?</text>
+  <text x="900" y="628" class="body">Control asks: Which action is best?</text>
+</svg>

@@ -11,6 +11,8 @@
 ## Typography
 
 - Use a broadly available sans-serif font for labels.
+- Use one canvas language consistently across all figures in the same article. Follow the existing figure set; default to English technical labels when no convention exists.
+- Do not mix Chinese and English prose labels in one figure. Established acronyms and proper names may remain in their standard form.
 - Use a serif math font only for formulas.
 - Typeset mathematical notation with LaTeX rather than approximating it with ordinary SVG text.
 - Use no more than four text levels.
@@ -77,3 +79,4 @@ Avoid:
 - Verify arrowheads remain visible against fills.
 - Verify the background is opaque when the article viewer may use dark mode.
 - Verify raster images are not blurry at their displayed size.
+- Search editable figure sources for unintended characters from another prose language before final rendering.

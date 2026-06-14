@@ -23,6 +23,8 @@ Identify:
 - the one element that deserves visual emphasis;
 - what detail belongs in the caption rather than the canvas.
 
+Before drawing, inspect the article's existing figure set and choose one canvas language. Use the same language in every figure unless the user explicitly requests bilingual figures. When extending an existing article, follow its established figure language; if no convention exists, default to English for technical labels and keep surrounding captions in the article language.
+
 ## Choose the representation
 
 Use the simplest medium that preserves correctness:
@@ -79,6 +81,7 @@ Core defaults:
 - short labels with explanations outside the node;
 - generous whitespace and stable alignment;
 - one visual hierarchy: title, group heading, node label, annotation.
+- one canvas language across the complete article or figure series.
 
 Avoid decorative gradients, glow, shadows, mascots, floating shapes, pseudo-3D boxes, and unexplained icons.
 
@@ -124,7 +127,7 @@ Never stop after XML parsing or successful generation.
 1. Render the final asset to a bitmap or open it in a browser.
 2. Inspect the actual pixels at the intended article width.
 3. Inspect every final figure, not only a contact sheet or representative sample.
-4. Check text overflow, formula padding, overlap, contrast, arrow attachment, cropping, and reading order.
+4. Check text overflow, formula padding, overlap, contrast, arrow attachment, cropping, reading order, and accidental language mixing.
 5. Check both light and dark viewers when transparency is possible.
 6. Revise until the meaning is clear without reading surrounding implementation code.
 7. Re-run structural validation and article image-reference validation.
@@ -172,6 +175,7 @@ A figure is finished only when:
 - no text or formula crosses a node or canvas boundary;
 - no arrow passes through an unrelated label;
 - colors have semantic meaning;
+- all figures use the agreed canvas language consistently;
 - arrows and grouping encode the intended relationship;
 - the caption explains the takeaway;
 - every rendered output has been visually inspected;

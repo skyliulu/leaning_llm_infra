@@ -19,10 +19,12 @@
 ## Narrative Continuity
 
 - Begin each major section with a limitation or question inherited from the previous section.
+- Use the same visible roadmap pattern at the start of every peer chapter.
 - Make the conceptual dependency visible in transitions.
 - Reuse the running example instead of inventing unrelated examples for every formula.
 - Explain algorithms as changes to learning signals, data, objectives, or estimators.
 - End each major section by stating what it solves and what remains unresolved.
+- Use the same visible summary pattern at the end of every peer chapter.
 
 ## Mathematical Exposition
 
@@ -32,6 +34,8 @@
 - Explain the role of each term after the equation.
 - State edge cases and assumptions.
 - Pair long derivations with an interpretation or worked example.
+- Keep core derivations visible; use collapsible sections only for genuinely optional appendices or secondary proofs.
+- State the conceptual takeaway before a dense derivation and repeat its operational meaning afterward.
 
 ## Figures
 
@@ -58,3 +62,5 @@
 4. Can the reader distinguish methods that look similar but use different data or objectives?
 5. Does every figure make a specific relationship easier to understand?
 6. Are all references public, authoritative, and relevant?
+7. Do all peer chapters use the same roadmap and summary structure?
+8. Can a reader identify the core idea without first parsing every displayed equation?

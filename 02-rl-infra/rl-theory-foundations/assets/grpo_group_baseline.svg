@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="650" viewBox="0 0 1400 650" role="img" aria-label="GRPO compares a group of responses to form relative advantages">
+  <defs>
+    <marker id="arrow-ggb" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#30343b"/>
+    </marker>
+    <style>
+      .title{font:700 29px Arial,sans-serif;fill:#17191c}
+      .head{font:700 22px Arial,sans-serif;fill:#17191c}
+      .body{font:18px Arial,sans-serif;fill:#30343b}
+      .small{font:16px Arial,sans-serif;fill:#4d535b}
+      .box{stroke:#30343b;stroke-width:2;rx:6}
+      .line{stroke:#30343b;stroke-width:2.2;fill:none;marker-end:url(#arrow-ggb)}
+    </style>
+  </defs>
+  <rect width="1400" height="650" fill="#ffffff"/>
+  <text x="390" y="48" class="title">GRPO Builds Relative Signals within a Prompt</text>
+
+  <rect x="55" y="240" width="220" height="90" class="box" fill="#eef3f8"/>
+  <text x="112" y="281" class="head">One Prompt</text>
+  <text x="112" y="306" class="small">Current policy</text>
+  <text x="112" y="326" class="small">samples online</text>
+
+  <rect x="380" y="90" width="280" height="88" class="box" fill="#eef7f1"/>
+  <text x="438" y="127" class="head">Response 1: High</text>
+  <text x="426" y="157" class="small">Above the group mean</text>
+  <rect x="380" y="220" width="280" height="88" class="box" fill="#ffffff"/>
+  <text x="438" y="257" class="head">Response 2: Mid</text>
+  <text x="435" y="287" class="small">Near the group mean</text>
+  <rect x="380" y="350" width="280" height="88" class="box" fill="#f8f1eb"/>
+  <text x="438" y="387" class="head">Response 3: Low</text>
+  <text x="426" y="417" class="small">Below the group mean</text>
+  <rect x="380" y="480" width="280" height="88" class="box" fill="#f8f1eb"/>
+  <text x="438" y="517" class="head">Response 4: Failure</text>
+  <text x="420" y="547" class="small">Far below the group mean</text>
+
+  <rect x="790" y="180" width="260" height="210" class="box" fill="#eef3f8"/>
+  <text x="842" y="222" class="head">Group Statistics</text>
+  <text x="817" y="262" class="body">Compute mean and scale</text>
+  <text x="842" y="298" class="body">No value critic</text>
+  <text x="822" y="334" class="body">Relative advantages</text>
+  <text x="850" y="369" class="small">Within one prompt</text>
+
+  <rect x="1150" y="180" width="200" height="210" class="box" fill="#eef7f1"/>
+  <text x="1185" y="222" class="head">Policy Update</text>
+  <text x="1170" y="264" class="body">Above mean</text>
+  <text x="1171" y="294" class="small">Raise probability</text>
+  <text x="1170" y="337" class="body">Below mean</text>
+  <text x="1171" y="367" class="small">Lower probability</text>
+
+  <path d="M275 272 C320 220 335 142 378 134" class="line"/>
+  <path d="M275 282 C320 270 335 264 378 264" class="line"/>
+  <path d="M275 294 C320 330 335 386 378 394" class="line"/>
+  <path d="M275 306 C320 420 335 510 378 524" class="line"/>
+  <path d="M660 134 C725 160 740 220 788 244" class="line"/>
+  <path d="M660 264 L788 276" class="line"/>
+  <path d="M660 394 C725 380 740 342 788 324" class="line"/>
+  <path d="M660 524 C725 470 740 375 788 350" class="line"/>
+  <path d="M1050 285 L1148 285" class="line"/>
+
+  <text x="335" y="620" class="body">GRPO scores complete responses; long-horizon agents must also identify which step caused success or failure</text>
+</svg>

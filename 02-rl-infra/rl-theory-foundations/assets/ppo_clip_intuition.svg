@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="650" viewBox="0 0 1400 650" role="img" aria-label="PPO clipping intuition for positive and negative advantage samples">
+  <defs>
+    <marker id="arrow-pci" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#30343b"/>
+    </marker>
+    <style>
+      .title{font:700 29px Arial,sans-serif;fill:#17191c}
+      .head{font:700 22px Arial,sans-serif;fill:#17191c}
+      .body{font:18px Arial,sans-serif;fill:#30343b}
+      .small{font:16px Arial,sans-serif;fill:#4d535b}
+      .box{stroke:#30343b;stroke-width:2;rx:6}
+      .line{stroke:#30343b;stroke-width:2.2;fill:none;marker-end:url(#arrow-pci)}
+      .stop{stroke:#b34b46;stroke-width:4}
+    </style>
+  </defs>
+  <rect width="1400" height="650" fill="#ffffff"/>
+  <text x="405" y="48" class="title">PPO Clipping Stops Rewarding Excessive Change</text>
+
+  <rect x="65" y="100" width="1270" height="210" class="box" fill="#eef7f1"/>
+  <text x="98" y="143" class="head">Positive advantage: the action was better than expected</text>
+  <rect x="120" y="190" width="220" height="68" class="box" fill="#ffffff"/>
+  <text x="160" y="232" class="body">Policy ratio near 1</text>
+  <rect x="480" y="190" width="280" height="68" class="box" fill="#d8efdf"/>
+  <text x="520" y="232" class="body">Raise action probability</text>
+  <rect x="950" y="190" width="300" height="68" class="box" fill="#f7e5e3"/>
+  <text x="983" y="220" class="body">Further increase is possible</text>
+  <text x="982" y="246" class="small">No additional objective gain</text>
+  <path d="M340 224 L478 224" class="line"/>
+  <path d="M760 224 L948 224" class="line"/>
+  <line x1="850" y1="176" x2="850" y2="272" class="stop"/>
+  <text x="795" y="294" class="small">Upper clipping region</text>
+
+  <rect x="65" y="350" width="1270" height="210" class="box" fill="#f8f1eb"/>
+  <text x="98" y="393" class="head">Negative advantage: the action was worse than expected</text>
+  <rect x="1060" y="440" width="220" height="68" class="box" fill="#ffffff"/>
+  <text x="1100" y="482" class="body">Policy ratio near 1</text>
+  <rect x="640" y="440" width="280" height="68" class="box" fill="#f3dfd8"/>
+  <text x="681" y="482" class="body">Lower action probability</text>
+  <rect x="150" y="440" width="330" height="68" class="box" fill="#f7e5e3"/>
+  <text x="184" y="470" class="body">Further decrease is possible</text>
+  <text x="184" y="496" class="small">No additional objective gain</text>
+  <path d="M1060 474 L922 474" class="line"/>
+  <path d="M640 474 L482 474" class="line"/>
+  <line x1="555" y1="426" x2="555" y2="522" class="stop"/>
+  <text x="498" y="544" class="small">Lower clipping region</text>
+
+  <text x="386" y="615" class="body">Clipping limits optimization incentive; it does not hard-lock the parameters</text>
+</svg>

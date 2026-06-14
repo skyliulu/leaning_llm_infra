@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="700" viewBox="0 0 1500 700" role="img" aria-label="Credit assignment approaches for long-horizon language model agents">
+  <defs>
+    <marker id="arrow-lhc" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#30343b"/>
+    </marker>
+    <style>
+      .title{font:700 29px Arial,sans-serif;fill:#17191c}
+      .head{font:700 21px Arial,sans-serif;fill:#17191c}
+      .body{font:17px Arial,sans-serif;fill:#30343b}
+      .small{font:15px Arial,sans-serif;fill:#4d535b}
+      .box{stroke:#30343b;stroke-width:2;rx:6}
+      .line{stroke:#30343b;stroke-width:2.2;fill:none;marker-end:url(#arrow-lhc)}
+      .dash{stroke:#69717b;stroke-width:2;fill:none;stroke-dasharray:7 6;marker-end:url(#arrow-lhc)}
+    </style>
+  </defs>
+  <rect width="1500" height="700" fill="#ffffff"/>
+  <text x="350" y="48" class="title">Long-Horizon Agent RL Assigns Delayed Outcomes to Key Decisions</text>
+
+  <rect x="55" y="105" width="1390" height="170" class="box" fill="#eef3f8"/>
+  <text x="85" y="145" class="head">A Multi-Turn Interaction Trajectory</text>
+  <rect x="90" y="180" width="185" height="58" class="box" fill="#ffffff"/>
+  <text x="125" y="216" class="body">Read Task</text>
+  <rect x="335" y="180" width="185" height="58" class="box" fill="#ffffff"/>
+  <text x="370" y="216" class="body">Call Tool</text>
+  <rect x="580" y="180" width="185" height="58" class="box" fill="#ffffff"/>
+  <text x="615" y="216" class="body">Observe</text>
+  <rect x="825" y="180" width="185" height="58" class="box" fill="#ffffff"/>
+  <text x="860" y="216" class="body">Revise Plan</text>
+  <rect x="1070" y="180" width="185" height="58" class="box" fill="#ffffff"/>
+  <text x="1105" y="216" class="body">Act Again</text>
+  <rect x="1315" y="180" width="95" height="58" class="box" fill="#eef7f1"/>
+  <text x="1332" y="216" class="body">Outcome</text>
+  <path d="M275 209 L333 209" class="line"/>
+  <path d="M520 209 L578 209" class="line"/>
+  <path d="M765 209 L823 209" class="line"/>
+  <path d="M1010 209 L1068 209" class="line"/>
+  <path d="M1255 209 L1313 209" class="line"/>
+
+  <rect x="55" y="330" width="420" height="285" class="box" fill="#f8f1eb"/>
+  <text x="118" y="374" class="head">Trajectory-Level Outcome Reward</text>
+  <text x="90" y="414" class="body">Assign final success to the full trajectory</text>
+  <text x="90" y="448" class="body">Simple and suitable for end-to-end training</text>
+  <text x="90" y="492" class="small">Problem: key and irrelevant actions</text>
+  <text x="90" y="520" class="small">may receive nearly identical signals</text>
+  <text x="90" y="566" class="body">Example: WebAgent-R1</text>
+
+  <rect x="540" y="330" width="420" height="285" class="box" fill="#eef7f1"/>
+  <text x="606" y="374" class="head">Hierarchical or Step-Level Credit</text>
+  <text x="575" y="414" class="body">Evaluate the trajectory and local steps</text>
+  <text x="575" y="448" class="body">Build finer advantages for key decisions</text>
+  <text x="575" y="492" class="small">Methods: repeated-state groups, decomposition,</text>
+  <text x="575" y="520" class="small">or post-hoc critic evaluation</text>
+  <text x="575" y="566" class="body">Examples: GiGPO, LightningRL, HCAPO</text>
+
+  <rect x="1025" y="330" width="420" height="285" class="box" fill="#eef3f8"/>
+  <text x="1090" y="374" class="head">Training Stability and Exploration</text>
+  <text x="1060" y="414" class="body">Filter degenerate trajectories</text>
+  <text x="1060" y="448" class="body">Use asynchronous sampling and bounded updates</text>
+  <text x="1060" y="492" class="small">Address reward-variance collapse, gradient spikes,</text>
+  <text x="1060" y="520" class="small">and the cost of long rollouts</text>
+  <text x="1060" y="566" class="body">Examples: RAGEN, GSPO, DAPO</text>
+
+  <path d="M1360 275 C1130 305 825 300 270 328" class="dash"/>
+  <path d="M1360 275 C1150 310 960 312 750 328" class="dash"/>
+  <path d="M1360 275 C1390 300 1340 310 1235 328" class="dash"/>
+  <text x="430" y="670" class="body">These methods usually extend PPO or group-based optimization; they are not one replacement chain</text>
+</svg>
