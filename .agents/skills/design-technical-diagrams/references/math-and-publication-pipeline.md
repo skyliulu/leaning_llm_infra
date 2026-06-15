@@ -89,6 +89,7 @@ Inspect every final PNG at full size and at article width:
 
 - longest prose label;
 - widest formula;
+- labels changed by translation or terminology cleanup;
 - text and formula padding;
 - canvas and node boundaries;
 - arrowheads and attachment points;
@@ -97,7 +98,7 @@ Inspect every final PNG at full size and at article width:
 - contrast and background;
 - reading order.
 
-A contact sheet is useful for comparison, but it does not replace opening the highest-risk figures at original resolution.
+A contact sheet is useful for comparison, but it does not replace opening every revised or high-risk figure at original resolution. Translation, formula rendering, and font substitution are pixel-level risks.
 
 ## Common failure patterns
 

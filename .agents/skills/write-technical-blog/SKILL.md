@@ -33,6 +33,7 @@ Before writing, decide:
 - which mathematical ideas need a short primer;
 - which terms must be defined before first use;
 - one concrete example that can recur through multiple sections.
+- the visible rhythm for peer chapters, including the exact labels used for opening roadmaps and closing summaries.
 
 If the subject is abstract, introduce the running example before the formal theory. Make it complete enough to contain the problem, entities, inputs, outputs, objective, and at least two contrasting outcomes.
 
@@ -59,7 +60,9 @@ Before a symbol or term first appears:
 - distinguish it from nearby concepts readers may confuse;
 - show it in the running example when possible.
 
-Place optional prerequisite material in a compact primer or collapsible section. Do not interrupt the main story with definitions that are not yet needed.
+Place optional prerequisite material in a compact primer, appendix, or clearly marked aside. Use collapsible sections only when the user or publishing convention explicitly wants them; do not hide concepts or derivations required for the main argument.
+
+A prerequisite primer should review underlying math or computing ideas that help the reader enter the article. It should not become a dictionary of later article terms, and it should not refer forward to concepts that have not yet been motivated.
 
 ### 5. Write each technical section
 
@@ -83,6 +86,8 @@ For a long multi-section tutorial, give every peer chapter the same visible entr
 
 Do not add a roadmap or summary to only a few chapters. Structural inconsistency makes readers repeatedly relearn how to navigate the article.
 
+When revising an existing draft, first audit all peer chapters for structural drift. Either apply the pattern everywhere or remove it everywhere; partial consistency is worse than a simpler structure.
+
 ### 6. Handle mathematics without losing the reader
 
 - Define every symbol before or immediately after first use.
@@ -94,6 +99,8 @@ Do not add a roadmap or summary to only a few chapters. Structural inconsistency
 - Never use a formula as a substitute for explaining why the result solves the motivating problem.
 - Keep required derivations visible in the normal reading flow. Do not hide core mathematics inside collapsible blocks by default.
 - Make the conceptual claim visually prominent before the derivation, then restate its operational meaning afterward. Formulas should support the idea rather than compete with it for attention.
+- If a derivation is long, split it with meaningful subheadings and prose checkpoints. Do not use folding as a substitute for explanation.
+- After a dense equation sequence, add a short "what changed" explanation: what was transformed, what assumption was used, and what the reader should now believe.
 
 Read [references/editorial-checklist.md](references/editorial-checklist.md) for the detailed math and narrative review.
 
@@ -127,6 +134,7 @@ Rewrite when the draft shows these symptoms:
 
 - formulas arrive before the reader knows the problem;
 - core ideas are visually weaker than the equations that support them;
+- a reader must parse every displayed equation before seeing the section's claim;
 - terms are used before definition;
 - sections can be reordered without changing the story;
 - examples appear as isolated decorations;
@@ -135,6 +143,8 @@ Rewrite when the draft shows these symptoms:
 - captions do not explain what to notice;
 - most paragraphs are equations with only one sentence of prose.
 - peer chapters use different roadmap, summary, or emphasis conventions.
+- core formulas or important explanations are hidden in collapsible blocks.
+- figures switch language or labeling conventions mid-article.
 
 State established knowledge directly. Attribute specific claims and sources, not every paragraph.
 

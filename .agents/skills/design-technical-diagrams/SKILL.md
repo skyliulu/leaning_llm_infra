@@ -21,9 +21,10 @@ Identify:
 - the entities and relationships that must be visible;
 - the reading direction;
 - the one element that deserves visual emphasis;
-- what detail belongs in the caption rather than the canvas.
+- what detail belongs in the caption rather than the canvas;
+- the figure language and notation style already used by neighboring figures.
 
-Before drawing, inspect the article's existing figure set and choose one canvas language. Use the same language in every figure unless the user explicitly requests bilingual figures. When extending an existing article, follow its established figure language; if no convention exists, default to English for technical labels and keep surrounding captions in the article language.
+Before drawing, inspect the article's existing figure set and choose one canvas language. Use the same language in every figure unless the user explicitly requests bilingual figures. When extending an existing article, follow its established figure language; if no convention exists, default to English for technical labels and keep surrounding captions in the article language. A Chinese article may still use English inside figures when the figure set already does so.
 
 ## Choose the representation
 
@@ -82,6 +83,7 @@ Core defaults:
 - generous whitespace and stable alignment;
 - one visual hierarchy: title, group heading, node label, annotation.
 - one canvas language across the complete article or figure series.
+- enough title, node, arrow, and grouping context for the figure to be understandable on its own.
 
 Avoid decorative gradients, glow, shadows, mascots, floating shapes, pseudo-3D boxes, and unexplained icons.
 
@@ -92,6 +94,7 @@ Avoid decorative gradients, glow, shadows, mascots, floating shapes, pseudo-3D b
 - Keep formulas in the article when they would make the figure crowded.
 - Write a caption that states what readers should notice.
 - Avoid duplicating entire paragraphs inside the canvas.
+- If a figure is not understandable without the surrounding implementation notes, simplify the message, add labels, or split the figure.
 
 ## Implement exact diagrams
 
@@ -113,6 +116,8 @@ For Markdown articles viewed across GitHub, IDEs, and operating systems, keep SV
 Do not convert a flawed SVG blindly: fix the source, render it, inspect the pixels, then update the article to reference the PNG. Separate files into editable sources, published assets, required rebuild inputs, and disposable previews; commit only the first three.
 
 Do not imitate mathematical notation with ordinary SVG text. Keep prose as native diagram text and render formulas from LaTeX. Give every formula an explicit placement box and verify that the final rendered formula stays clear of node edges, labels, and arrows.
+
+For figure series, search editable sources for accidental mixed-language text before rendering. If the agreed canvas language is English, any Chinese label inside SVG or source code is a bug unless it is part of a quoted term requested by the user.
 
 Run:
 
@@ -176,6 +181,7 @@ A figure is finished only when:
 - no arrow passes through an unrelated label;
 - colors have semantic meaning;
 - all figures use the agreed canvas language consistently;
+- mathematical notation is rendered with the same standard as the article, not approximated with plain text;
 - arrows and grouping encode the intended relationship;
 - the caption explains the takeaway;
 - every rendered output has been visually inspected;

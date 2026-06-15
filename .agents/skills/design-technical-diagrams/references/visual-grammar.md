@@ -13,12 +13,14 @@
 - Use a broadly available sans-serif font for labels.
 - Use one canvas language consistently across all figures in the same article. Follow the existing figure set; default to English technical labels when no convention exists.
 - Do not mix Chinese and English prose labels in one figure. Established acronyms and proper names may remain in their standard form.
+- Captions and surrounding prose may be in the article language; the canvas itself should stay in the chosen figure language.
 - Use a serif math font only for formulas.
 - Typeset mathematical notation with LaTeX rather than approximating it with ordinary SVG text.
 - Use no more than four text levels.
 - Keep labels concise and use zero letter spacing.
 - Avoid tiny footnotes inside figures; move them to captions.
 - Preserve visible padding between text or formulas and node borders.
+- Shorten, reflow, or move explanations before shrinking all text. A readable short label is better than a crowded sentence.
 
 ## Color
 
@@ -80,3 +82,4 @@ Avoid:
 - Verify the background is opaque when the article viewer may use dark mode.
 - Verify raster images are not blurry at their displayed size.
 - Search editable figure sources for unintended characters from another prose language before final rendering.
+- Open each revised figure at original size when it contains dense text, formulas, or newly translated labels; representative inspection is not enough.
