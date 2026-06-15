@@ -99,3 +99,28 @@
 - [00-foundations](./00-foundations/README.md)
 - [01-llm-infra](./01-llm-infra/README.md)
 - [02-rl-infra](./02-rl-infra/README.md)
+
+## GitHub Pages 技术博客
+
+这个仓库现在可以通过 MkDocs Material 构建为技术博客站点，用于在 GitHub Pages 中查看完整渲染效果，包括目录导航、站内搜索、代码高亮、图片、表格、提示块、Mermaid 图和 MathJax 公式。
+
+### 本地预览
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+mkdocs serve
+```
+
+启动后访问 `http://127.0.0.1:8000/` 即可查看博客站点。
+
+### 发布到 GitHub Pages
+
+1. 在 GitHub 仓库的 **Settings → Pages** 中，将 Source 设置为 **GitHub Actions**。
+2. 将变更推送到 `main` 或 `master` 分支，`.github/workflows/deploy-pages.yml` 会自动构建并发布站点。
+3. 如果需要手动发布，可以在 GitHub Actions 页面运行 `Deploy documentation to GitHub Pages` workflow。
+
+### 新增文章
+
+新增 Markdown 文件后，请同步更新 `mkdocs.yml` 的 `nav`，这样文章会出现在站点导航中。图片、SVG、示例代码仍然建议放在同主题目录下的 `assets/` 或 `examples/` 中，保持源码仓库和博客站点使用同一套相对路径。
