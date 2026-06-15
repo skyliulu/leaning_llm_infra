@@ -1,4 +1,4 @@
-# 01 LLM Infra
+# 01 大模型基础设施
 
 这个目录整理大模型基础设施相关笔记，重点关注从数据到训练、推理、服务化、评测和平台治理的完整链路。
 
@@ -6,14 +6,14 @@
 
 ## 建议专题
 
-### Data Infrastructure
+### 数据基础设施
 
 - 语料采集、清洗、去重与质量过滤
 - Tokenization、数据配比、curriculum 与数据混合
 - 数据版本、数据血缘、数据审计与污染检测
 - 大规模数据加载、缓存、shuffle 与训练吞吐
 
-### Training Systems
+### 训练系统
 
 - Pretraining、SFT、continued pretraining 与 post-training 流水线
 - Checkpoint、容错恢复、实验配置与训练状态管理
@@ -21,7 +21,7 @@
 - ZeRO、FSDP、offload、activation checkpointing 与显存优化
 - 通信重叠、straggler、训练吞吐与集群利用率
 
-### Inference and Serving
+### 推理与服务化
 
 - Prefill / decode 分离与 KV Cache 管理
 - Continuous batching、PagedAttention、speculative decoding
@@ -29,21 +29,21 @@
 - 多模型服务、弹性伸缩、限流、降级与灰度发布
 - 延迟、吞吐、显存占用和成本之间的权衡
 
-### RAG and Agent Runtime
+### RAG 与 Agent Runtime
 
 - 检索、rerank、query rewrite 与上下文组装
 - 向量数据库、索引构建、召回质量与延迟优化
 - Tool calling、session memory、workflow orchestration
 - Agent runtime 的权限、状态、可观测性与失败恢复
 
-### Evaluation and Observability
+### 评测与可观测性
 
 - 离线评测、在线评测、A/B、回归测试
 - 延迟、吞吐、错误率、成本、GPU 利用率和队列指标
 - 日志、metrics、tracing、prompt / response 审计
 - 数据漂移、模型退化、安全问题与发布回滚
 
-### Platform Governance
+### 平台治理
 
 - 权限、配额、多租户与资源隔离
 - 成本核算、预算控制、容量规划
@@ -70,9 +70,12 @@
 ```text
 topic-name/
 ├── README.md
-├── main_note.md
-└── assets/
+├── xxx.md                  # 正文文章，文件名使用有语义的 snake_case
+├── assets/
+└── examples/              # 可选：代码、配置或实验样例
 ```
+
+`README.md` 只做导览：说明这个专题解决什么问题、推荐先读哪篇、有哪些关键资料。真正的正文文章使用有语义的 snake_case 文件名，例如 `inference_serving.md`、`rag_agent_runtime.md`。
 
 等某个专题积累到多篇笔记后，再拆成 `concepts/`、`papers/`、`projects/`、`notes/`。
 

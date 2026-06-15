@@ -1,8 +1,8 @@
-# 02 RL Infra
+# 02 强化学习基础设施
 
-## Theory Foundations
+## 理论基础
 
-- [RL Theory Foundations](./rl-theory-foundations/rl_theory_foundations.md)：从 MDP、Bellman 方程、动态规划、Monte Carlo、TD、函数近似、policy gradient、actor-critic 到 PPO、DPO 与 GRPO 的基础理论主线。
+- [强化学习基础理论](./rl-theory-foundations/rl_theory_foundations.md)：从 MDP、Bellman 方程、动态规划、Monte Carlo、TD、函数近似、policy gradient、actor-critic 到 PPO、DPO 与 GRPO 的基础理论主线。
 
 这个目录整理强化学习基础设施相关笔记，重点关注环境、采样、训练、评测和大规模实验平台。
 
@@ -10,21 +10,21 @@
 
 ## 建议专题
 
-### Environment Systems
+### 环境系统
 
 - Gym / Env 抽象、任务封装与环境版本管理
 - 模拟器、真实系统、在线环境与离线数据环境
 - 并行环境执行、状态同步、reset 与 episode 管理
 - 状态、动作、奖励、终止条件和安全约束定义
 
-### Rollout and Data Pipeline
+### Rollout 与数据管线
 
 - Rollout worker、actor pool 与采样调度
 - Experience collection、trajectory storage 与 replay buffer
 - On-policy 数据新鲜度、off-policy 数据复用与优先级采样
 - 数据持久化、回放、过滤、重加权与样本质量分析
 
-### Training Systems
+### 训练系统
 
 - Actor / Learner 架构与参数同步
 - On-policy、off-policy、offline RL 的系统差异
@@ -32,28 +32,28 @@
 - Checkpoint、恢复、随机性控制与复现实验
 - 吞吐、样本效率、稳定性和资源利用率之间的权衡
 
-### Experiment Platform
+### 实验平台
 
 - 实验编排、配置管理和超参数搜索
 - 多任务、多智能体、自博弈和联赛系统
 - 指标记录、结果对比、回归测试与实验归档
 - 失败任务恢复、资源调度、队列与优先级管理
 
-### Offline RL and Dataset Infra
+### Offline RL 与数据集基础设施
 
 - 静态数据集管理、质量评估和覆盖度分析
 - OPE（Off-policy Evaluation）与评测可信度
 - 数据切分、版本、污染、偏差和复现
 - Batch RL 数据管线与训练任务解耦
 
-### RLHF and Post-training
+### RLHF 与后训练
 
 - Preference data pipeline、reward model 训练与数据版本
 - PPO、DPO、GRPO 等训练流程的系统边界
 - Online feedback loop、采样服务、模型服务和训练任务联动
 - Reward hacking、评测、安全约束与人工审核闭环
 
-### Safety and Evaluation
+### 安全与评测
 
 - 泛化评测、稳定性评测和压力测试
 - Reward hacking、specification gaming 与异常行为分析
@@ -80,7 +80,7 @@
 ```text
 topic-name/
 ├── README.md
-├── topic_article.md
+├── xxx.md                  # 正文文章，文件名使用有语义的 snake_case
 ├── assets/
 └── examples/              # 可选：代码、配置或实验样例
 ```

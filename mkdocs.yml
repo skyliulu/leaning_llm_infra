@@ -8,16 +8,16 @@ use_directory_urls: true
 
 nav:
   - 首页: README.md
-  - Foundations:
+  - 基础能力:
       - 概览: 00-foundations/README.md
-      - GPU Architecture:
+      - GPU 架构:
           - 导览: 00-foundations/gpu-architecture/README.md
           - CUDA 编程模型与 GPU 计算系统综述: 00-foundations/gpu-architecture/cuda_intro.md
-          - NVIDIA GPU Architecture Evolution: 00-foundations/gpu-architecture/nvidia_gpu_architecture_evolution.md
+          - NVIDIA GPU 架构演进: 00-foundations/gpu-architecture/nvidia_gpu_architecture_evolution.md
           - CUDA 示例: 00-foundations/gpu-architecture/examples/README.md
-  - LLM Infra:
+  - 大模型基础设施:
       - 概览: 01-llm-infra/README.md
-  - RL Infra:
+  - 强化学习基础设施:
       - 概览: 02-rl-infra/README.md
       - 强化学习基础理论: 02-rl-infra/rl-theory-foundations/rl_theory_foundations.md
 
