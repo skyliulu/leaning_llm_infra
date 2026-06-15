@@ -5,6 +5,10 @@
 ## 当前笔记
 
 - [大模型推理服务化系统综述](./llm_inference_serving_overview.md)
+- [KV Cache、PagedAttention 与 Prefix Caching](./kv_cache_paged_attention_and_prefix_caching.md)
+- [Prefill / Decode 调度与分离部署](./prefill_decode_scheduling_and_disaggregation.md)
+- [量化、Speculative Decoding 与并行推理](./quantization_speculative_decoding_and_parallelism.md)
+- [生产推理服务栈与可观测性](./production_serving_stack_and_observability.md)
 
 ## 阅读重点
 
@@ -15,12 +19,12 @@
 3. 接着看优化手段：continuous batching、PagedAttention、prefix caching、speculative decoding、quantization 和并行推理。
 4. 最后进入生产视角：多模型服务、弹性伸缩、限流、灰度发布、观测指标和成本核算。
 
-## 后续可扩展文章
+## 后续可扩展方向
 
-- `kv_cache_paged_attention_and_prefix_caching.md`：围绕 KV Cache 公式、PagedAttention、prefix caching、KV offload 和 cache transfer 展开。
-- `prefill_decode_scheduling_and_disaggregation.md`：解释 continuous batching、chunked prefill、prefill / decode disaggregation 和 SLO-aware scheduling。
-- `quantization_speculative_decoding_and_parallelism.md`：对比量化、speculative decoding、并行推理和 kernel / runtime 优化的收益与代价。
-- `production_serving_stack_and_observability.md`：梳理 vLLM、SGLang、TensorRT-LLM、TGI、Kubernetes / KServe / Ray Serve / Triton 等生产栈和观测体系。
+- 将 `KV Cache` 文章继续扩展为长上下文推理和跨节点 cache transfer 专题。
+- 将 `Prefill / Decode` 文章继续扩展为 vLLM、Sarathi-Serve、DistServe、SGLang PD disaggregation 的系统对比。
+- 将 `量化与并行` 文章继续扩展为 FP8 / INT4 / KV quantization、speculative decoding 变体和多 GPU 拓扑专题。
+- 将 `生产服务栈` 文章继续扩展为可运行的 Kubernetes / Ray Serve / KServe 部署样例和观测仪表盘。
 
 ## 资源组织
 
