@@ -17,10 +17,10 @@
 
 ## 后续可扩展文章
 
-- `kv_cache_paged_attention_and_batching.md`：围绕 KV Cache、显存碎片和 batch 调度展开。
-- `prefill_decode_scheduling.md`：解释 prefill / decode 的资源差异、chunked prefill 和分离部署。
-- `quantization_speculative_decoding_and_parallelism.md`：对比量化、speculative decoding 和并行策略的收益与代价。
-- `production_serving_stack.md`：梳理 vLLM、SGLang、TensorRT-LLM、TGI、Kubernetes / KServe / Ray Serve 等生产栈。
+- `kv_cache_paged_attention_and_prefix_caching.md`：围绕 KV Cache 公式、PagedAttention、prefix caching、KV offload 和 cache transfer 展开。
+- `prefill_decode_scheduling_and_disaggregation.md`：解释 continuous batching、chunked prefill、prefill / decode disaggregation 和 SLO-aware scheduling。
+- `quantization_speculative_decoding_and_parallelism.md`：对比量化、speculative decoding、并行推理和 kernel / runtime 优化的收益与代价。
+- `production_serving_stack_and_observability.md`：梳理 vLLM、SGLang、TensorRT-LLM、TGI、Kubernetes / KServe / Ray Serve / Triton 等生产栈和观测体系。
 
 ## 资源组织
 

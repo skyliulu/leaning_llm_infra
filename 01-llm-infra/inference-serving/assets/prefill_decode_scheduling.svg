@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="620" viewBox="0 0 1180 620" role="img" aria-label="Prefill decode scheduling with queues KV cache manager and optional prefill decode disaggregation">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#27313d"/>
+    </marker>
+    <style>
+      .bg { fill: #ffffff; }
+      .title { font: 700 24px Arial, sans-serif; fill: #111827; }
+      .group { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.4; rx: 8; }
+      .group-title { font: 700 15px Arial, sans-serif; fill: #334155; }
+      .node { fill: #ffffff; stroke: #64748b; stroke-width: 1.4; rx: 6; }
+      .queue { fill: #eff6ff; stroke: #3b82f6; stroke-width: 1.6; rx: 6; }
+      .compute { fill: #fff7ed; stroke: #f97316; stroke-width: 1.8; rx: 6; }
+      .cache { fill: #eef2ff; stroke: #6366f1; stroke-width: 1.6; rx: 6; }
+      .control { fill: #ecfdf5; stroke: #10b981; stroke-width: 1.5; rx: 6; }
+      .metric { fill: #fefce8; stroke: #ca8a04; stroke-width: 1.4; rx: 6; }
+      .label { font: 600 14px Arial, sans-serif; fill: #111827; }
+      .small { font: 12px Arial, sans-serif; fill: #475569; }
+      .arrow { stroke: #27313d; stroke-width: 1.8; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #475569; stroke-width: 1.5; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect class="bg" width="1180" height="620" fill="#ffffff"/>
+  <text class="title" x="40" y="44">Prefill / Decode Scheduling and KV Cache Flow</text>
+
+  <rect class="group" x="40" y="82" width="230" height="390"/>
+  <text class="group-title" x="60" y="110">Request Control</text>
+  <rect class="queue" x="70" y="135" width="170" height="52"/>
+  <text class="label" x="103" y="157">Ingress Queue</text>
+  <text class="small" x="95" y="176">arrival, priority, tenant</text>
+  <rect class="control" x="70" y="220" width="170" height="52"/>
+  <text class="label" x="100" y="242">Admission</text>
+  <text class="small" x="99" y="261">SLO and capacity gate</text>
+  <rect class="queue" x="70" y="305" width="170" height="52"/>
+  <text class="label" x="99" y="327">Ready Set</text>
+  <text class="small" x="91" y="346">prefill or decode work</text>
+
+  <rect class="group" x="315" y="82" width="270" height="390"/>
+  <text class="group-title" x="335" y="110">Online Scheduler</text>
+  <rect class="control" x="350" y="135" width="200" height="56"/>
+  <text class="label" x="397" y="158">Batch Policy</text>
+  <text class="small" x="379" y="177">continuous batching</text>
+  <rect class="control" x="350" y="220" width="200" height="56"/>
+  <text class="label" x="389" y="243">Chunk Policy</text>
+  <text class="small" x="376" y="262">split long prefills</text>
+  <rect class="control" x="350" y="305" width="200" height="56"/>
+  <text class="label" x="380" y="328">SLO Controller</text>
+  <text class="small" x="375" y="347">TTFT, TPOT, fairness</text>
+
+  <rect class="group" x="635" y="82" width="235" height="390"/>
+  <text class="group-title" x="655" y="110">Unified GPU Worker</text>
+  <rect class="compute" x="665" y="135" width="175" height="56"/>
+  <text class="label" x="721" y="158">Prefill</text>
+  <text class="small" x="690" y="177">large prompt chunks</text>
+  <rect class="cache" x="665" y="220" width="175" height="56"/>
+  <text class="label" x="703" y="243">KV Manager</text>
+  <text class="small" x="690" y="262">blocks, reuse, eviction</text>
+  <rect class="compute" x="665" y="305" width="175" height="56"/>
+  <text class="label" x="724" y="328">Decode</text>
+  <text class="small" x="694" y="347">one token per step</text>
+
+  <rect class="group" x="920" y="82" width="220" height="390"/>
+  <text class="group-title" x="940" y="110">PD Disaggregation</text>
+  <rect class="compute" x="950" y="135" width="160" height="56"/>
+  <text class="label" x="984" y="158">Prefill Pool</text>
+  <text class="small" x="972" y="177">compute-optimized GPUs</text>
+  <rect class="cache" x="950" y="220" width="160" height="56"/>
+  <text class="label" x="982" y="243">KV Transfer</text>
+  <text class="small" x="973" y="262">GPU, CPU, network</text>
+  <rect class="compute" x="950" y="305" width="160" height="56"/>
+  <text class="label" x="989" y="328">Decode Pool</text>
+  <text class="small" x="973" y="347">latency-optimized GPUs</text>
+
+  <rect class="metric" x="405" y="510" width="370" height="58"/>
+  <text class="label" x="528" y="533">Serving Objective</text>
+  <text class="small" x="454" y="552">maximize goodput under TTFT, TPOT, memory, and cost constraints</text>
+
+  <path class="arrow" d="M155 187 V220"/>
+  <path class="arrow" d="M155 272 V305"/>
+  <path class="arrow" d="M240 331 H350"/>
+  <path class="arrow" d="M550 163 H665"/>
+  <path class="arrow" d="M550 248 H665"/>
+  <path class="arrow" d="M550 333 H665"/>
+  <path class="arrow" d="M752 191 V220"/>
+  <path class="arrow" d="M752 276 V305"/>
+  <path class="dash" d="M840 163 H950"/>
+  <path class="dash" d="M840 248 H950"/>
+  <path class="dash" d="M840 333 H950"/>
+  <path class="dash" d="M1030 191 V220"/>
+  <path class="dash" d="M1030 276 V305"/>
+  <path class="dash" d="M450 361 C455 440, 515 488, 590 510"/>
+  <path class="dash" d="M752 361 C740 430, 690 480, 620 510"/>
+
+  <text class="small" x="575" y="151">prefill chunks</text>
+  <text class="small" x="574" y="236">cache actions</text>
+  <text class="small" x="574" y="321">decode steps</text>
+  <text class="small" x="858" y="151">optional split</text>
+  <text class="small" x="858" y="236">cache movement</text>
+  <text class="small" x="858" y="321">separate loop</text>
+</svg>
