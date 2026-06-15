@@ -4,6 +4,10 @@
 
 这里不重复记录 GPU、Linux、分布式系统等通用基础；这些内容优先放在 [00-foundations](../00-foundations/README.md)。本目录更关注这些基础能力如何组合成 LLM 系统。
 
+## 当前专题
+
+- [推理与服务化](./inference-serving/README.md)：从请求生命周期、prefill / decode、KV Cache、continuous batching、PagedAttention、量化、并行推理到生产服务指标，建立 LLM inference serving 的系统框架。
+
 ## 建议专题
 
 ### 数据基础设施
@@ -83,7 +87,7 @@ topic-name/
 
 1. 先从 `training-systems` 理解一次 LLM 训练流水线如何跑起来。
 2. 再看 `distributed-training`，把并行策略、显存优化和通信瓶颈串起来。
-3. 接着看 `inference-serving`，理解训练系统和在线服务系统的差异。
+3. 接着看 [推理与服务化](./inference-serving/README.md)，理解训练系统和在线服务系统的差异。
 4. 然后补 `evaluation-observability`，把系统是否稳定、有效、可回归说清楚。
 5. 最后看 `rag-agent-runtime` 和 `platform-governance`，理解应用层和生产平台如何接入。
 

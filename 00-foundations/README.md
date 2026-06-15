@@ -5,6 +5,7 @@
 ## 当前专题
 
 - [GPU 架构](./gpu-architecture/README.md)：CUDA 编程模型、NVIDIA GPU 硬件层级、存储层级、Tensor Core / RT Core / NVLink，以及从 G80 到 Rubin / Vera Rubin 的架构演进。
+- [异构分布式计算系统](./heterogeneous-distributed-computing/README.md)：以 Ray 为贯穿案例，梳理 CPU、GPU、对象存储、网络和调度器如何支撑 AI 数据处理、训练、推理和 RL rollout。
 
 ## 建议补充方向
 
@@ -23,12 +24,13 @@
 - 文件系统、对象存储与数据加载
 - 容器、镜像、cgroup、namespace 与运行时
 
-### 分布式系统
+### 异构分布式计算系统
 
-- 资源调度、队列、优先级与配额
-- 一致性、容错、checkpoint 与恢复
-- 分布式存储、消息队列与任务编排
-- 可观测性、日志、指标、Tracing 与告警
+- Ray Core：task、actor、object store、CPU / GPU / custom resource
+- CPU-GPU 数据流水：数据读取、预处理、batch inference、训练 step 和 rollout
+- KubeRay：Kubernetes 上的 Ray 集群、作业、服务和弹性伸缩
+- 资源调度、队列、优先级、配额、backpressure 与故障恢复
+- 可观测性、日志、指标、Tracing、object spilling 和 GPU 利用率
 
 ### 深度学习系统
 
@@ -66,5 +68,6 @@
 1. GPU 架构与 CUDA 基础
 2. PyTorch 训练流程、显存机制与算子执行
 3. 多 GPU 通信、NCCL 与分布式训练瓶颈
-4. Linux、容器、调度与资源管理
-5. Profiling、Benchmark 与可观测性
+4. 异构分布式计算、Ray、KubeRay 与 CPU-GPU pipeline
+5. Linux、容器、调度与资源管理
+6. Profiling、Benchmark 与可观测性

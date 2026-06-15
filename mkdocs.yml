@@ -15,8 +15,14 @@ nav:
           - CUDA 编程模型与 GPU 计算系统综述: 00-foundations/gpu-architecture/cuda_intro.md
           - NVIDIA GPU 架构演进: 00-foundations/gpu-architecture/nvidia_gpu_architecture_evolution.md
           - CUDA 示例: 00-foundations/gpu-architecture/examples/README.md
+      - 异构分布式计算系统:
+          - 导览: 00-foundations/heterogeneous-distributed-computing/README.md
+          - 面向 AI Infra 的异构分布式计算系统综述: 00-foundations/heterogeneous-distributed-computing/heterogeneous_distributed_computing_overview.md
   - 大模型基础设施:
       - 概览: 01-llm-infra/README.md
+      - 推理与服务化:
+          - 导览: 01-llm-infra/inference-serving/README.md
+          - 大模型推理服务化系统综述: 01-llm-infra/inference-serving/llm_inference_serving_overview.md
   - 强化学习基础设施:
       - 概览: 02-rl-infra/README.md
       - 强化学习基础理论: 02-rl-infra/rl-theory-foundations/rl_theory_foundations.md

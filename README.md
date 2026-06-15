@@ -11,6 +11,7 @@
 当前重点：
 
 - [GPU 架构](./00-foundations/gpu-architecture/README.md)：CUDA 编程模型、GPU 硬件层级、存储层级、Tensor Core / RT Core / NVLink，以及 NVIDIA GPU 架构演进。
+- [异构分布式计算系统](./00-foundations/heterogeneous-distributed-computing/README.md)：以 Ray 为贯穿案例，理解 CPU / GPU / 存储 / 网络 / 调度器如何共同支撑 AI 数据处理、训练、推理和 rollout。
 
 后续会继续围绕计算机系统、分布式系统、深度学习系统和工程工具链补充。
 
@@ -22,7 +23,7 @@
 
 - 数据基础设施：语料清洗、去重、配比、版本、数据加载与污染检测。
 - 训练系统：pretraining、SFT、post-training、checkpoint、并行策略、显存优化与训练吞吐。
-- 推理与服务化：KV Cache、continuous batching、PagedAttention、量化、多副本调度、延迟与成本。
+- [推理与服务化](./01-llm-infra/inference-serving/README.md)：KV Cache、continuous batching、PagedAttention、量化、多副本调度、延迟与成本。
 - RAG 与 Agent Runtime：检索、上下文组装、tool calling、session memory、权限、状态与失败恢复。
 - 评测与平台治理：离线/在线评测、可观测性、成本、权限、多租户、安全和发布治理。
 

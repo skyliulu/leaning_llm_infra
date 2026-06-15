@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="560" viewBox="0 0 1120 560" role="img" aria-label="LLM inference request lifecycle from API gateway to GPU decode loop and observability">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#27313d"/>
+    </marker>
+    <style>
+      .bg { fill: #ffffff; }
+      .title { font: 700 24px Arial, sans-serif; fill: #111827; }
+      .group { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.4; rx: 8; }
+      .group-title { font: 700 15px Arial, sans-serif; fill: #334155; }
+      .node { fill: #ffffff; stroke: #64748b; stroke-width: 1.4; rx: 6; }
+      .hot { fill: #fff7ed; stroke: #f97316; stroke-width: 1.8; rx: 6; }
+      .cache { fill: #eef2ff; stroke: #6366f1; stroke-width: 1.6; rx: 6; }
+      .metric { fill: #ecfdf5; stroke: #10b981; stroke-width: 1.4; rx: 6; }
+      .label { font: 600 14px Arial, sans-serif; fill: #111827; }
+      .small { font: 12px Arial, sans-serif; fill: #475569; }
+      .arrow { stroke: #27313d; stroke-width: 1.8; fill: none; marker-end: url(#arrow); }
+      .dashed { stroke: #475569; stroke-width: 1.5; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect class="bg" width="1120" height="560" fill="#ffffff"/>
+  <text class="title" x="40" y="44">LLM Inference Serving Request Lifecycle</text>
+
+  <rect class="group" x="40" y="78" width="230" height="200"/>
+  <text class="group-title" x="60" y="106">Request Plane</text>
+  <rect class="node" x="70" y="130" width="170" height="50"/>
+  <text class="label" x="100" y="160">API Gateway</text>
+  <rect class="node" x="70" y="205" width="170" height="50"/>
+  <text class="label" x="107" y="235">Tokenizer</text>
+
+  <rect class="group" x="315" y="78" width="270" height="360"/>
+  <text class="group-title" x="335" y="106">Scheduler</text>
+  <rect class="node" x="350" y="130" width="200" height="56"/>
+  <text class="label" x="399" y="154">Admission</text>
+  <text class="small" x="382" y="173">rate limit and queue</text>
+  <rect class="node" x="350" y="220" width="200" height="56"/>
+  <text class="label" x="389" y="244">Batch Builder</text>
+  <text class="small" x="381" y="263">continuous batching</text>
+  <rect class="node" x="350" y="310" width="200" height="56"/>
+  <text class="label" x="385" y="334">Policy Engine</text>
+  <text class="small" x="380" y="353">priority and fairness</text>
+
+  <rect class="group" x="635" y="78" width="310" height="360"/>
+  <text class="group-title" x="655" y="106">GPU Execution Plane</text>
+  <rect class="hot" x="670" y="130" width="240" height="62"/>
+  <text class="label" x="758" y="154">Prefill</text>
+  <text class="small" x="706" y="174">compute-heavy prompt processing</text>
+  <rect class="cache" x="670" y="220" width="240" height="62"/>
+  <text class="label" x="746" y="244">KV Cache</text>
+  <text class="small" x="704" y="264">paged blocks and prefix reuse</text>
+  <rect class="hot" x="670" y="310" width="240" height="62"/>
+  <text class="label" x="762" y="334">Decode</text>
+  <text class="small" x="704" y="354">token loop and sampling</text>
+
+  <rect class="group" x="40" y="330" width="230" height="108"/>
+  <text class="group-title" x="60" y="358">Response Plane</text>
+  <rect class="node" x="70" y="382" width="170" height="40"/>
+  <text class="label" x="95" y="407">Streaming Output</text>
+
+  <rect class="metric" x="690" y="470" width="220" height="52"/>
+  <text class="label" x="739" y="493">Observability</text>
+  <text class="small" x="720" y="512">TTFT, TPOT, throughput, cost</text>
+
+  <path class="arrow" d="M240 155 H350"/>
+  <path class="arrow" d="M155 180 V205"/>
+  <path class="arrow" d="M240 230 H350"/>
+  <path class="arrow" d="M450 186 V220"/>
+  <path class="arrow" d="M450 276 V310"/>
+  <path class="arrow" d="M550 248 H670"/>
+  <path class="arrow" d="M790 192 V220"/>
+  <path class="arrow" d="M790 282 V310"/>
+  <path class="arrow" d="M670 341 C590 405, 420 432, 240 402"/>
+  <path class="dashed" d="M910 341 C975 322, 975 240, 910 248"/>
+  <path class="dashed" d="M790 372 V470"/>
+
+  <text class="small" x="946" y="286">next-token loop</text>
+  <text class="small" x="578" y="237">scheduled batch</text>
+</svg>
