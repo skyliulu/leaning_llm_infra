@@ -20,7 +20,6 @@ nav:
   - RL Infra:
       - 概览: 02-rl-infra/README.md
       - RL Theory Foundations:
-          - 导览: 02-rl-infra/rl-theory-foundations/README.md
           - 主笔记: 02-rl-infra/rl-theory-foundations/rl_theory_foundations.md
 
 exclude_docs: |
