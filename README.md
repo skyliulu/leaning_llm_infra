@@ -106,14 +106,26 @@
 
 ### 本地预览
 
+Windows PowerShell：
+
+```powershell
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+.venv\Scripts\python.exe -m mkdocs serve
+```
+
+macOS / Linux：
+
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
-mkdocs serve
+python -m pip install -r requirements.txt
+python -m mkdocs serve
 ```
 
 启动后访问 `http://127.0.0.1:8000/` 即可查看博客站点。
+
+当前站点使用 `docs/` 下的 Git symlink 暴露根目录内容。如果 Windows 本地构建提示导航文件不存在，通常是 Git 未启用 symlink 支持；可以改用 WSL/类 Unix 环境预览，或在 Windows 开启 Developer Mode 后重新检出仓库。GitHub Actions 的 Linux 环境会按 symlink 正常构建。
 
 ### 发布到 GitHub Pages
 

@@ -19,8 +19,7 @@ nav:
       - 概览: 01-llm-infra/README.md
   - RL Infra:
       - 概览: 02-rl-infra/README.md
-      - RL Theory Foundations:
-          - 主笔记: 02-rl-infra/rl-theory-foundations/rl_theory_foundations.md
+      - 强化学习基础理论: 02-rl-infra/rl-theory-foundations/rl_theory_foundations.md
 
 exclude_docs: |
   .agents/

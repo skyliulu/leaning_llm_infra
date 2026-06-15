@@ -80,11 +80,12 @@
 ```text
 topic-name/
 ├── README.md
-├── main_note.md
-└── assets/
+├── topic_article.md
+├── assets/
+└── examples/              # 可选：代码、配置或实验样例
 ```
 
-等某个专题变大后，再拆 `concepts/`、`papers/`、`projects/`、`notes/`。
+`README.md` 只做导览：说明这个专题解决什么问题、推荐先读哪篇、有哪些关键资料。真正的正文文章使用有语义的 snake_case 文件名，例如 `rl_theory_foundations.md`、`rollout_data_pipeline.md`。等某个专题变大后，再拆 `concepts/`、`papers/`、`projects/`、`notes/`。
 
 ## 推荐阅读顺序
 
