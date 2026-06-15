@@ -31,6 +31,8 @@ jobs:
           cache: pip
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - name: Install documentation dependencies
         run: pip install -r requirements.txt
       - name: Build site

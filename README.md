@@ -117,9 +117,10 @@ mkdocs serve
 
 ### 发布到 GitHub Pages
 
-1. 在 GitHub 仓库的 **Settings → Pages** 中，将 Source 设置为 **GitHub Actions**。
-2. 将变更推送到 `main` 或 `master` 分支，`.github/workflows/deploy-pages.yml` 会自动构建并发布站点。
-3. 如果需要手动发布，可以在 GitHub Actions 页面运行 `Deploy documentation to GitHub Pages` workflow。
+1. 首次运行时，`.github/workflows/deploy-pages.yml` 会让 `actions/configure-pages` 尝试自动启用 Pages，并将发布源配置为 **GitHub Actions**。
+2. 如果仓库权限策略不允许 workflow 自动启用 Pages，请在 GitHub 仓库的 **Settings → Pages** 中手动将 Source 设置为 **GitHub Actions**，然后重新运行 workflow。
+3. 将变更推送到 `main` 或 `master` 分支，workflow 会自动构建并发布站点。
+4. 如果需要手动发布，可以在 GitHub Actions 页面运行 `Deploy documentation to GitHub Pages` workflow。
 
 ### 新增文章
 
