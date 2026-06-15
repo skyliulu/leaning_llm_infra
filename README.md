@@ -73,7 +73,7 @@
 
 仓库中维护了两个项目级 skill，用于把可复用的写作和制图经验固化下来：
 
-- [`write-technical-blog`](./.agents/skills/write-technical-blog/SKILL.md)：用于资料分析、术语铺垫、案例设计、公式推导、章节衔接、引用和发布前检查。
-- [`design-technical-diagrams`](./.agents/skills/design-technical-diagrams/SKILL.md)：用于设计论文风格技术图、选择 SVG/PNG/绘图库/imagegen，以及完成结构检查和渲染验收。
+- `write-technical-blog`（路径：`.agents/skills/write-technical-blog/SKILL.md`）：用于资料分析、术语铺垫、案例设计、公式推导、章节衔接、引用和发布前检查。
+- `design-technical-diagrams`（路径：`.agents/skills/design-technical-diagrams/SKILL.md`）：用于设计论文风格技术图、选择 SVG/PNG/绘图库/imagegen，以及完成结构检查和渲染验收。
 
-根目录的 [`AGENTS.md`](./AGENTS.md) 记录了给后续 Agent 使用的项目级协作规范。
+根目录的 `AGENTS.md` 记录了给后续 Agent 使用的项目级协作规范。
