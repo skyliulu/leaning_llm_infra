@@ -2,7 +2,7 @@ site_name: Learning LLM Infra
 site_description: LLM Infra、RL Infra 与底层系统工程学习笔记
 site_author: Learning LLM Infra
 repo_name: leaning_llm_infra
-docs_dir: .
+docs_dir: docs
 site_dir: site
 use_directory_urls: true
 
@@ -27,7 +27,6 @@ exclude_docs: |
   .agents/
   .git/
   .github/
-  site/
   requirements.txt
   mkdocs.yml
 
@@ -114,8 +113,8 @@ plugins:
       minify_html: true
 
 extra_javascript:
-  - docs/assets/mathjax.js
+  - assets/mathjax.js
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 extra_css:
-  - docs/assets/extra.css
+  - assets/extra.css

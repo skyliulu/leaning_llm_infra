@@ -89,8 +89,8 @@
 
 ## 项目级 Skills
 
-- [`write-technical-blog`](./.agents/skills/write-technical-blog/SKILL.md)：从资料分析、案例设计和术语铺垫，到公式推导、章节衔接、引用与发布验收。
-- [`design-technical-diagrams`](./.agents/skills/design-technical-diagrams/SKILL.md)：选择合适的制图方式，设计论文风格技术图，并通过结构检查和实际渲染完成验收。
+- `write-technical-blog`（`.agents/skills/write-technical-blog/SKILL.md`）：从资料分析、案例设计和术语铺垫，到公式推导、章节衔接、引用与发布验收。
+- `design-technical-diagrams`（`.agents/skills/design-technical-diagrams/SKILL.md`）：选择合适的制图方式，设计论文风格技术图，并通过结构检查和实际渲染完成验收。
 
 两个 Skill 可以独立使用，也可以组合使用：技术博客 Skill 负责文章主线，并在需要图解时调用技术图 Skill。
 
