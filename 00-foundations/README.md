@@ -4,14 +4,14 @@
 
 ## 当前专题
 
-- [GPU 架构](./gpu-architecture/README.md)：CUDA 编程模型、NVIDIA GPU 硬件层级、存储层级、Tensor Core / RT Core / NVLink，以及从 G80 到 Rubin / Vera Rubin 的架构演进。
+- [GPU 架构](./gpu-architecture/README.md)：NVIDIA GPU 硬件层级、存储层级、Tensor Core / RT Core / NVLink、从 G80 到 Rubin / Vera Rubin 的架构演进，以及 CUDA 编程模型。
 - [异构分布式计算系统](./heterogeneous-distributed-computing/README.md)：以 Ray 为贯穿案例，梳理 CPU、GPU、对象存储、网络和调度器如何支撑 AI 数据处理、训练、推理和 RL rollout。
 
 ## 建议补充方向
 
 ### GPU / 加速器
 
-- GPU 架构与 CUDA 编程模型
+- GPU 架构演进与 CUDA 编程模型
 - Kernel、warp、occupancy、访存合并与 shared memory
 - Tensor Core、低精度计算与矩阵乘法数据流
 - NCCL、NVLink、PCIe 与多 GPU 通信
@@ -65,7 +65,7 @@
 
 ## 推荐阅读顺序
 
-1. GPU 架构与 CUDA 基础
+1. GPU 架构演进与 CUDA 编程模型
 2. PyTorch 训练流程、显存机制与算子执行
 3. 多 GPU 通信、NCCL 与分布式训练瓶颈
 4. 异构分布式计算、Ray、KubeRay 与 CPU-GPU pipeline

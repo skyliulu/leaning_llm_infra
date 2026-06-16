@@ -10,7 +10,7 @@
 
 当前重点：
 
-- [GPU 架构](./00-foundations/gpu-architecture/README.md)：CUDA 编程模型、GPU 硬件层级、存储层级、Tensor Core / RT Core / NVLink，以及 NVIDIA GPU 架构演进。
+- [GPU 架构](./00-foundations/gpu-architecture/README.md)：NVIDIA GPU 架构演进、GPU 硬件层级、存储层级、Tensor Core / RT Core / NVLink，以及 CUDA 编程模型。
 - [异构分布式计算系统](./00-foundations/heterogeneous-distributed-computing/README.md)：以 Ray 为贯穿案例，理解 CPU / GPU / 存储 / 网络 / 调度器如何共同支撑 AI 数据处理、训练、推理和 rollout。
 
 后续会继续围绕计算机系统、分布式系统、深度学习系统和工程工具链补充。

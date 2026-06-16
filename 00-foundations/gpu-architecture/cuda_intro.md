@@ -1,4 +1,4 @@
-# CUDA 编程模型与 GPU 计算系统深度技术综述
+# CUDA 编程模型
 
 版本日期：2026-06-10
 
@@ -12,7 +12,7 @@ CUDA（Compute Unified Device Architecture）是 NVIDIA 把 GPU 从“固定图�
 
 **文档定位**：本文面向希望理解 LLM Infra 底层执行机制的工程读者。它不是 CUDA API 手册，也不追求覆盖所有 runtime / driver 函数；重点是建立“模型代码 → CUDA 软件栈 → GPU 硬件数据流 → 性能瓶颈”的技术综述框架。
 
-**阅读建议**：可以和同目录的 [NVIDIA GPU 硬件体系结构与架构演进深度技术综述](./nvidia_gpu_architecture_evolution.md) 配合阅读。那篇文章偏硬件演进，本文偏 CUDA 编程模型和系统执行路径。
+**阅读建议**：建议先读同目录的 [NVIDIA GPU 架构演进](./nvidia_gpu_architecture_evolution.md)，先建立硬件层级、SM、存储层级和专用加速单元的整体框架，再回到本文理解 CUDA 编程模型和系统执行路径。
 
 ---
 
@@ -50,7 +50,7 @@ CUDA（Compute Unified Device Architecture）是 NVIDIA 把 GPU 从“固定图�
 - 第 16 章 推理链路中的 CUDA
 - 第 17 章 常见性能症状与排查路径
 
-**第六部分 代码示例与实验路线**
+**第六部分 工程检查与实验路线**
 
 - 第 18 章 CUDA C++ 最小工程：从 vector add 到错误检查
 - 第 19 章 Shared Memory Tiled Matmul：把 tiling 写成代码
@@ -659,29 +659,29 @@ Decode 阶段每生成一个 token 都要读取历史 KV cache。随着 sequence
 
 ---
 
-## 第六部分 代码示例与实验路线
+## 第六部分 工程检查与实验路线
 
-前面的章节主要讲概念和系统路径，但 CUDA 最容易误解的地方往往出现在代码细节中：一个索引写错会造成越界，一个 block size 选择会改变 occupancy，一个同步点会让异步流水失效，一个看似“本地”的数组可能触发 register spill。为了把概念落到可实验对象上，本目录新增了配套示例：[`examples/`](./examples/README.md)。
+前面的章节主要讲概念和系统路径，但 CUDA 最容易误解的地方往往出现在代码细节中：一个索引写错会造成越界，一个 block size 选择会改变 occupancy，一个同步点会让异步流水失效，一个看似“本地”的数组可能触发 register spill。下面保留几段最小代码片段，用于说明应该检查什么，而不是把示例代码单独维护成仓库内容。
 
-这些示例遵循三个原则：
+阅读这些代码片段时关注三个原则：
 
-1. **单文件**：每个 `.cu` 文件都可以单独用 `nvcc` 编译。
-2. **有校验**：示例不只展示 kernel，还包含 CPU 侧结果检查或抽样校验。
-3. **对应章节**：每个示例都对应本文一个核心主题，便于读完概念后马上实验。
+1. **有边界**：每个 kernel 都要明确线程索引、数据范围和越界处理。
+2. **有校验**：不只看 kernel，还要检查错误处理、同步和结果校验。
+3. **可归因**：能把 profiler 里的现象映射回代码中的访存、同步、launch 或调度决策。
 
-| 示例 | 对应文件 | 重点概念 | 建议 profiler |
-|---|---|---|---|
-| 向量加法 | [`examples/vector_add.cu`](./examples/vector_add.cu) | Host / Device memory、kernel launch、grid-stride loop、错误检查 | Nsight Systems |
-| Tiled GEMM | [`examples/tiled_matmul.cu`](./examples/tiled_matmul.cu) | shared memory、tiling、block / thread 映射、边界处理 | Nsight Compute |
-| 双 stream 流水 | [`examples/stream_pipeline.cu`](./examples/stream_pipeline.cu) | pinned memory、`cudaMemcpyAsync`、stream、event timing | Nsight Systems |
+| 片段 | 重点概念 | 建议 profiler |
+|---|---|---|
+| 向量加法 | Host / Device memory、kernel launch、grid-stride loop、错误检查 | Nsight Systems |
+| Tiled GEMM | shared memory、tiling、block / thread 映射、边界处理 | Nsight Compute |
+| 双 stream 流水 | pinned memory、`cudaMemcpyAsync`、stream、event timing | Nsight Systems |
 
 ### 第 18 章 CUDA C++ 最小工程：从 vector add 到错误检查
 
-最小 CUDA 程序不应该只包含 kernel。生产代码至少需要包含：错误检查、Host / Device 内存生命周期、kernel launch 后的错误捕获、必要同步和结果校验。配套示例 [`vector_add.cu`](./examples/vector_add.cu) 展示了这条完整路径。
+最小 CUDA 程序不应该只包含 kernel。生产代码至少需要包含：错误检查、Host / Device 内存生命周期、kernel launch 后的错误捕获、必要同步和结果校验。
 
 #### 18.1 错误检查宏
 
-CUDA API 的错误不会自动抛异常；kernel launch 也可能因为非法配置、非法地址或异步执行错误而延后暴露。因此示例中使用统一宏检查返回值：
+CUDA API 的错误不会自动抛异常；kernel launch 也可能因为非法配置、非法地址或异步执行错误而延后暴露。因此工程代码中通常会使用统一宏检查返回值：
 
 ```cpp
 #define CUDA_CHECK(call)                                                        \
@@ -699,7 +699,7 @@ CUDA API 的错误不会自动抛异常；kernel launch 也可能因为非法配
 
 #### 18.2 Grid-stride loop
 
-[`vector_add.cu`](./examples/vector_add.cu) 中的 kernel 使用 grid-stride loop：
+向量加法 kernel 常使用 grid-stride loop：
 
 ```cpp
 __global__ void vector_add_kernel(const float* a, const float* b, float* c, int n) {
@@ -714,23 +714,15 @@ __global__ void vector_add_kernel(const float* a, const float* b, float* c, int 
 
 这种写法比“一个线程只处理一个元素”更通用。它让 grid size 和数据规模解耦，也便于对不同 GPU、不同输入规模复用同一个 kernel。对 elementwise kernel、简单 transform、初始化和后处理逻辑来说，这是最常用的模板之一。
 
-#### 18.3 编译与运行
+#### 18.3 工程检查点
 
-在有 CUDA Toolkit 的 GPU 节点上，可以运行：
+向量加法通常不会展示复杂性能瓶颈，因为计算本身太简单；它的价值是建立 CUDA 工程骨架。检查这类最小程序时，应确认：
 
-```bash
-cd 00-foundations/gpu-architecture/examples
-nvcc -O2 -std=c++17 vector_add.cu -o vector_add
-./vector_add
-```
-
-如果要观察 CPU launch、H2D copy、kernel 和 D2H copy 的端到端时间线：
-
-```bash
-nsys profile -t cuda,nvtx -o vector_add_report ./vector_add
-```
-
-这个示例通常不会展示复杂性能瓶颈，因为向量加法本身太简单；它的价值是建立 CUDA 工程骨架，后续所有更复杂示例都沿用这条路径。
+1. Host / Device 内存分配和释放是否成对出现。
+2. H2D、kernel、D2H 三段是否按预期发生。
+3. kernel launch 后是否调用 `cudaGetLastError()` 或等价检查。
+4. 异步错误是否通过同步点暴露。
+5. CPU 侧结果校验是否覆盖边界元素。
 
 ### 第 19 章 Shared Memory Tiled Matmul：把 tiling 写成代码
 
@@ -748,7 +740,7 @@ C[row, col] = sum(A[row, k] * B[k, col])
 
 #### 19.2 Tiled kernel 模板
 
-配套 [`tiled_matmul.cu`](./examples/tiled_matmul.cu) 中的核心逻辑如下：
+Tiled matmul 的核心逻辑可以写成下面的模板：
 
 ```cpp
 constexpr int TILE = 16;
@@ -792,7 +784,7 @@ __global__ void tiled_matmul_kernel(const float* A, const float* B, float* C,
 
 #### 19.3 为什么这不是高性能 GEMM 的终点
 
-这个示例适合理解 tiling，但它离生产级 GEMM 还很远。真实高性能 GEMM 还需要考虑：
+这个模板适合理解 tiling，但它离生产级 GEMM 还很远。真实高性能 GEMM 还需要考虑：
 
 - warp-level tile 和 thread-level register tile。
 - shared memory bank conflict 和 swizzle layout。
@@ -801,11 +793,11 @@ __global__ void tiled_matmul_kernel(const float* A, const float* B, float* C,
 - epilogue fusion，例如 bias、activation、dequant、residual。
 - 多 CTA split-K、persistent kernel、cluster / TMA 等架构相关能力。
 
-因此，工程实践中应优先使用 cuBLASLt、CUTLASS、Triton 或框架内置 kernel；手写示例的价值是帮助读者理解 profiler 指标和库实现背后的数据流。
+因此，工程实践中应优先使用 cuBLASLt、CUTLASS、Triton 或框架内置 kernel；手写模板的价值是帮助读者理解 profiler 指标和库实现背后的数据流。
 
 ### 第 20 章 Stream Pipeline：Pinned Memory、异步拷贝与事件计时
 
-只写 kernel 不等于会写 CUDA 程序。训练和推理中的性能损失常常发生在 kernel 之外：数据加载没重叠、H2D copy 阻塞、stream 依赖错误、CPU 提交不及时。配套 [`stream_pipeline.cu`](./examples/stream_pipeline.cu) 展示了双 stream 分块流水。
+只写 kernel 不等于会写 CUDA 程序。训练和推理中的性能损失常常发生在 kernel 之外：数据加载没重叠、H2D copy 阻塞、stream 依赖错误、CPU 提交不及时。双 stream 分块流水可以暴露这些问题。
 
 #### 20.1 Pinned memory 为什么重要
 
@@ -821,7 +813,7 @@ Pinned memory 不能被操作系统随意换页，GPU copy engine 可以更稳�
 
 #### 20.2 分块流水模板
 
-示例把输入拆成两个 chunk，分别提交到两个 stream：
+一个典型写法是把输入拆成两个 chunk，分别提交到两个 stream：
 
 ```cpp
 for (int s = 0; s < num_streams; ++s) {
@@ -842,7 +834,7 @@ for (int s = 0; s < num_streams; ++s) {
 
 #### 20.3 Event 计时的边界
 
-示例使用 event 计时：
+CUDA event 常用于计时：
 
 ```cpp
 cudaEventRecord(start);
@@ -922,21 +914,16 @@ Triton 的 `program_id` 类似 CUDA 中的 block id；`tl.arange` 描述一个 b
 
 ### 第 22 章 Profiling Lab：如何用命令把瓶颈定位到代码
 
-补充代码示例的最终目的，是能把 profiler 看到的现象映射回代码行和系统决策。
+Profiling 的最终目的，是能把 profiler 看到的现象映射回代码行和系统决策。
 
-#### 22.1 编译示例
+#### 22.1 选择观测对象
 
-```bash
-cd 00-foundations/gpu-architecture/examples
-nvcc -O2 -std=c++17 vector_add.cu -o vector_add
-nvcc -O2 -std=c++17 tiled_matmul.cu -o tiled_matmul
-nvcc -O2 -std=c++17 stream_pipeline.cu -o stream_pipeline
-```
+优先选择已经在真实训练、推理或数据处理链路中出现的热点，而不是为了 profiling 单独维护一套薄示例。常见入口包括 PyTorch profiler 中耗时最高的 op、Nsight Systems 时间线中的大 gap、NCCL collective、显存拷贝或一个异常慢的自定义 kernel。
 
 #### 22.2 系统时间线：Nsight Systems
 
 ```bash
-nsys profile -t cuda,nvtx -o stream_pipeline_report ./stream_pipeline
+nsys profile -t cuda,nvtx -o workload_report <your_workload_command>
 ```
 
 重点观察：
@@ -949,7 +936,7 @@ nsys profile -t cuda,nvtx -o stream_pipeline_report ./stream_pipeline
 #### 22.3 单 kernel 指标：Nsight Compute
 
 ```bash
-ncu --set full ./tiled_matmul
+ncu --set full <your_kernel_workload_command>
 ```
 
 重点观察：
@@ -960,9 +947,9 @@ ncu --set full ./tiled_matmul
 - Warp State Statistics 中主要 stall reason 是 memory、barrier、not selected 还是 execution dependency。
 - 如果是 Tensor Core kernel，再看 tensor pipe 利用率和 MMA 指令占比。
 
-#### 22.4 从示例迁移到 LLM
+#### 22.4 迁移到 LLM 链路
 
-把这些命令迁移到真实 LLM 训练 / 推理时，建议按以下顺序：
+在真实 LLM 训练 / 推理中，建议按以下顺序：
 
 1. 先用框架 profiler 找 step breakdown。
 2. 再用 Nsight Systems 看 CPU、CUDA kernel、memcpy、NCCL 的端到端时间线。

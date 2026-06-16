@@ -12,7 +12,7 @@ AI Infra 中的“分布式系统”不只是多副本一致性和 RPC。训练�
 
 **文档定位**：本文是异构分布式计算专题的入口文章。它不试图覆盖所有分布式系统理论，而是建立“AI workload → 异构资源 → Ray 抽象 → 集群部署 → 可观测性”的学习框架。
 
-**前置知识**：读者最好已经了解 CPU / GPU 分工、基本 Python 并发和深度学习训练或推理流程。GPU 执行模型可参考 [CUDA 编程模型与 GPU 计算系统综述](../gpu-architecture/cuda_intro.md)。
+**前置知识**：读者最好已经了解 CPU / GPU 分工、基本 Python 并发和深度学习训练或推理流程。GPU 执行模型可参考 [CUDA 编程模型](../gpu-architecture/cuda_intro.md)。
 
 ---
 
