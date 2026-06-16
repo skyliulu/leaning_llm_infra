@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="560" viewBox="0 0 1120 560" role="img" aria-label="Quantization dataflow in LLM inference">
+  <rect width="1120" height="560" fill="#ffffff"/>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#243041"/>
+    </marker>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; fill: #172033; font-size: 16px; letter-spacing: 0; }
+      .title { font-size: 24px; font-weight: 700; }
+      .group-title { font-size: 17px; font-weight: 700; }
+      .label { font-size: 15px; font-weight: 700; }
+      .small { font-size: 13px; fill: #4b5563; }
+      .box { fill: #f8fafc; stroke: #334155; stroke-width: 1.5; rx: 6; }
+      .blue { fill: #eff6ff; stroke: #2563eb; }
+      .green { fill: #ecfdf5; stroke: #059669; }
+      .amber { fill: #fffbeb; stroke: #d97706; }
+      .purple { fill: #f5f3ff; stroke: #7c3aed; }
+      .group { fill: none; stroke: #cbd5e1; stroke-width: 1.5; rx: 8; }
+      .arrow { stroke: #243041; stroke-width: 1.8; fill: none; marker-end: url(#arrow); }
+      .dash { stroke-dasharray: 6 5; }
+    </style>
+  </defs>
+
+  <text x="40" y="42" class="title">Quantization Dataflow in LLM Inference</text>
+  <text x="40" y="68" class="small">Low precision can target weights, activations, or KV cache. Each target changes a different memory and kernel path.</text>
+
+  <rect x="40" y="100" width="300" height="360" class="group"/>
+  <text x="60" y="128" class="group-title">Offline / Load Time</text>
+
+  <rect x="70" y="160" width="240" height="70" class="box blue"/>
+  <text x="92" y="188" class="label">BF16 / FP16 Weights</text>
+  <text x="92" y="211" class="small">checkpoint tensors</text>
+
+  <rect x="70" y="285" width="240" height="85" class="box green"/>
+  <text x="92" y="314" class="label">Quantized Weights</text>
+  <text x="92" y="337" class="small">INT8 / INT4 / FP8 blocks</text>
+  <text x="92" y="357" class="small">scales and packing layout</text>
+
+  <path d="M190 232 L190 278" class="arrow"/>
+  <text x="208" y="260" class="small">calibrate / pack</text>
+
+  <rect x="410" y="100" width="310" height="360" class="group"/>
+  <text x="430" y="128" class="group-title">Runtime Linear Layers</text>
+
+  <rect x="445" y="160" width="240" height="62" class="box amber"/>
+  <text x="466" y="188" class="label">Activation Tensor</text>
+  <text x="466" y="209" class="small">dynamic request data</text>
+
+  <rect x="445" y="270" width="240" height="72" class="box purple"/>
+  <text x="466" y="300" class="label">Fused Dequant GEMM</text>
+  <text x="466" y="322" class="small">read compact weights + scales</text>
+
+  <rect x="445" y="382" width="240" height="52" class="box"/>
+  <text x="466" y="414" class="label">Layer Output</text>
+
+  <path d="M310 328 L438 306" class="arrow"/>
+  <text x="343" y="300" class="small">compressed weights</text>
+  <path d="M565 224 L565 263" class="arrow"/>
+  <text x="583" y="249" class="small">optional activation quant</text>
+  <path d="M565 344 L565 375" class="arrow"/>
+
+  <rect x="790" y="100" width="290" height="360" class="group"/>
+  <text x="810" y="128" class="group-title">Decode Attention State</text>
+
+  <rect x="825" y="160" width="220" height="70" class="box blue"/>
+  <text x="846" y="188" class="label">New Token State</text>
+  <text x="846" y="211" class="small">produces query, key, value</text>
+
+  <rect x="825" y="280" width="220" height="78" class="box green"/>
+  <text x="846" y="310" class="label">Quantized KV Cache</text>
+  <text x="846" y="333" class="small">smaller resident blocks</text>
+
+  <rect x="825" y="392" width="220" height="52" class="box amber"/>
+  <text x="846" y="425" class="label">Attention Read</text>
+
+  <path d="M685 408 C735 408, 758 416, 818 418" class="arrow"/>
+  <text x="714" y="392" class="small">hidden state</text>
+  <path d="M935 232 L935 273" class="arrow"/>
+  <text x="954" y="256" class="small">append K/V</text>
+  <path d="M935 360 L935 385" class="arrow"/>
+  <text x="953" y="379" class="small">dequant on read</text>
+
+  <path d="M190 372 C300 515, 770 515, 910 448" class="arrow dash"/>
+  <text x="452" y="492" class="small">KV quantization changes capacity; weight quantization changes per-layer load cost</text>
+</svg>

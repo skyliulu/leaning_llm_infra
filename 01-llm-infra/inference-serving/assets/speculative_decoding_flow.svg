@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="540" viewBox="0 0 1120 540" role="img" aria-label="Speculative decoding verification flow">
+  <rect width="1120" height="540" fill="#ffffff"/>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#243041"/>
+    </marker>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; fill: #172033; font-size: 16px; letter-spacing: 0; }
+      .title { font-size: 24px; font-weight: 700; }
+      .group-title { font-size: 17px; font-weight: 700; }
+      .label { font-size: 15px; font-weight: 700; }
+      .small { font-size: 13px; fill: #4b5563; }
+      .box { fill: #f8fafc; stroke: #334155; stroke-width: 1.5; rx: 6; }
+      .draft { fill: #eff6ff; stroke: #2563eb; }
+      .target { fill: #f5f3ff; stroke: #7c3aed; }
+      .accept { fill: #ecfdf5; stroke: #059669; }
+      .reject { fill: #fff7ed; stroke: #ea580c; }
+      .state { fill: #f1f5f9; stroke: #475569; }
+      .arrow { stroke: #243041; stroke-width: 1.8; fill: none; marker-end: url(#arrow); }
+      .dash { stroke-dasharray: 6 5; }
+      .token { fill: #ffffff; stroke: #64748b; stroke-width: 1.2; rx: 5; }
+    </style>
+  </defs>
+
+  <text x="40" y="42" class="title">Speculative Decoding: Draft, Verify, Accept</text>
+  <text x="40" y="68" class="small">A cheap draft path proposes tokens; the target model verifies them in one batched pass and decides the accepted prefix.</text>
+
+  <rect x="50" y="130" width="190" height="82" class="box state"/>
+  <text x="75" y="162" class="label">Current Context</text>
+  <text x="75" y="185" class="small">prompt + accepted output</text>
+
+  <rect x="300" y="105" width="220" height="130" class="box draft"/>
+  <text x="324" y="138" class="group-title">Draft Path</text>
+  <text x="324" y="164" class="small">small model, n-gram,</text>
+  <text x="324" y="184" class="small">Medusa, EAGLE, or MTP</text>
+
+  <rect x="560" y="105" width="230" height="130" class="box target"/>
+  <text x="586" y="138" class="group-title">Target Verification</text>
+  <text x="586" y="164" class="small">single batched target pass</text>
+  <text x="586" y="184" class="small">scores every candidate position</text>
+
+  <rect x="840" y="105" width="220" height="130" class="box accept"/>
+  <text x="866" y="138" class="group-title">Accepted Prefix</text>
+  <text x="866" y="164" class="small">append accepted tokens</text>
+  <text x="866" y="184" class="small">commit target KV state</text>
+
+  <path d="M240 171 L293 171" class="arrow"/>
+  <path d="M520 171 L553 171" class="arrow"/>
+  <path d="M790 171 L833 171" class="arrow"/>
+
+  <g transform="translate(320,285)">
+    <text x="0" y="-20" class="group-title">Draft candidates</text>
+    <rect x="0" y="0" width="56" height="44" class="token"/>
+    <rect x="70" y="0" width="56" height="44" class="token"/>
+    <rect x="140" y="0" width="56" height="44" class="token"/>
+    <rect x="210" y="0" width="56" height="44" class="token"/>
+    <text x="18" y="28" class="label">t1</text>
+    <text x="88" y="28" class="label">t2</text>
+    <text x="158" y="28" class="label">t3</text>
+    <text x="228" y="28" class="label">t4</text>
+  </g>
+
+  <g transform="translate(585,295)">
+    <text x="0" y="-24" class="group-title">Verification result</text>
+    <rect x="0" y="0" width="56" height="44" class="token accept"/>
+    <rect x="70" y="0" width="56" height="44" class="token accept"/>
+    <rect x="140" y="0" width="56" height="44" class="token reject"/>
+    <rect x="210" y="0" width="56" height="44" class="token state"/>
+    <text x="11" y="28" class="label">ok</text>
+    <text x="81" y="28" class="label">ok</text>
+    <text x="146" y="28" class="label">stop</text>
+    <text x="222" y="28" class="label">drop</text>
+  </g>
+
+  <g transform="translate(850,285)">
+    <text x="0" y="-20" class="group-title">Next context</text>
+    <rect x="0" y="0" width="70" height="44" class="token accept"/>
+    <rect x="84" y="0" width="70" height="44" class="token accept"/>
+    <rect x="168" y="0" width="70" height="44" class="token reject"/>
+    <text x="22" y="28" class="label">t1</text>
+    <text x="106" y="28" class="label">t2</text>
+    <text x="185" y="28" class="label">resample</text>
+  </g>
+
+  <path d="M454 236 L454 278" class="arrow"/>
+  <path d="M675 236 L675 286" class="arrow"/>
+  <path d="M955 236 L955 278" class="arrow"/>
+
+  <path d="M955 330 C955 420, 160 425, 145 220" class="arrow dash"/>
+  <text x="385" y="445" class="small">Repeat with a longer context; disable or shrink speculation if acceptance rate falls.</text>
+</svg>

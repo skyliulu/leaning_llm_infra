@@ -24,7 +24,10 @@ nav:
           - 大模型推理服务化系统综述: 01-llm-infra/inference-serving/llm_inference_serving_overview.md
           - KV Cache、PagedAttention 与 Prefix Caching: 01-llm-infra/inference-serving/kv_cache_paged_attention_and_prefix_caching.md
           - Prefill / Decode 调度与分离部署: 01-llm-infra/inference-serving/prefill_decode_scheduling_and_disaggregation.md
-          - 量化、Speculative Decoding 与并行推理: 01-llm-infra/inference-serving/quantization_speculative_decoding_and_parallelism.md
+          - 量化与低精度推理: 01-llm-infra/inference-serving/quantization_and_low_precision_inference.md
+          - Speculative Decoding 与解码加速: 01-llm-infra/inference-serving/speculative_decoding_and_decode_acceleration.md
+          - 多 GPU 并行推理与 MoE Serving: 01-llm-infra/inference-serving/parallel_inference_and_moe_serving.md
+          - 推理优化方法索引: 01-llm-infra/inference-serving/quantization_speculative_decoding_and_parallelism.md
           - 生产推理服务栈与可观测性: 01-llm-infra/inference-serving/production_serving_stack_and_observability.md
   - 强化学习基础设施:
       - 概览: 02-rl-infra/README.md

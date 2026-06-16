@@ -31,7 +31,7 @@ KV Cache 是大模型推理服务中最关键、也最容易被低估的运行�
 
 ### 1.1 自回归生成为什么需要缓存
 
-Decoder-only Transformer 逐 token 生成文本。生成第 `t` 个 token 时，模型需要让当前 token attend 到此前所有 token。如果每一步都重新计算历史 token 的 key 和 value，计算量会随上下文长度反复膨胀。
+Decoder-only Transformer 逐 token 生成文本。生成第 $t$ 个 token 时，模型需要让当前 token attend 到此前所有 token。如果每一步都重新计算历史 token 的 key 和 value，计算量会随上下文长度反复膨胀。
 
 KV Cache 的做法是：在 prefill 阶段为 prompt 中每个 token 计算并保存每层 attention 的 key / value；在 decode 阶段，每生成一个新 token，只追加这个 token 对应的 key / value，并读取历史缓存完成 attention。这样，decode 不再重复计算历史 token 的 K/V。
 
@@ -59,18 +59,20 @@ KV Cache 的做法是：在 prefill 阶段为 prompt 中每个 token 计算并�
 
 对一个 decoder-only Transformer，请求的 KV Cache 大小可以粗略估算为：
 
-```text
-KV bytes ~= 2 * layers * kv_heads * head_dim * tokens * bytes_per_element
-```
+$$
+M_{\text{KV}}
+\approx
+2 \times L \times H_{\text{kv}} \times d_h \times T \times b
+$$
 
 其中：
 
-- `2` 表示 key 和 value 两份缓存。
-- `layers` 是 Transformer 层数。
-- `kv_heads` 是 KV head 数。使用 MQA / GQA 时，它可能小于 query heads。
-- `head_dim` 是每个 head 的维度。
-- `tokens` 是当前请求已经进入上下文的 token 数，包括 prompt 和已生成输出。
-- `bytes_per_element` 取决于 FP16、BF16、FP8 或更低精度。
+- $2$ 表示 key 和 value 两份缓存。
+- $L$ 是 Transformer 层数。
+- $H_{\text{kv}}$ 是 KV head 数。使用 MQA / GQA 时，它可能小于 query heads。
+- $d_h$ 是每个 head 的维度。
+- $T$ 是当前请求已经进入上下文的 token 数，包括 prompt 和已生成输出。
+- $b$ 是每个元素的字节数，取决于 FP16、BF16、FP8 或更低精度。
 
 这个公式省略了 tensor parallel 分片、block 元数据、padding、allocator 对齐和 framework overhead，但足够说明核心事实：KV Cache 对 token 数和并发数近似线性增长。
 
