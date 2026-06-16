@@ -128,96 +128,108 @@
 
 ### 1.4 从 token ids 到第一层输入
 
-为了把后面的系统概念落到计算细节上，先固定一个贯穿例子。假设服务部署的是一个 decoder-only 模型，隐藏维度为 `d_model`，词表大小为 `V`，输入 prompt 被 tokenizer 转成长度为 `S` 的 token ids：
+为了把后面的系统概念落到计算细节上，先固定一个贯穿例子。假设服务部署的是一个 decoder-only 模型，隐藏维度为 $d_{\text{model}}$，词表大小为 $V$，输入 prompt 被 tokenizer 转成长度为 $S$ 的 token ids：
 
-`[t_1, t_2, ..., t_S]`
+$$
+[t_1, t_2, \ldots, t_S]
+$$
 
-Embedding 表可以看成矩阵 `E in R^{V x d_model}`。每个 token id 只是一个整数索引，查表后得到第一层输入：
+Embedding 表可以看成矩阵 $E \in \mathbb{R}^{V \times d_{\text{model}}}$。每个 token id 只是一个整数索引，查表后得到第一层输入：
 
-`X_0 = E[token_ids] in R^{S x d_model}`
+$$
+X_0 = E[\text{token\_ids}] \in \mathbb{R}^{S \times d_{\text{model}}}
+$$
 
-这一步本身不是大矩阵乘法，但它决定了后续所有计算的 shape。对推理服务来说，`S` 不只是模型输入长度，也是 prefill 计算量、初始 KV Cache 大小和调度器估算 TTFT 的核心变量。一个 64 token 的请求和一个 16k token 的请求，进入同一个模型后会经过同样的层结构，但它们占用 GPU 的时间和显存完全不同。
+这一步本身不是大矩阵乘法，但它决定了后续所有计算的 shape。对推理服务来说，$S$ 不只是模型输入长度，也是 prefill 计算量、初始 KV Cache 大小和调度器估算 TTFT 的核心变量。一个 64 token 的请求和一个 16k token 的请求，进入同一个模型后会经过同样的层结构，但它们占用 GPU 的时间和显存完全不同。
 
 ### 1.5 一层 Transformer 在 prefill 中做什么
 
-在第 `l` 层，输入记为 `X_l in R^{S x d_model}`。真实模型通常还有 RMSNorm、RoPE、残差连接和不同实现细节，这里先保留推理服务最关心的数据流。
+在第 $l$ 层，输入记为 $X_l \in \mathbb{R}^{S \times d_{\text{model}}}$。真实模型通常还有 RMSNorm、RoPE、残差连接和不同实现细节，这里先保留推理服务最关心的数据流。
 
 Attention 的三组投影是：
 
-```text
-Q = X_l W_Q
-K = X_l W_K
-V = X_l W_V
-```
+$$
+\begin{aligned}
+Q &= X_l W_Q \\
+K &= X_l W_K \\
+V_{\text{attn}} &= X_l W_V
+\end{aligned}
+$$
 
-如果模型使用 grouped-query attention（GQA），query head 数 `n_q_heads` 通常大于 key/value head 数 `n_kv_heads`。reshape 后可以理解为：
+如果模型使用 grouped-query attention（GQA），query head 数 $n_{\text{q\_heads}}$ 通常大于 key/value head 数 $n_{\text{kv\_heads}}$。reshape 后可以理解为：
 
-```text
-Q: [S, n_q_heads, head_dim]
-K: [S, n_kv_heads, head_dim]
-V: [S, n_kv_heads, head_dim]
-```
+$$
+\begin{aligned}
+Q &\in \mathbb{R}^{S \times n_{\text{q\_heads}} \times d_{\text{head}}} \\
+K &\in \mathbb{R}^{S \times n_{\text{kv\_heads}} \times d_{\text{head}}} \\
+V_{\text{attn}} &\in \mathbb{R}^{S \times n_{\text{kv\_heads}} \times d_{\text{head}}}
+\end{aligned}
+$$
 
 Prefill 阶段一次处理完整 prompt，因此 attention 会在 causal mask 下计算所有 prompt token 之间的注意力：
 
-```text
-Attention(Q, K, V) = softmax(mask(Q K^T / sqrt(head_dim))) V
-```
+$$
+\operatorname{Attention}(Q,K,V_{\text{attn}})
+= \operatorname{softmax}\left(\operatorname{mask}\left(\frac{QK^\top}{\sqrt{d_{\text{head}}}}\right)\right)V_{\text{attn}}
+$$
 
 这里有两个对 serving 很关键的结果：
 
-1. `K` 和 `V` 会被写入每一层的 KV Cache，供后续 decode 读取。
-2. `QK^T` 和后续 GEMM 的计算量随 `S` 增长，长 prompt 会显著拉高 prefill 时间。
+1. $K$ 和 $V_{\text{attn}}$ 会被写入每一层的 KV Cache，供后续 decode 读取。
+2. $QK^\top$ 和后续 GEMM 的计算量随 $S$ 增长，长 prompt 会显著拉高 prefill 时间。
 
 Attention output 经过输出投影后进入 MLP。常见 gated MLP 可以写成：
 
-```text
-MLP(x) = W_down ( activation(x W_gate) * (x W_up) )
-```
+$$
+\operatorname{MLP}(x)
+= W_{\text{down}}\left(\operatorname{activation}(xW_{\text{gate}}) \odot (xW_{\text{up}})\right)
+$$
 
-这里的 `*` 是逐元素乘法。对 GPU 来说，attention、MLP 和输出投影最终都会落到 GEMM、attention kernel、elementwise kernel 或 fused kernel 上；对服务系统来说，这些 kernel 共同决定一个 prefill chunk 会占用 GPU 多久。
+这里的 $\odot$ 是逐元素乘法。对 GPU 来说，attention、MLP 和输出投影最终都会落到 GEMM、attention kernel、elementwise kernel 或 fused kernel 上；对服务系统来说，这些 kernel 共同决定一个 prefill chunk 会占用 GPU 多久。
 
 ### 1.6 Decode 中为什么只算一个 token 仍然不便宜
 
-当 prefill 完成后，模型开始生成第一个新 token。假设当前已经有 `T` 个上下文 token，decode step 的输入只有上一步生成的 token embedding，形状接近 `[1, d_model]`。这一层仍然要算：
+当 prefill 完成后，模型开始生成第一个新 token。假设当前已经有 $T$ 个上下文 token，decode step 的输入只有上一步生成的 token embedding，形状接近 $[1, d_{\text{model}}]$。这一层仍然要算：
 
-```text
-q_t = x_t W_Q
-k_t = x_t W_K
-v_t = x_t W_V
-```
+$$
+\begin{aligned}
+q_t &= x_t W_Q \\
+k_t &= x_t W_K \\
+v_t &= x_t W_V
+\end{aligned}
+$$
 
-新的 `k_t, v_t` 会追加到 KV Cache；新的 `q_t` 则要和历史 `K_{1:T}` 做 attention，再读出历史 `V_{1:T}`：
+新的 $k_t, v_t$ 会追加到 KV Cache；新的 $q_t$ 则要和历史 $K_{1:T}$ 做 attention，再读出历史 $V_{1:T}$：
 
-```text
-o_t = softmax(q_t K_{1:T}^T / sqrt(head_dim)) V_{1:T}
-```
+$$
+o_t = \operatorname{softmax}\left(\frac{q_tK_{1:T}^{\top}}{\sqrt{d_{\text{head}}}}\right)V_{1:T}
+$$
 
 这就是 decode 的特殊性：每一步输入 token 很少，单次 GEMM 规模不大，但它要反复读取不断增长的 KV Cache。batch 较小时，GPU 可能吃不满；上下文很长时，HBM 带宽和 KV Cache 访问会变成主要瓶颈；并发请求很多时，调度器还要在每个 decode iteration 后更新 batch、释放完成请求、追加新请求。
 
-最后一层 hidden state `h_t` 会经过 `lm_head` 得到词表 logits：
+最后一层 hidden state $h_t$ 会经过 `lm_head` 得到词表 logits：
 
-```text
-logits_t = h_t W_vocab^T in R^{V}
-```
+$$
+\operatorname{logits}_t = h_t W_{\text{vocab}}^\top \in \mathbb{R}^{V}
+$$
 
 Sampling 根据 temperature、top-p、top-k、stop tokens、structured output 约束等参数选出下一个 token。然后这个 token 立刻进入下一轮 decode，直到生成结束或被取消。Streaming response 返回的不是一次完整 forward 的结果，而是这个循环中不断产生的 token 增量。
 
 ### 1.7 MoE 层会把 MLP 变成路由问题
 
-如果模型是 Mixture-of-Experts（MoE），attention 部分可以和上面相同，但部分 MLP 层不再是一个 dense MLP，而是一组 experts 加一个 router。对每个 token hidden state `x_i`，router 先计算：
+如果模型是 Mixture-of-Experts（MoE），attention 部分可以和上面相同，但部分 MLP 层不再是一个 dense MLP，而是一组 experts 加一个 router。对每个 token hidden state $x_i$，router 先计算：
 
-```text
-r_i = x_i W_router
-```
+$$
+r_i = x_i W_{\text{router}}
+$$
 
 然后选择 top-k experts，例如 Mixtral 类模型常见的 top-2 路由思想是：每个 token 只进入少数几个 expert，而不是执行所有 expert。MoE 层输出可以抽象成：
 
-```text
-y_i = sum_{e in topk(r_i)} alpha_{i,e} Expert_e(x_i)
-```
+$$
+y_i = \sum_{e \in \operatorname{topk}(r_i)} \alpha_{i,e}\operatorname{Expert}_e(x_i)
+$$
 
-`alpha_{i,e}` 是 router 给 expert `e` 的权重。这个公式看起来只是把 MLP 换成了加权求和，但在 serving 里会引入新的系统问题：
+$\alpha_{i,e}$ 是 router 给 expert $e$ 的权重。这个公式看起来只是把 MLP 换成了加权求和，但在 serving 里会引入新的系统问题：
 
 - **负载不均**：一个 batch 中很多 token 可能被路由到同一个 expert，造成局部拥塞。
 - **Expert Parallel 通信**：如果 experts 分布在不同 GPU，token hidden states 需要 all-to-all 发到目标 expert，再把结果收回来。
@@ -241,6 +253,12 @@ y_i = sum_{e in topk(r_i)} alpha_{i,e} Expert_e(x_i)
 
 如果 prefill 和 decode 在同一组 GPU 上，这条路径的主要矛盾是长 prefill 是否阻塞 decode。如果采用 prefill / decode disaggregation，prefill worker 生成的 KV Cache 还要传给 decode worker，这时系统多了一个关键问题：KV transfer 的时间是否小于 prefill/decode 分离带来的收益。后续所有 serving 技术点，都可以回到这条路径上判断：它改变了哪一段计算、哪一种状态、哪一个 SLO。
 
+下图把同一个请求在单层 decoder 中的 prefill、decode、KV Cache 和可选 MoE 分支放在一起。读图时重点看两条不同的路径：prefill 一次处理 prompt 并写入 KV，decode 逐 token 读取 KV；MoE 分支则把 dense MLP 的局部计算变成 router、expert 和跨 GPU 通信问题。
+
+![Transformer 请求计算路径](assets/transformer_request_compute_path.svg)
+
+<small>图 1-2：Transformer 请求计算路径。Prefill、decode 和 MoE 分支共享同一层结构，但它们触发的 GPU 计算、KV 状态读写和通信成本不同。</small>
+
 ### 1.9 Hybrid / linear attention 先作为变体理解
 
 有些现代模型会混合 full attention、sliding-window attention、linear attention 或 state-space 层。它们改变的是“每层需要保存和读取什么状态”：full attention 主要保存逐 token KV Cache；sliding-window attention 只保留局部窗口；linear attention 或 state-space 层可能维护压缩状态而不是完整历史 KV。本文主线先按 full attention / GQA 讲，因为它仍是理解主流 LLM serving 的共同底座。遇到 hybrid attention 模型时，可以把每一类层看成不同状态对象，再问同样的问题：状态多大、如何迁移、是否可缓存、decode 每步读写什么、哪个 kernel 或通信路径成为瓶颈。
@@ -253,7 +271,7 @@ y_i = sum_{e in topk(r_i)} alpha_{i,e} Expert_e(x_i)
 
 ### 2.1 Prefill 偏计算，Decode 偏显存带宽和调度
 
-Transformer 自回归生成可以分成两个阶段。**Prefill** 处理完整 prompt，计算所有输入 token 的 hidden states，并为每一层 attention 生成 key / value。结合第 1 章的例子，prefill 会一次性处理形状接近 `[S, d_model]` 的 `X_l`，因此 attention 和 MLP / MoE 的 GEMM 都有较大的 token 维度。**Decode** 每次只生成一个或少量新 token，它计算新 token 的 query / key / value，读取历史 KV Cache，执行 attention 和 MLP / MoE，再采样得到下一个 token。
+Transformer 自回归生成可以分成两个阶段。**Prefill** 处理完整 prompt，计算所有输入 token 的 hidden states，并为每一层 attention 生成 key / value。结合第 1 章的例子，prefill 会一次性处理形状接近 $[S, d_{\text{model}}]$ 的 $X_l$，因此 attention 和 MLP / MoE 的 GEMM 都有较大的 token 维度。**Decode** 每次只生成一个或少量新 token，它计算新 token 的 query / key / value，读取历史 KV Cache，执行 attention 和 MLP / MoE，再采样得到下一个 token。
 
 这两个阶段的瓶颈不同：
 
@@ -268,7 +286,14 @@ Transformer 自回归生成可以分成两个阶段。**Prefill** 处理完整 p
 
 对一个在线请求，可以把端到端延迟粗略拆成：
 
-`E2E latency = queueing time + tokenization time + prefill time + decode time + streaming / network overhead`
+$$
+T_{\text{e2e}}
+= T_{\text{queue}}
++ T_{\text{tokenize}}
++ T_{\text{prefill}}
++ T_{\text{decode}}
++ T_{\text{stream}}
+$$
 
 其中：
 
@@ -283,13 +308,19 @@ Transformer 自回归生成可以分成两个阶段。**Prefill** 处理完整 p
 
 对 decoder-only Transformer，单个请求的 KV Cache 大小可以用下面的直觉公式估算：
 
-`KV bytes ~= 2 * layers * kv_heads * head_dim * tokens * bytes_per_element`
+$$
+\operatorname{KVBytes}
+\approx 2 \times L \times H_{\text{kv}} \times d_{\text{head}} \times T \times B_{\text{elem}}
+$$
 
-这里的 `2` 表示 key 和 value 两份缓存；`layers` 是 Transformer 层数；`kv_heads` 是 key/value head 数，在 GQA 模型中通常小于 query head 数；`head_dim` 是每个 head 的维度；`tokens` 是当前请求已经 prefill 加 decode 的上下文长度；`bytes_per_element` 取决于 FP16、BF16、FP8 或更低精度。
+这里的 $2$ 表示 key 和 value 两份缓存；$L$ 是 Transformer 层数；$H_{\text{kv}}$ 是 key/value head 数，在 GQA 模型中通常小于 query head 数；$d_{\text{head}}$ 是每个 head 的维度；$T$ 是当前请求已经 prefill 加 decode 的上下文长度；$B_{\text{elem}}$ 是每个元素占用的字节数，取决于 FP16、BF16、FP8 或更低精度。
 
 如果一个 batch 里有多个请求，系统实际持有的是所有 active requests 的 KV Cache 总和：
 
-`Total KV bytes ~= sum_request KV bytes(request)`
+$$
+\operatorname{TotalKVBytes}
+\approx \sum_{r \in \text{active requests}}\operatorname{KVBytes}(r)
+$$
 
 实际系统还要考虑 tensor parallel 分片、paged block 元数据、allocator 对齐、prefix cache 共享、beam / parallel sampling 复制和 cache offload，但这个公式足以解释一个核心事实：**KV Cache 会随并发请求数和上下文长度线性增长**。
 
@@ -314,7 +345,7 @@ Transformer 自回归生成可以分成两个阶段。**Prefill** 处理完整 p
 
 ### 3.1 KV Cache 解决重复计算，但制造动态显存问题
 
-KV Cache 保存每层 attention 中历史 token 的 key 和 value。没有 KV Cache，生成第 `t` 个 token 时就要重新计算前 `1 ... t-1` 个 token 的 key / value，成本会随输出长度快速膨胀。使用 KV Cache 后，decode step 只需要计算新 token 的 key / value，再读取历史缓存参与 attention。
+KV Cache 保存每层 attention 中历史 token 的 key 和 value。没有 KV Cache，生成第 $t$ 个 token 时就要重新计算前 $1,\ldots,t-1$ 个 token 的 key / value，成本会随输出长度快速膨胀。使用 KV Cache 后，decode step 只需要计算新 token 的 key / value，再读取历史缓存参与 attention。
 
 但 KV Cache 也带来三个系统问题：
 
@@ -424,7 +455,7 @@ PD disaggregation 的难点是 KV Cache 传输。Prefill pool 生成的 KV Cache
 
 ### 5.2 Decode 延迟瓶颈：一 token 一步的顺序性
 
-自回归 decode 的天然问题是顺序依赖：第 `t+1` 个 token 要等第 `t` 个 token 生成后才能继续。Speculative decoding 的目标是减少目标模型执行的 decode step 数量。它通常让一个更便宜的 draft model 先提出多个候选 token，再让 target model 批量验证。
+自回归 decode 的天然问题是顺序依赖：第 $t+1$ 个 token 要等第 $t$ 个 token 生成后才能继续。Speculative decoding 的目标是减少目标模型执行的 decode step 数量。它通常让一个更便宜的 draft model 先提出多个候选 token，再让 target model 批量验证。
 
 Speculative decoding 的收益取决于：
 
@@ -508,6 +539,12 @@ vLLM、TensorRT-LLM、SGLang 和 TGI 主要解决模型执行与请求调度问�
 
 一个更接近生产的组合通常长这样：`API gateway / auth -> platform router -> runtime scheduler -> GPU workers -> KV state layer -> observability`。vLLM、SGLang 或 TensorRT-LLM 主要解决中间的 runtime 和 GPU worker；Ray Serve、KServe 或 Triton 解决部署和流量；LMCache 这类系统解决跨 runtime 的 KV 状态复用和迁移。选型时如果只问“哪个引擎最快”，很容易漏掉冷启动、路由、缓存命中、灰度发布和跨租户治理。
 
+下图把 runtime 和平台层拆开。它强调的是组合关系：同一个线上服务可以用 KServe 或 Ray Serve 管部署，用 vLLM / SGLang / TensorRT-LLM 管模型执行，再用 KV 状态层和观测系统补齐跨请求、跨副本的生产问题。
+
+![LLM Serving Stack 分层](assets/runtime_platform_layers.svg)
+
+<small>图 6-1：LLM serving stack 分层。Runtime 负责模型执行和 GPU worker，平台层负责部署、路由和弹性，KV 状态层负责跨请求和跨副本的缓存复用与迁移。</small>
+
 ### 6.4 生产服务中的发布和治理问题
 
 推理服务进入生产后，会出现比单机 benchmark 更复杂的问题：
@@ -582,15 +619,6 @@ vLLM、SGLang 和 TGI 都提供不同程度的 metrics / tracing / observability
 5. 再看 SGLang，理解结构化生成、RadixAttention、prefix / cache reuse 和服务运行时如何结合。
 6. 补一篇 MoE 模型资料，例如 Mixtral，理解 router、expert、top-k 和 expert parallel 为什么会影响 serving。
 7. 最后结合 Ray Serve、KServe、Triton、LMCache 或自研平台，看多模型、多副本、多租户、KV 状态、灰度和观测如何落地。
-
-### 8.2 后续拆文建议
-
-这篇综述故意把系统地图铺开，但每个方向都值得拆成独立文章：
-
-- `kv_cache_paged_attention_and_prefix_caching.md`：KV Cache 公式、PagedAttention、prefix caching、offload、cache transfer。
-- `prefill_decode_scheduling_and_disaggregation.md`：continuous batching、chunked prefill、PD disaggregation、SLO-aware scheduling。
-- `quantization_speculative_decoding_and_parallelism.md`：量化、speculative decoding、并行推理和 kernel/runtime 优化。
-- `production_serving_stack_and_observability.md`：vLLM / SGLang / TensorRT-LLM / TGI / Ray Serve / KServe / Triton 的生产组合。
 
 ## 参考资料
 

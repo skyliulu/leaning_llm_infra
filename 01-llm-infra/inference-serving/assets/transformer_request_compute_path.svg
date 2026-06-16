@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="680" viewBox="0 0 1280 680" role="img" aria-label="Transformer request compute path from token ids through prefill decode KV cache and optional MoE routing">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#27313d"/>
+    </marker>
+    <style>
+      .bg { fill: #ffffff; }
+      .title { font: 700 24px Arial, sans-serif; fill: #111827; }
+      .group { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.4; rx: 8; }
+      .group-title { font: 700 15px Arial, sans-serif; fill: #334155; }
+      .node { fill: #ffffff; stroke: #64748b; stroke-width: 1.4; rx: 6; }
+      .compute { fill: #fff7ed; stroke: #f97316; stroke-width: 1.8; rx: 6; }
+      .cache { fill: #eef2ff; stroke: #6366f1; stroke-width: 1.6; rx: 6; }
+      .state { fill: #ecfdf5; stroke: #10b981; stroke-width: 1.5; rx: 6; }
+      .moe { fill: #fdf2f8; stroke: #db2777; stroke-width: 1.6; rx: 6; }
+      .label { font: 600 14px Arial, sans-serif; fill: #111827; }
+      .small { font: 12px Arial, sans-serif; fill: #475569; }
+      .arrow { stroke: #27313d; stroke-width: 1.8; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #475569; stroke-width: 1.5; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect class="bg" width="1280" height="680" fill="#ffffff"/>
+  <text class="title" x="42" y="46">Request Compute Path Inside One Decoder Layer</text>
+
+  <rect class="group" x="42" y="82" width="210" height="520"/>
+  <text class="group-title" x="62" y="112">Input State</text>
+  <rect class="node" x="72" y="145" width="150" height="54"/>
+  <text class="label" x="113" y="168">Token IDs</text>
+  <text class="small" x="99" y="187">prompt or new token</text>
+  <rect class="node" x="72" y="245" width="150" height="54"/>
+  <text class="label" x="111" y="268">Embedding</text>
+  <text class="small" x="94" y="287">hidden vector input</text>
+
+  <rect class="group" x="300" y="82" width="380" height="250"/>
+  <text class="group-title" x="320" y="112">Prefill Path</text>
+  <rect class="compute" x="330" y="145" width="140" height="54"/>
+  <text class="label" x="374" y="168">QKV GEMM</text>
+  <text class="small" x="350" y="187">all prompt tokens</text>
+  <rect class="compute" x="510" y="145" width="140" height="54"/>
+  <text class="label" x="547" y="168">Attention</text>
+  <text class="small" x="532" y="187">causal full prompt</text>
+  <rect class="compute" x="420" y="245" width="140" height="54"/>
+  <text class="label" x="459" y="268">MLP GEMM</text>
+  <text class="small" x="443" y="287">or fused kernels</text>
+
+  <rect class="group" x="730" y="82" width="245" height="250"/>
+  <text class="group-title" x="750" y="112">Layer State</text>
+  <rect class="cache" x="765" y="145" width="175" height="62"/>
+  <text class="label" x="811" y="169">KV Cache</text>
+  <text class="small" x="788" y="188">write K/V blocks in prefill</text>
+  <text class="small" x="790" y="202">read history in decode</text>
+  <rect class="state" x="765" y="245" width="175" height="54"/>
+  <text class="label" x="808" y="268">Block Table</text>
+  <text class="small" x="787" y="287">logical to physical map</text>
+
+  <rect class="group" x="300" y="380" width="380" height="222"/>
+  <text class="group-title" x="320" y="410">Decode Path</text>
+  <rect class="compute" x="330" y="440" width="140" height="54"/>
+  <text class="label" x="374" y="463">QKV GEMM</text>
+  <text class="small" x="357" y="482">one new token</text>
+  <rect class="compute" x="510" y="440" width="140" height="54"/>
+  <text class="label" x="547" y="463">Attention</text>
+  <text class="small" x="530" y="482">query reads cache</text>
+  <rect class="compute" x="420" y="520" width="140" height="54"/>
+  <text class="label" x="459" y="543">MLP GEMM</text>
+  <text class="small" x="451" y="562">single step</text>
+
+  <rect class="group" x="1015" y="82" width="220" height="520"/>
+  <text class="group-title" x="1035" y="112">Optional MoE Branch</text>
+  <rect class="moe" x="1045" y="160" width="160" height="58"/>
+  <text class="label" x="1083" y="183">Router</text>
+  <text class="small" x="1072" y="202">top-k experts</text>
+  <rect class="moe" x="1045" y="270" width="160" height="58"/>
+  <text class="label" x="1084" y="293">Experts</text>
+  <text class="small" x="1065" y="312">parallel MLP blocks</text>
+  <rect class="moe" x="1045" y="380" width="160" height="58"/>
+  <text class="label" x="1073" y="403">All-to-all</text>
+  <text class="small" x="1058" y="422">when experts span GPUs</text>
+
+  <rect class="node" x="730" y="450" width="245" height="62"/>
+  <text class="label" x="825" y="474">Output</text>
+  <text class="small" x="776" y="493">logits, sampling, next token loop</text>
+
+  <path class="arrow" d="M147 199 V245"/>
+  <path class="arrow" d="M222 272 H330"/>
+  <path class="arrow" d="M470 172 H510"/>
+  <path class="arrow" d="M580 199 C580 225, 542 237, 490 245"/>
+  <path class="arrow" d="M650 172 H765"/>
+  <path class="dash" d="M850 207 V245"/>
+  <path class="arrow" d="M222 272 C260 365, 300 430, 330 467"/>
+  <path class="arrow" d="M470 467 H510"/>
+  <path class="dash" d="M765 176 C690 240, 655 365, 650 467"/>
+  <path class="arrow" d="M580 494 C600 525, 640 530, 730 481"/>
+  <path class="dash" d="M560 272 V340 H1220 V189 H1205"/>
+  <path class="dash" d="M1125 218 V270"/>
+  <path class="dash" d="M1125 328 V380"/>
+  <path class="dash" d="M1045 409 C970 450, 920 450, 852 450"/>
+
+  <text class="small" x="268" y="256">hidden states</text>
+  <text class="small" x="687" y="159">write K/V</text>
+  <text class="small" x="675" y="420">read K/V</text>
+  <text class="small" x="755" y="428">next token</text>
+</svg>

@@ -30,6 +30,7 @@
 
 ## Mathematical Exposition
 
+- Use LaTeX for all formulas and mathematical symbols. Inline math should use `$...$`; displayed equations should use `$$...$$`. Do not leave formulas in backticks, plain text code fences, ASCII notation, or non-typeset diagram labels.
 - Define the domain and meaning of every symbol.
 - Show intermediate algebra when changing distributions, differentiating objectives, introducing a baseline, applying recursion, or normalizing probabilities.
 - Label approximations and sample estimators honestly.

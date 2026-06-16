@@ -90,6 +90,7 @@ When revising an existing draft, first audit all peer chapters for structural dr
 
 ### 6. Handle mathematics without losing the reader
 
+- Use LaTeX math for every mathematical expression, both inline and display. Do not write formulas in backticks, plain text code blocks, ASCII approximations, or ordinary SVG text. Use `$...$` for inline symbols and `$$...$$` for display equations in Markdown articles.
 - Define every symbol before or immediately after first use.
 - State the operation being performed between equations.
 - Show intermediate steps whenever a cancellation, distribution change, expectation identity, optimization condition, or approximation matters.
