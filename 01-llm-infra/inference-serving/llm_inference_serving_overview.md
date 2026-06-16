@@ -8,18 +8,18 @@
 
 大模型推理服务化解决的不是“模型能不能生成下一个 token”，而是“在多用户、多请求、多副本、多 GPU 的环境中，如何稳定、低延迟、低成本地持续生成 token”。训练系统追求长时间高吞吐，推理系统则同时面对用户可感知延迟、请求到达随机性、上下文长度差异、KV Cache 显存压力、调度公平性、在线观测和故障恢复。
 
-本文用一个在线聊天服务作为贯穿例子：用户请求进入 API gateway 后被 tokenizer 转成 token，随后进入调度器；模型先做 prefill 处理完整 prompt，再进入逐 token 的 decode 循环；生成结果以 streaming response 返回。围绕这条链路，本文解释 LLM 推理服务的核心对象、性能模型、KV Cache 管理、continuous batching、prefill / decode 调度、量化、speculative decoding、并行策略和生产服务栈，并把 vLLM、Orca、TensorRT-LLM、SGLang、Hugging Face TGI 等系统放到同一张系统地图中理解。
+本文用一个在线聊天服务作为贯穿例子，但不只停留在“请求经过哪些模块”。我们会把一次请求拆到 token ids、embedding、attention 矩阵、KV Cache、MLP / MoE 分支、logits 和 sampling，再把这些计算放回 prefill pool、decode pool、runtime、调度器和平台层中。围绕这条链路，本文解释 LLM 推理服务的核心对象、性能模型、KV Cache 管理、continuous batching、prefill / decode 调度、量化、speculative decoding、并行策略和生产服务栈，并把 vLLM、Orca、TensorRT-LLM、SGLang、Hugging Face TGI 等系统放到同一张系统地图中理解。
 
 **文档定位**：本文是推理与服务化专题的入口综述。它不替代某个推理引擎的 API 手册，而是建立“请求生命周期 -> GPU 执行路径 -> KV Cache 状态 -> 在线调度 -> 生产指标”的系统框架。
 
-**前置知识**：读者最好已经了解 Transformer decoder 的自回归生成、GPU 显存与 kernel 执行的基本概念。CUDA 和 GPU 细节可先阅读 [CUDA 编程模型与 GPU 计算系统综述](../../00-foundations/gpu-architecture/cuda_intro.md)。
+**前置知识**：读者最好已经了解 Transformer decoder 的自回归生成、GPU 显存与 kernel 执行的基本概念。CUDA 和 GPU 细节可先阅读 [CUDA 编程模型](../../00-foundations/gpu-architecture/cuda_intro.md)。
 
 ---
 
 ## 目录
 
 - 第 0 章 推理服务问题地图
-- 第 1 章 推理服务到底在调度什么
+- 第 1 章 推理服务到底在调度什么：从请求到矩阵
 - 第 2 章 Prefill、Decode 与性能模型
 - 第 3 章 KV Cache：推理系统的核心状态
 - 第 4 章 Continuous Batching、Chunked Prefill 与 PD Disaggregation
@@ -78,9 +78,9 @@
 
 **本章小结**：推理服务不是单点优化。后续每个技术点都要回到三个问题：它优化哪个指标，改变哪个状态，牺牲什么资源或复杂度。
 
-## 第 1 章 推理服务到底在调度什么
+## 第 1 章 推理服务到底在调度什么：从请求到矩阵
 
-**本章主线**：先把推理服务从“调用模型”改写成“管理一批随时间变化的请求”。然后定义 request、batch、replica、queue 和 streaming response，最后用一张图说明一次请求跨越了哪些系统边界。
+**本章主线**：先把推理服务从“调用模型”改写成“管理一批随时间变化的请求”。然后定义 request、batch、replica、queue 和 streaming response，再把贯穿例子拆到 token、矩阵、KV Cache、MoE 分支和多级部署路径。
 
 ### 1.1 在线推理的输入不是一个静态 batch
 
@@ -126,7 +126,126 @@
 
 如果系统简单按到达顺序把请求组成 batch，B 类请求的 prefill 可能占用很长 GPU 时间，A 类请求虽然很短，也要等长 prefill 结束才能拿到首 token。用户看到的是“短问题也很慢”。这类问题不是模型质量问题，而是调度策略没有区分 prefill 和 decode 的资源画像。
 
-**本章小结**：推理服务的基本单位不是模型 forward，而是随时间变化的 request state。理解后续优化前，必须先把请求、队列、batch、replica 和 KV Cache 看成同一个系统中的状态对象。
+### 1.4 从 token ids 到第一层输入
+
+为了把后面的系统概念落到计算细节上，先固定一个贯穿例子。假设服务部署的是一个 decoder-only 模型，隐藏维度为 `d_model`，词表大小为 `V`，输入 prompt 被 tokenizer 转成长度为 `S` 的 token ids：
+
+`[t_1, t_2, ..., t_S]`
+
+Embedding 表可以看成矩阵 `E in R^{V x d_model}`。每个 token id 只是一个整数索引，查表后得到第一层输入：
+
+`X_0 = E[token_ids] in R^{S x d_model}`
+
+这一步本身不是大矩阵乘法，但它决定了后续所有计算的 shape。对推理服务来说，`S` 不只是模型输入长度，也是 prefill 计算量、初始 KV Cache 大小和调度器估算 TTFT 的核心变量。一个 64 token 的请求和一个 16k token 的请求，进入同一个模型后会经过同样的层结构，但它们占用 GPU 的时间和显存完全不同。
+
+### 1.5 一层 Transformer 在 prefill 中做什么
+
+在第 `l` 层，输入记为 `X_l in R^{S x d_model}`。真实模型通常还有 RMSNorm、RoPE、残差连接和不同实现细节，这里先保留推理服务最关心的数据流。
+
+Attention 的三组投影是：
+
+```text
+Q = X_l W_Q
+K = X_l W_K
+V = X_l W_V
+```
+
+如果模型使用 grouped-query attention（GQA），query head 数 `n_q_heads` 通常大于 key/value head 数 `n_kv_heads`。reshape 后可以理解为：
+
+```text
+Q: [S, n_q_heads, head_dim]
+K: [S, n_kv_heads, head_dim]
+V: [S, n_kv_heads, head_dim]
+```
+
+Prefill 阶段一次处理完整 prompt，因此 attention 会在 causal mask 下计算所有 prompt token 之间的注意力：
+
+```text
+Attention(Q, K, V) = softmax(mask(Q K^T / sqrt(head_dim))) V
+```
+
+这里有两个对 serving 很关键的结果：
+
+1. `K` 和 `V` 会被写入每一层的 KV Cache，供后续 decode 读取。
+2. `QK^T` 和后续 GEMM 的计算量随 `S` 增长，长 prompt 会显著拉高 prefill 时间。
+
+Attention output 经过输出投影后进入 MLP。常见 gated MLP 可以写成：
+
+```text
+MLP(x) = W_down ( activation(x W_gate) * (x W_up) )
+```
+
+这里的 `*` 是逐元素乘法。对 GPU 来说，attention、MLP 和输出投影最终都会落到 GEMM、attention kernel、elementwise kernel 或 fused kernel 上；对服务系统来说，这些 kernel 共同决定一个 prefill chunk 会占用 GPU 多久。
+
+### 1.6 Decode 中为什么只算一个 token 仍然不便宜
+
+当 prefill 完成后，模型开始生成第一个新 token。假设当前已经有 `T` 个上下文 token，decode step 的输入只有上一步生成的 token embedding，形状接近 `[1, d_model]`。这一层仍然要算：
+
+```text
+q_t = x_t W_Q
+k_t = x_t W_K
+v_t = x_t W_V
+```
+
+新的 `k_t, v_t` 会追加到 KV Cache；新的 `q_t` 则要和历史 `K_{1:T}` 做 attention，再读出历史 `V_{1:T}`：
+
+```text
+o_t = softmax(q_t K_{1:T}^T / sqrt(head_dim)) V_{1:T}
+```
+
+这就是 decode 的特殊性：每一步输入 token 很少，单次 GEMM 规模不大，但它要反复读取不断增长的 KV Cache。batch 较小时，GPU 可能吃不满；上下文很长时，HBM 带宽和 KV Cache 访问会变成主要瓶颈；并发请求很多时，调度器还要在每个 decode iteration 后更新 batch、释放完成请求、追加新请求。
+
+最后一层 hidden state `h_t` 会经过 `lm_head` 得到词表 logits：
+
+```text
+logits_t = h_t W_vocab^T in R^{V}
+```
+
+Sampling 根据 temperature、top-p、top-k、stop tokens、structured output 约束等参数选出下一个 token。然后这个 token 立刻进入下一轮 decode，直到生成结束或被取消。Streaming response 返回的不是一次完整 forward 的结果，而是这个循环中不断产生的 token 增量。
+
+### 1.7 MoE 层会把 MLP 变成路由问题
+
+如果模型是 Mixture-of-Experts（MoE），attention 部分可以和上面相同，但部分 MLP 层不再是一个 dense MLP，而是一组 experts 加一个 router。对每个 token hidden state `x_i`，router 先计算：
+
+```text
+r_i = x_i W_router
+```
+
+然后选择 top-k experts，例如 Mixtral 类模型常见的 top-2 路由思想是：每个 token 只进入少数几个 expert，而不是执行所有 expert。MoE 层输出可以抽象成：
+
+```text
+y_i = sum_{e in topk(r_i)} alpha_{i,e} Expert_e(x_i)
+```
+
+`alpha_{i,e}` 是 router 给 expert `e` 的权重。这个公式看起来只是把 MLP 换成了加权求和，但在 serving 里会引入新的系统问题：
+
+- **负载不均**：一个 batch 中很多 token 可能被路由到同一个 expert，造成局部拥塞。
+- **Expert Parallel 通信**：如果 experts 分布在不同 GPU，token hidden states 需要 all-to-all 发到目标 expert，再把结果收回来。
+- **动态 batch 更复杂**：prefill token 多，expert batch 较大；decode 每步 token 少，expert 负载更抖。
+- **尾延迟风险**：慢 expert 或跨节点通信会拖住整层输出。
+
+因此，MoE 推理不是“参数更多但每个 token 算得差不多”这么简单。它把一部分 dense GEMM 问题转成了路由、通信和负载均衡问题。后续讨论并行推理时，Expert Parallel 不能只按训练系统理解，还必须和在线 batch、KV Cache 和 streaming SLO 放在一起看。
+
+### 1.8 多级部署下请求如何穿过系统
+
+把上面的计算放回一个多级部署形态，可以得到更完整的请求路径：
+
+1. **API gateway** 接收请求，做认证、限流、参数校验和 streaming 连接管理。
+2. **Global router** 根据模型名、租户、上下文长度、prefix cache 命中可能性和副本健康度选择服务集群。
+3. **Runtime scheduler** 把请求放入 waiting queue，决定它进入 prefill、chunked prefill 还是 decode iteration。
+4. **Prefill worker** 执行 prompt token 的 embedding、attention、MLP / MoE，写出每层 KV Cache。
+5. **KV block manager** 分配、复用、迁移或释放 KV blocks，维护 request 到物理 block 的映射。
+6. **Decode worker** 逐 token 读取 KV Cache，执行每层 attention 和 MLP / MoE，生成 logits。
+7. **Sampler / output processor** 应用采样参数、结构化输出约束和 stop 条件。
+8. **Streaming response** 将 token 增量返回，同时观测 TTFT、TPOT、batch size、cache usage 和 GPU 指标。
+
+如果 prefill 和 decode 在同一组 GPU 上，这条路径的主要矛盾是长 prefill 是否阻塞 decode。如果采用 prefill / decode disaggregation，prefill worker 生成的 KV Cache 还要传给 decode worker，这时系统多了一个关键问题：KV transfer 的时间是否小于 prefill/decode 分离带来的收益。后续所有 serving 技术点，都可以回到这条路径上判断：它改变了哪一段计算、哪一种状态、哪一个 SLO。
+
+### 1.9 Hybrid / linear attention 先作为变体理解
+
+有些现代模型会混合 full attention、sliding-window attention、linear attention 或 state-space 层。它们改变的是“每层需要保存和读取什么状态”：full attention 主要保存逐 token KV Cache；sliding-window attention 只保留局部窗口；linear attention 或 state-space 层可能维护压缩状态而不是完整历史 KV。本文主线先按 full attention / GQA 讲，因为它仍是理解主流 LLM serving 的共同底座。遇到 hybrid attention 模型时，可以把每一类层看成不同状态对象，再问同样的问题：状态多大、如何迁移、是否可缓存、decode 每步读写什么、哪个 kernel 或通信路径成为瓶颈。
+
+**本章小结**：推理服务的基本单位不是模型 forward，而是随时间变化的 request state。理解后续优化前，必须先把请求、队列、batch、replica、KV Cache、模型层计算和部署路径看成同一个系统：token ids 决定 shape，矩阵运算决定 GPU 时间，KV Cache 决定动态显存，MoE 决定路由和通信，调度器决定这些成本如何落到用户可见的 TTFT 和 TPOT 上。
 
 ## 第 2 章 Prefill、Decode 与性能模型
 
@@ -134,7 +253,7 @@
 
 ### 2.1 Prefill 偏计算，Decode 偏显存带宽和调度
 
-Transformer 自回归生成可以分成两个阶段。**Prefill** 处理完整 prompt，计算所有输入 token 的 hidden states，并为每一层 attention 生成 key / value。这个阶段的矩阵乘法较大，通常更容易把 GPU 算力打满。**Decode** 每次只生成一个或少量新 token，它需要读取已有上下文的 KV Cache，计算新 token 的 attention 和 MLP，再采样得到下一个 token。
+Transformer 自回归生成可以分成两个阶段。**Prefill** 处理完整 prompt，计算所有输入 token 的 hidden states，并为每一层 attention 生成 key / value。结合第 1 章的例子，prefill 会一次性处理形状接近 `[S, d_model]` 的 `X_l`，因此 attention 和 MLP / MoE 的 GEMM 都有较大的 token 维度。**Decode** 每次只生成一个或少量新 token，它计算新 token 的 query / key / value，读取历史 KV Cache，执行 attention 和 MLP / MoE，再采样得到下一个 token。
 
 这两个阶段的瓶颈不同：
 
@@ -162,11 +281,17 @@ Transformer 自回归生成可以分成两个阶段。**Prefill** 处理完整 p
 
 ### 2.3 一个够用的 KV Cache 显存估算
 
-对 decoder-only Transformer，KV Cache 大小可以用下面的直觉公式估算：
+对 decoder-only Transformer，单个请求的 KV Cache 大小可以用下面的直觉公式估算：
 
 `KV bytes ~= 2 * layers * kv_heads * head_dim * tokens * bytes_per_element`
 
-这里的 `2` 表示 key 和 value 两份缓存；`tokens` 是当前请求已经 prefill 加 decode 的上下文长度；`bytes_per_element` 取决于 FP16、BF16、FP8 或更低精度。实际系统还要考虑 tensor parallel 分片、paged block 元数据、allocator 对齐和并发请求数量，但这个公式足以解释一个核心事实：**KV Cache 会随并发请求数和上下文长度线性增长**。
+这里的 `2` 表示 key 和 value 两份缓存；`layers` 是 Transformer 层数；`kv_heads` 是 key/value head 数，在 GQA 模型中通常小于 query head 数；`head_dim` 是每个 head 的维度；`tokens` 是当前请求已经 prefill 加 decode 的上下文长度；`bytes_per_element` 取决于 FP16、BF16、FP8 或更低精度。
+
+如果一个 batch 里有多个请求，系统实际持有的是所有 active requests 的 KV Cache 总和：
+
+`Total KV bytes ~= sum_request KV bytes(request)`
+
+实际系统还要考虑 tensor parallel 分片、paged block 元数据、allocator 对齐、prefix cache 共享、beam / parallel sampling 复制和 cache offload，但这个公式足以解释一个核心事实：**KV Cache 会随并发请求数和上下文长度线性增长**。
 
 这也是为什么长上下文、RAG、多轮对话和 Agent loop 会迅速放大推理显存压力。模型权重是常驻固定成本，KV Cache 是请求驱动的动态成本。
 
@@ -324,6 +449,8 @@ Speculative decoding 的收益取决于：
 
 训练系统中的并行策略不能直接照搬到在线推理。推理更关心单请求尾延迟、batch 动态变化、KV Cache 分布和流式输出，因此并行策略需要和服务调度一起设计。
 
+对第 1 章的 MoE 例子来说，Expert Parallel 的核心不是“把 expert 均匀放到 GPU 上”这么简单。Prefill 阶段 token 多，all-to-all 可以形成较大的 expert batch；decode 阶段每轮 token 少，router 分布稍微偏斜就可能让某个 expert 成为尾延迟来源。因此 MoE serving 往往要同时看 expert placement、router 负载、跨 GPU 通信、batch policy 和 SLO，而不是只看模型总参数量。
+
 ### 5.4 Runtime 和 kernel 开销：不要忽略 CPU 侧和编译侧
 
 在小 batch、短请求或高 QPS 场景中，瓶颈可能不完全在矩阵乘法。常见优化包括：
@@ -354,19 +481,34 @@ vLLM、TensorRT-LLM、SGLang 和 TGI 主要解决模型执行与请求调度问�
 
 如果只评估单机 benchmark，很容易忽略线上系统中真正痛的地方：请求分布变化、长上下文突发、某个租户打满 KV Cache、某个副本尾延迟抬高、回滚后缓存失效、GPU 利用率高但用户仍然等待。
 
-### 6.2 主流推理栈定位
+### 6.2 主流推理 runtime 对比
 
-| 系统 | 更适合关注 | 代表能力 | 选型提醒 |
-|---|---|---|---|
-| vLLM | 通用高吞吐 serving | PagedAttention、continuous batching、OpenAI-compatible server、prefix caching、speculative decoding、metrics、Ray / K8s 集成 | 生态活跃，适合作为默认研究和生产候选 |
-| SGLang | 结构化生成和高吞吐 runtime | RadixAttention、structured outputs、speculative decoding、PD disaggregation、native APIs、OpenAI-compatible APIs | 适合 tool calling、structured output 和复杂生成程序 |
-| TensorRT-LLM | NVIDIA GPU 深度优化 | TensorRT engine、in-flight batching、paged KV cache、量化、多 GPU / 多节点执行 | 更偏 NVIDIA 生产部署和极致性能，需要考虑 engine 构建与模型支持 |
-| Hugging Face TGI | Hugging Face 生态和历史参考 | SSE streaming、continuous batching、tensor parallelism、Prometheus metrics、PagedAttention、quantization | Hugging Face 文档已标注 maintenance mode，后续新项目需评估 vLLM / SGLang |
-| Ray Serve / KServe / Triton | 服务编排和平台层 | 多副本、路由、弹性伸缩、模型服务管理 | 它们不是单个 LLM runtime，通常与 vLLM / TensorRT-LLM / SGLang 组合 |
+下面这张表只比较 **runtime / engine**，也就是直接负责模型执行、KV Cache、batching、并行和 kernel 路径的系统。
 
-这张表不是排名。更实际的判断方式是：先确定 workload 和约束，再决定 runtime 与平台层组合。
+| Runtime | 开源入口 | 核心定位 | 代表能力 | 选型提醒 |
+|---|---|---|---|---|
+| vLLM | [GitHub](https://github.com/vllm-project/vllm) / [Docs](https://docs.vllm.ai/en/latest/) | 通用高吞吐 LLM serving runtime | PagedAttention、continuous batching、chunked prefill、prefix caching、speculative decoding、OpenAI-compatible API、分布式推理、MoE / hybrid attention 支持 | 默认候选之一，适合先建立 serving baseline；复杂生产部署仍要补平台层和治理层 |
+| SGLang | [GitHub](https://github.com/sgl-project/sglang) / [Docs](https://docs.sglang.io/) | 结构化生成和高吞吐 runtime | RadixAttention、structured outputs、speculative decoding、PD disaggregation、OpenAI-compatible API、多模态 serving | 适合 tool calling、JSON / constrained decoding、多轮程序化生成和复杂 agent workload |
+| TensorRT-LLM | [GitHub](https://github.com/NVIDIA/TensorRT-LLM) / [Docs](https://nvidia.github.io/TensorRT-LLM/) | NVIDIA GPU 深度优化 runtime | 自定义 attention / GEMM / MoE kernels、in-flight batching、paged KV cache、量化、多 GPU / 多节点、PD disaggregation、speculative decoding | 适合 NVIDIA GPU 上追求极致性能和生产优化；需要关注模型支持、engine / runtime 配置和版本适配 |
+| Hugging Face TGI | [GitHub](https://github.com/huggingface/text-generation-inference) / [Docs](https://huggingface.co/docs/text-generation-inference/) | Hugging Face 生态 serving runtime | HTTP / SSE streaming、continuous batching、tensor parallelism、quantization、Prometheus metrics | 适合理解 HF serving 生态和存量部署；其仓库 README 已标注 maintenance mode，新项目通常应评估 vLLM / SGLang / TensorRT-LLM |
+| llama.cpp | [GitHub](https://github.com/ggml-org/llama.cpp) | 本地、边缘和轻量部署 runtime | GGUF、CPU / Metal / CUDA 等多后端、低比特量化、OpenAI-compatible server | 适合端侧、开发验证、私有小规模部署；不应和数据中心多 GPU serving runtime 直接按同一指标比较 |
 
-### 6.3 生产服务中的发布和治理问题
+这张表不是排名。更实际的判断方式是：先确定 workload 和约束，再决定 runtime。比如普通在线聊天可以先用 vLLM 建 baseline；结构化输出或 agent 程序可以重点看 SGLang；NVIDIA GPU 上追求极致吞吐和专用 kernel 时再深入 TensorRT-LLM；边缘设备和本地应用则可能完全是 llama.cpp 的问题域。
+
+### 6.3 平台、编排和状态层对比
+
+生产系统还需要另一组工具解决“怎么部署、路由、扩缩容、观测和管理状态”。这些系统和 runtime 是组合关系，不是替代关系。
+
+| 层 | 代表项目 | 开源入口 / 文档 | 主要解决什么 | 和 runtime 的关系 |
+|---|---|---|---|---|
+| LLM 服务编排 | Ray Serve LLM | [Docs](https://docs.ray.io/en/latest/serve/llm/index.html) | 多副本部署、request routing、autoscaling、prefix-aware routing、PD disaggregation、KV offloading、可观测性 | 通常把 vLLM 等 runtime 包成 Ray Serve deployment，并接入 Ray 集群调度 |
+| Kubernetes 推理平台 | KServe | [GitHub](https://github.com/kserve/kserve) / [Docs](https://kserve.github.io/website/) | Kubernetes 上的 InferenceService、OpenAI-compatible protocol、vLLM / llm-d 后端、autoscaling、model caching、KV cache offloading | 更偏平台控制面，负责 K8s 原生部署、流量和弹性，底层仍需要 runtime 执行模型 |
+| 通用推理服务器 | NVIDIA Triton Inference Server | [Docs](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/index.html) | 多框架模型仓库、HTTP/gRPC、dynamic batching、sequence batching、model management、metrics | 适合多模型、多框架推理服务，也可和 TensorRT / TensorRT-LLM 生态组合 |
+| KV 状态层 | LMCache | [GitHub](https://github.com/LMCache/LMCache) | 跨请求、跨会话、跨 engine 的 KV cache reuse、offload、transfer、观测和存储后端 | 把 KV Cache 从单 runtime 内部对象提升成可复用、可迁移、可观测的服务状态 |
+
+一个更接近生产的组合通常长这样：`API gateway / auth -> platform router -> runtime scheduler -> GPU workers -> KV state layer -> observability`。vLLM、SGLang 或 TensorRT-LLM 主要解决中间的 runtime 和 GPU worker；Ray Serve、KServe 或 Triton 解决部署和流量；LMCache 这类系统解决跨 runtime 的 KV 状态复用和迁移。选型时如果只问“哪个引擎最快”，很容易漏掉冷启动、路由、缓存命中、灰度发布和跨租户治理。
+
+### 6.4 生产服务中的发布和治理问题
 
 推理服务进入生产后，会出现比单机 benchmark 更复杂的问题：
 
@@ -436,9 +578,10 @@ vLLM、SGLang 和 TGI 都提供不同程度的 metrics / tracing / observability
 1. 先读 vLLM / PagedAttention，理解 KV Cache 管理为什么是系统问题。
 2. 再读 Orca，理解 iteration-level scheduling 和 continuous batching。
 3. 接着读 Sarathi-Serve 和 DistServe，理解 chunked prefill、decode piggyback 和 prefill/decode disaggregation。
-4. 然后看 TensorRT-LLM，理解高性能 GPU runtime、kernel、quantization 和 engine 化部署。
+4. 然后看 TensorRT-LLM，理解高性能 GPU runtime、kernel、MoE、quantization 和 engine 化部署。
 5. 再看 SGLang，理解结构化生成、RadixAttention、prefix / cache reuse 和服务运行时如何结合。
-6. 最后结合 Ray Serve、Kubernetes、KServe 或自研平台，看多模型、多副本、多租户、灰度和观测如何落地。
+6. 补一篇 MoE 模型资料，例如 Mixtral，理解 router、expert、top-k 和 expert parallel 为什么会影响 serving。
+7. 最后结合 Ray Serve、KServe、Triton、LMCache 或自研平台，看多模型、多副本、多租户、KV 状态、灰度和观测如何落地。
 
 ### 8.2 后续拆文建议
 
@@ -452,6 +595,7 @@ vLLM、SGLang 和 TGI 都提供不同程度的 metrics / tracing / observability
 ## 参考资料
 
 - vLLM Team, [vLLM Documentation](https://docs.vllm.ai/en/latest/)
+- vLLM Team, [vLLM GitHub Repository](https://github.com/vllm-project/vllm)
 - vLLM Team, [Automatic Prefix Caching](https://docs.vllm.ai/en/latest/features/automatic_prefix_caching/)
 - vLLM Team, [Speculative Decoding](https://docs.vllm.ai/en/latest/features/spec_decode/)
 - Woosuk Kwon et al., [Efficient Memory Management for Large Language Model Serving with PagedAttention](https://arxiv.org/abs/2309.06180)
@@ -460,9 +604,18 @@ vLLM、SGLang 和 TGI 都提供不同程度的 metrics / tracing / observability
 - Yinmin Zhong et al., [DistServe: Disaggregating Prefill and Decoding for Goodput-optimized Large Language Model Serving](https://arxiv.org/abs/2401.09670)
 - Yaniv Leviathan et al., [Fast Inference from Transformers via Speculative Decoding](https://arxiv.org/abs/2211.17192)
 - NVIDIA, [TensorRT-LLM Documentation](https://docs.nvidia.com/tensorrt-llm/)
+- NVIDIA, [TensorRT-LLM GitHub Repository](https://github.com/NVIDIA/TensorRT-LLM)
 - SGLang Team, [SGLang Documentation](https://docs.sglang.io/)
+- SGLang Team, [SGLang GitHub Repository](https://github.com/sgl-project/sglang)
 - Lianmin Zheng et al., [SGLang: Efficient Execution of Structured Language Model Programs](https://arxiv.org/abs/2312.07104)
 - Hugging Face, [Text Generation Inference Documentation](https://huggingface.co/docs/text-generation-inference/)
+- Hugging Face, [Text Generation Inference GitHub Repository](https://github.com/huggingface/text-generation-inference)
+- Albert Q. Jiang et al., [Mixtral of Experts](https://arxiv.org/abs/2401.04088)
+- Ray Team, [Serving LLMs with Ray Serve](https://docs.ray.io/en/latest/serve/llm/index.html)
+- KServe Team, [KServe GitHub Repository](https://github.com/kserve/kserve)
+- NVIDIA, [Triton Inference Server Documentation](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/index.html)
+- ggml-org, [llama.cpp GitHub Repository](https://github.com/ggml-org/llama.cpp)
+- LMCache Team, [LMCache GitHub Repository](https://github.com/LMCache/LMCache)
 - LMCache Team, [LMCache: An Efficient KV Cache Layer for Enterprise-Scale LLM Inference](https://arxiv.org/abs/2510.09665)
 
-**全文小结**：推理服务化的学习主线应从请求状态和 KV Cache 出发，而不是从某个工具的命令行参数出发。工具会迭代，但 prefill / decode、batching、cache、并行、观测和成本之间的关系会长期存在。
+**全文小结**：推理服务化的学习主线应从请求状态、模型层计算和 KV Cache 出发，而不是从某个工具的命令行参数出发。工具会迭代，但 token shape、prefill / decode、attention / MoE、batching、cache、并行、观测和成本之间的关系会长期存在。
