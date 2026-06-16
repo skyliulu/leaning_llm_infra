@@ -49,6 +49,28 @@ Prefill 影响首 token 延迟 TTFT。用户请求进入系统后，只有 promp
 
 如果长 RAG 请求进入 GPU 做完整 prefill，短问答请求可能在队列里等很久，TTFT 明显变差。如果为了短请求频繁打断长 prefill，长 RAG 的吞吐又下降。这个冲突就是调度策略存在的原因。
 
+### 1.3 请求在 runtime 里的状态机
+
+一个在线请求不是直接进入 GPU 一次性完成，而是在 runtime 中经历多个状态。最小状态机可以写成：
+
+$$
+\text{Waiting}
+\rightarrow
+\text{Prefill}
+\rightarrow
+\text{Decode}
+\rightarrow
+\text{Finished}
+$$
+
+实际系统还会有取消、超时、抢占、等待 KV transfer、等待 prefix cache lookup 等状态。设请求 $r$ 的输入长度为 $P_r$，当前已生成长度为 $D_r$，最大输出预算为 $G_r$，则调度器至少需要维护：
+
+$$
+s_r = (P_r, D_r, G_r, \text{phase}_r, \text{deadline}_r, \text{kv\_blocks}_r)
+$$
+
+其中 $\text{phase}_r$ 表示请求处于 prefill、decode 还是等待迁移；$\text{kv\_blocks}_r$ 表示它已经占用的 KV blocks。调度器每一轮都在更新这些状态，而不是只处理一个静态 batch。
+
 **本章小结**：Prefill 和 decode 的资源画像不同，TTFT 和 TPOT 也不是同一个目标。推理调度器的核心任务，是让不同阶段的请求在有限 GPU 和 KV Cache 预算下共存。
 
 ## 第 2 章 Continuous Batching 与 iteration-level scheduling
@@ -76,7 +98,25 @@ Continuous batching 在 decode step 边界更新 batch。每轮调度器会：
 
 Orca 提出的 iteration-level scheduling 就是这类思想的代表：调度单位不再是完整请求，而是 generation iteration。这样系统可以在长请求尚未完成时，把新请求插入后续迭代。
 
-### 2.3 Continuous batching 的边界
+### 2.3 一轮调度如何形成 GPU batch
+
+现代 serving runtime 通常会给每轮调度设置 token budget。设本轮最多处理 $C$ 个 token，decode 请求集合为 $\mathcal{D}$，prefill chunk 集合为 $\mathcal{P}$。如果每个 decode 请求本轮只生成一个 token，则 decode 预算消耗为：
+
+$$
+C_{\text{decode}} = |\mathcal{D}|
+$$
+
+剩余预算可以用于 prefill chunk：
+
+$$
+C_{\text{prefill}} \leq C - C_{\text{decode}}
+$$
+
+一个 decode-prioritized scheduler 会先保证已有流式请求的 decode step，再把剩余容量分配给新请求或长 prompt chunk。这样做的目的不是让每轮 token 数最大，而是在 TPOT 稳定的前提下尽量推进 prefill。
+
+这类策略还必须检查 KV Cache 预算。若本轮接纳的新 prefill 或 decode 会让可用 KV blocks 低于阈值，即使 token budget 足够，调度器也应拒绝或延迟请求。
+
+### 2.4 Continuous batching 的边界
 
 Continuous batching 解决了静态 batch 槽位浪费，但没有自动解决所有问题：
 
@@ -111,6 +151,12 @@ Sarathi-Serve 的思路可以概括为：
 
 这种方法缓解了 decode-only batch 利用率低和长 prefill 阻塞的问题。
 
+下图展示了同一个长 RAG 请求在没有 chunk 和使用 chunked prefill 时，对短问答 decode 的影响。关键差异在于：长 prompt 不再占据一个完整的大时间片，而是被拆成可插入的 prefill chunks。
+
+![Prefill decode iteration timeline](assets/prefill_decode_iteration_timeline.svg)
+
+<small>图 3-1：Chunked prefill 把长 prompt 拆成多个可调度片段，让 decode step 能插入到 prefill 之间，减少流式输出抖动。</small>
+
 ### 3.3 Chunk size 是策略问题
 
 Chunk size 太大，仍然会阻塞 decode；chunk size 太小，prefill 总时间和调度开销可能上升。选择 chunk size 时要考虑：
@@ -122,6 +168,22 @@ Chunk size 太大，仍然会阻塞 decode；chunk size 太小，prefill 总时�
 - pipeline parallel 或 tensor parallel 下的通信和气泡。
 
 因此，chunked prefill 不是一个简单开关，而是调度器策略的一部分。
+
+### 3.4 用时间预算理解 chunk size
+
+设一个长 prompt 被切成大小为 $c$ 的 chunk，prefill kernel 对该 chunk 的执行时间近似为：
+
+$$
+T_{\text{chunk}}(c) = T_{\text{launch}} + T_{\text{attn}}(c) + T_{\text{mlp}}(c)
+$$
+
+如果已有流式请求的 TPOT SLO 为 $S_{\text{TPOT}}$，调度器希望每次阻塞 decode 的时间不超过某个预算 $\beta S_{\text{TPOT}}$，其中 $0 < \beta < 1$，则需要满足：
+
+$$
+T_{\text{chunk}}(c) \leq \beta S_{\text{TPOT}}
+$$
+
+这个约束解释了为什么 chunk size 不能只按吞吐最大化选择。更大的 chunk 可能让 GPU 利用率更高，但会增加 decode jitter；更小的 chunk 能改善流式体验，但会增加调度和 kernel launch 开销。
 
 **本章小结**：Chunked prefill 的价值是把长 prompt 从大块阻塞任务变成可调度的工作单元。它让 prefill 和 decode 可以更细粒度地交错。
 
@@ -150,7 +212,30 @@ PD disaggregation 的主要代价是 KV Cache movement。Prefill pool 生成初�
 
 如果 cache transfer 无法和计算重叠，decode pool 会等待数据，TPOT 反而变差。因此，PD 分离要同时看计算干扰和传输开销。
 
-### 4.3 什么时候值得分离
+### 4.3 一个请求在 PD 分离下如何流动
+
+在 PD disaggregation 下，一个请求通常经历以下路径：
+
+1. Router 根据输入长度、SLO 和资源状态把请求送入 prefill pool。
+2. Prefill worker 完成 prompt forward，生成每层初始 KV Cache。
+3. KV connector 把 KV blocks 从 prefill 侧传到 decode 侧。
+4. Decode worker 接管请求，开始逐 token 生成。
+5. 后续每个 decode step 在 decode pool 内追加新 K/V。
+
+设 prefill 时间为 $T_{\text{prefill}}$，排队时间为 $T_{\text{queue}}$，KV 传输时间为 $T_{\text{transfer}}$，decode 接管开销为 $T_{\text{handoff}}$，则首 token 延迟可以粗略拆成：
+
+$$
+T_{\text{TTFT}}
+\approx
+T_{\text{queue}}
++ T_{\text{prefill}}
++ T_{\text{transfer}}
++ T_{\text{handoff}}
+$$
+
+PD 分离减少的是 prefill 和 decode 在同一 GPU 上的互相干扰，但它会把 $T_{\text{transfer}}$ 和 $T_{\text{handoff}}$ 引入 TTFT。只有当队列减少和阶段隔离带来的收益超过传输成本时，它才提高 goodput。
+
+### 4.4 什么时候值得分离
 
 PD disaggregation 更适合：
 
@@ -162,7 +247,7 @@ PD disaggregation 更适合：
 
 如果请求量小、网络弱、prompt 较短，统一 worker 加 continuous batching 和 chunked prefill 可能更简单。
 
-### 4.4 调度图回顾
+### 4.5 调度图回顾
 
 下图来自综述文章，展示了调度器如何在 unified worker 和 PD disaggregation 两种形态之间安排 prefill、decode 和 KV Cache。
 
@@ -192,7 +277,7 @@ SLO-aware scheduler 通常需要同时看：
 ### 5.2 常见失败模式
 
 | 失败模式 | 表现 | 可能原因 |
----|---|---|
+|---|---|---|
 | Short request starvation | 短请求 TTFT 很高 | 长 prefill 占用调度窗口 |
 | Decode jitter | 流式输出忽快忽慢 | prefill 和 decode 干扰，batch 不稳定 |
 | Cache pressure collapse | 系统突然大量限流 | KV Cache 接近显存上限 |

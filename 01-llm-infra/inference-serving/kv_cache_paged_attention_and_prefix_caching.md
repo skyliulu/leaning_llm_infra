@@ -49,6 +49,62 @@ KV Cache 的做法是：在 prefill 阶段为 prompt 中每个 token 计算并�
 
 如果系统没有缓存复用，固定系统提示词会在每个请求中重复 prefill。如果系统没有动态显存管理，RAG 和 Agent 请求会快速吃掉显存，导致短请求也被限流或排队。
 
+### 1.3 从一层 attention 看 KV Cache 写入
+
+KV Cache 之所以是“状态”，可以从单层 attention 的矩阵计算看出来。设第 $l$ 层输入 hidden states 为：
+
+$$
+X^{(l)} \in \mathbb{R}^{T \times d_{\text{model}}}
+$$
+
+其中 $T$ 是当前上下文长度，$d_{\text{model}}$ 是模型隐藏维度。该层会通过三组投影矩阵得到 query、key 和 value：
+
+$$
+Q^{(l)} = X^{(l)} W_Q^{(l)}, \qquad
+K^{(l)} = X^{(l)} W_K^{(l)}, \qquad
+V^{(l)} = X^{(l)} W_V^{(l)}
+$$
+
+在 prefill 阶段，$X^{(l)}$ 包含 prompt 的所有 token，因此系统会一次性生成整段 $K^{(l)}$ 和 $V^{(l)}$，并把它们写入 KV Cache。attention 输出为：
+
+$$
+O^{(l)}
+=
+\operatorname{softmax}
+\left(
+\frac{Q^{(l)} {K^{(l)}}^\top}{\sqrt{d_h}}
+\right)
+V^{(l)}
+$$
+
+在 decode 第 $t$ 步，输入通常只包含新 token 的 hidden state $x_t^{(l)}$。此时只需要计算这个新 token 的：
+
+$$
+q_t^{(l)} = x_t^{(l)} W_Q^{(l)}, \qquad
+k_t^{(l)} = x_t^{(l)} W_K^{(l)}, \qquad
+v_t^{(l)} = x_t^{(l)} W_V^{(l)}
+$$
+
+然后把 $k_t^{(l)}$ 和 $v_t^{(l)}$ 追加到历史缓存中。decode attention 读取的是历史缓存：
+
+$$
+o_t^{(l)}
+=
+\operatorname{softmax}
+\left(
+\frac{q_t^{(l)} {K_{1:t}^{(l)}}^\top}{\sqrt{d_h}}
+\right)
+V_{1:t}^{(l)}
+$$
+
+这里的 $K_{1:t}^{(l)}$ 和 $V_{1:t}^{(l)}$ 不再来自重新计算，而是来自 KV Cache。这个区别就是 KV Cache 的核心价值：历史 token 的 key / value 从“每步重复算”变成“每步读取状态”。
+
+下图把这条路径展开到 block table 层面。读者应注意：KV Cache 既连接模型层内的矩阵运算，也连接 runtime 的显存分配器。
+
+![KV Cache attention and block table path](assets/kv_cache_attention_block_table.svg)
+
+<small>图 1-1：KV Cache 在每层 attention 中保存历史 key / value。PagedAttention 进一步把逻辑 token 位置映射到物理 KV blocks，使 decode 可以按 block table 读取历史状态。</small>
+
 **本章小结**：KV Cache 既是避免重复计算的性能优化，也是推理服务的动态状态。后续所有管理策略都在回答同一个问题：如何让这个状态占用少、复用多、迁移少、可观测。
 
 ## 第 2 章 KV Cache 显存模型
@@ -131,7 +187,39 @@ PagedAttention 借鉴虚拟内存分页思想，把请求的 KV Cache 拆成固�
 
 PagedAttention 的系统意义不只是一个 attention kernel，而是把 KV Cache 从“连续 tensor”变成“可分页、可引用、可共享、可回收的运行时对象”。
 
-### 3.3 和 vAttention 的对比
+### 3.3 Block table 如何参与 kernel 读取
+
+把 KV Cache 切成 block 后，attention kernel 不能再假设历史 token 的 K/V 是一段连续内存。对一个请求 $r$，runtime 会维护一个逻辑到物理的映射：
+
+$$
+B_r[i] = p
+$$
+
+表示请求 $r$ 的第 $i$ 个逻辑 KV block 存在物理 block $p$ 中。若 block size 为 $S$，第 $j$ 个历史 token 对应的逻辑 block 和 block 内 offset 为：
+
+$$
+i = \left\lfloor \frac{j}{S} \right\rfloor,
+\qquad
+o = j \bmod S
+$$
+
+kernel 读取该 token 的 key / value 时，需要先查：
+
+$$
+p = B_r[i]
+$$
+
+再从物理 block $p$ 的 offset $o$ 处读取：
+
+$$
+k_j^{(l)} = K_{\text{phys}}^{(l)}[p, o],
+\qquad
+v_j^{(l)} = V_{\text{phys}}^{(l)}[p, o]
+$$
+
+这就是 PagedAttention 和普通连续 attention kernel 的差异：数学上的 attention 公式没有变，变的是 K/V 的物理寻址方式。好的实现要让这层间接寻址尽量不破坏内存 coalescing、cache locality 和 kernel occupancy。
+
+### 3.4 和 vAttention 的对比
 
 PagedAttention 的代价是 attention kernel 需要理解非连续 block 布局，系统也要维护 block table。vAttention 等后续工作提出另一种思路：尽量保持 KV Cache 在虚拟地址空间里连续，再利用 CUDA virtual memory management 推迟物理内存分配。
 
@@ -193,6 +281,27 @@ SGLang 的 RadixAttention 把前缀共享组织成 radix tree 形式，用于复
 
 三者不是互斥概念，而是从不同角度管理同一个核心对象：KV Cache。
 
+### 4.4 Prefix cache key、失效和安全边界
+
+Prefix caching 的命中条件比“字符串一样”更严格。一个缓存项通常至少要绑定：
+
+$$
+\text{cache\_key}
+=
+\operatorname{Hash}
+\left(
+\text{model\_id},
+\text{model\_revision},
+\text{tokenizer\_id},
+\text{chat\_template},
+\text{prefix\_token\_ids}
+\right)
+$$
+
+如果 LoRA adapter、system prompt 模板、tokenizer 或模型版本变化，即使用户看到的文本相似，KV Cache 也不能复用。原因是 KV Cache 存的是每层 attention 的内部状态，而不是原始文本。只要权重或 tokenization 变化，历史 $K^{(l)}$ 和 $V^{(l)}$ 就不再对应当前模型计算路径。
+
+多租户系统还要决定缓存是否跨租户共享。跨租户共享固定公共 system prompt 可能节省成本，但也会引入隔离、审计和缓存污染风险。一个保守设计是：默认只在同模型版本、同 tokenizer、同模板、同租户或同安全域内复用。
+
 **本章小结**：Prefix caching 把重复 prompt 从计算问题变成缓存命中问题。它适合模板化、RAG、多轮和 Agent 场景，但收益必须用命中率和节省的 prefill tokens 验证。
 
 ## 第 5 章 Offload、Transfer 与跨引擎缓存
@@ -225,7 +334,26 @@ Cache transfer 的成本取决于：
 
 因此，PD 分离不是免费优化。它减少 prefill 和 decode 的计算干扰，却引入 cache movement。DistServe 这类系统的关键就在于同时考虑 TTFT、TPOT、资源分配和集群带宽。
 
-### 5.3 LMCache：把 KV Cache 暴露成共享层
+### 5.3 传输预算：什么时候 cache movement 会反噬
+
+设需要迁移的 KV Cache 大小为 $M_{\text{KV}}$，有效链路带宽为 $B_{\text{link}}$，协议、排队和同步开销为 $\delta$，则传输时间可以粗略写成：
+
+$$
+T_{\text{transfer}}
+\approx
+\frac{M_{\text{KV}}}{B_{\text{link}}}
++ \delta
+$$
+
+PD 分离只有在这个成本能被计算重叠或阶段隔离收益覆盖时才划算。若 decode pool 等待 KV 的时间为：
+
+$$
+T_{\text{idle}} \geq T_{\text{transfer}} - T_{\text{overlap}}
+$$
+
+那么即使 prefill pool 更高效，用户看到的 TPOT 也可能变差。工程上应同时观测 cache transfer bytes、transfer latency、decode idle time 和 prefill queueing reduction，而不是只看某一侧 GPU 利用率。
+
+### 5.4 LMCache：把 KV Cache 暴露成共享层
 
 LMCache 的思路是把 KV Cache 从单个推理引擎内部状态提升成可跨查询、跨引擎共享和移动的缓存层。它支持 cache offloading、prefix reuse 和 prefill/decode disaggregation 场景下的 cache movement。
 
