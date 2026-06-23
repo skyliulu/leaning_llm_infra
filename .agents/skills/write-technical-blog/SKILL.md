@@ -84,6 +84,22 @@ For a long multi-section tutorial, give every peer chapter the same visible entr
 - end with a compact summary that states the result, the mechanism, and the remaining limitation;
 - keep these labels and their visual treatment consistent across all peer chapters.
 
+For MkDocs Material articles in this repository, render these recurring entry and exit blocks as visually distinct admonitions rather than ordinary paragraphs or repeated heading levels:
+
+```markdown
+!!! abstract "本节主线"
+
+    State the section's question and conceptual moves.
+
+...
+
+!!! summary "本节小结"
+
+    State the result, mechanism, and remaining limitation.
+```
+
+Place `本节主线` immediately after the peer chapter heading and `本节小结` at the end of that peer chapter. Do not leave the roadmap after opening body paragraphs, and do not mix callout-style roadmaps with heading-style summaries in the same article. Avoid using repeated `### 本节主线` / `### 本节小结` headings when the site already uses a right-side table of contents, because they clutter navigation and visually merge with normal section structure.
+
 Do not add a roadmap or summary to only a few chapters. Structural inconsistency makes readers repeatedly relearn how to navigate the article.
 
 When revising an existing draft, first audit all peer chapters for structural drift. Either apply the pattern everywhere or remove it everywhere; partial consistency is worse than a simpler structure.
