@@ -934,12 +934,22 @@ Monte Carlo 已经摆脱模型，但必须等到 episode 结束才能计算 retu
 
 ## 第 7 节：随机逼近：TD 为什么可以这样更新
 
-Monte Carlo 方法是非增量的。它必须等到 episode 结束，才能计算完整 return。TD learning 则可以每走一步就更新一次。为了理解 TD，需要先理解随机逼近。
+Monte Carlo 方法是非增量的。它必须等到 episode 结束，才能计算完整 return。TD learning 则想解决这个等待问题：**不等整条 episode 结束，只用刚刚发生的一步经验，就先修正当前 value 估计。**
+
+TD 是 Temporal-Difference 的缩写，直译是“时间差分”。这里的“差分”不是普通时间序列里的相邻数值相减，而是指：比较当前预测 \(v(s_t)\) 和“一步之后看到的奖励加下一状态预测”
+
+\[
+r_{t+1}+\gamma v(s_{t+1})
+\]
+
+之间的差。这个差后来会写成 TD error。直觉上，如果下一步实际看到的结果比当前预测更好，就把 \(v(s_t)\) 往上调；如果更差，就往下调。
+
+所以，TD 解决 MC 的核心问题是更新时机：MC 等到 episode 结束后才知道完整 return，TD 只等一步。代价也很清楚：TD 的 target 里用了 \(v(s_{t+1})\)，而这个值本身也是当前估计，不是真实未来。这种“用估计值帮助更新另一个估计值”的做法叫 bootstrap。为了理解为什么这种带噪声、带估计的更新仍然可以工作，需要先理解随机逼近。
 
 > **本节主线**
-> 先看没有状态、动作和策略的标量平均问题；理解“误差 × 学习率”后，下一节的 TD 更新就只是把新证据换成 Bellman target。
+> TD 把 MC 的“等完整 return”改成“用一步样本加下一状态估计先更新”；随机逼近解释为什么这种 noisy target 可以通过“误差 × 学习率”逐步逼近正确 value。下一节会把这个模板具体写成 TD、Sarsa 和 Q-learning。
 
-Stochastic approximation 回答了一个常见困惑：TD update 看起来像一个启发式公式，为什么可以相信它会朝正确方向走？如果一个方程的精确期望不可得，但可以获得带噪声的样本估计，就可以用逐步缩小的学习率逼近它的根或不动点。
+Stochastic approximation 回答的正是这个常见困惑：TD update 看起来像一个启发式公式，为什么可以相信它会朝正确方向走？如果一个方程的精确期望不可得，但可以获得带噪声的样本估计，就可以用逐步缩小的学习率逼近它的根或不动点。
 
 从均值估计开始。给定样本 \(x_1,\ldots,x_n\)，样本均值是：
 
@@ -982,7 +992,7 @@ w_{k+1}
 
 第一条保证学习率总量足够大，不会太早停下；第二条保证噪声影响最终会被压下去。
 
-这就是 TD 的数学准备：Bellman 方程可以看成一个待求根的问题，样本提供带噪声的估计，随机逼近给出增量更新框架。
+这就是 TD 的数学准备：Bellman 方程可以看成一个待求根的问题，样本提供带噪声的估计，随机逼近给出增量更新框架。换句话说，TD 不是凭空发明一个更新式，而是把 Bellman 方程的期望项替换成一次实际观察到的样本，再用随机逼近慢慢消化样本噪声。
 
 把这个思想套到 Bellman 方程上。对固定策略 \(\pi\)，Bellman 方程可以写为：
 
@@ -1008,9 +1018,11 @@ r_{t+1}+\gamma v(s_{t+1})
 
 ## 第 8 节：Temporal-Difference：MC 与 DP 的中间点
 
-TD learning 结合了 Monte Carlo 和 dynamic programming 的思想。
+上一节已经说明，TD 的目标是用一步经验提前更新 value。现在把这个想法写成具体算法。
 
-它像 MC 一样不需要模型，只使用经验样本；又像 DP 一样使用 bootstrap。所谓 bootstrap，是在更新目标中再次使用当前尚未完全准确的 value estimate，而不是等待完整轨迹给出最终结果。
+TD learning 结合了 Monte Carlo 和 dynamic programming 的思想。它像 MC 一样不需要模型，只使用真实交互样本；又像 DP 一样使用已有的 value estimate 构造更新目标。所谓 bootstrap，就是在 target 中再次使用当前尚未完全准确的 value estimate，而不是等待完整 episode 给出最终 return。
+
+因此 TD 可以看成 MC 和 DP 的中间点：MC 用完整真实 return，方差较大但不 bootstrap；DP 用模型枚举下一状态，可以直接做 Bellman backup；TD 没有模型，但用一次真实转移加下一状态估计，构造一个样本版 Bellman backup。
 
 > **本节主线**
 > TD 学 state value；Sarsa 用当前策略实际选择的下一动作学习 \(q_\pi\)；Q-learning 用下一状态的最大 action value 学 \(q_*\)。读公式时先找 target，不必先盯住所有下标。
