@@ -585,20 +585,38 @@ v_{k+1}=f(v_k)
 
 奖励设置和 \(\gamma\) 会直接影响最优策略。如果禁区惩罚不够大，最优策略可能穿过禁区；如果 \(\gamma\) 小，智能体可能更关心近处奖励；如果每走一步都有惩罚，智能体会偏好短路径。这一点在实际 RL 系统中非常重要，因为很多“学坏了”的策略并不是算法错了，而是 reward 和约束没有表达真实目标。
 
-BOE 给出了最优 value 必须满足的方程，但方程本身还不是算法。下一节要把固定点和策略改进思想变成可执行的 value iteration 与 policy iteration。
+BOE 给出了最优 value 必须满足的方程，但方程本身还不是算法。它只说“最优价值表应该等于对自己做一次最优 Bellman backup 之后的结果”，还没有说从一个随便猜的价值表出发，应该怎样一步步算到这个固定点。
+
+下一节正是在回答这个计算问题：如果环境模型已知，怎样把 BOE 变成可执行的动态规划算法？一种做法是直接反复应用最优 Bellman backup，这就是 value iteration；另一种做法是先评价一个当前策略，再按评价结果改进策略，这就是 policy iteration。二者之间还可以折中，于是得到 truncated policy iteration，并进一步抽象成 generalized policy iteration。
 
 ---
 
 ## 第 5 节：Value Iteration、Policy Iteration 与 GPI
 
-有了 BOE，就可以在有模型的情况下通过动态规划求最优策略，代表方法包括 value iteration、policy iteration 和 truncated policy iteration。
+有了 BOE，我们知道最优价值 \(v_*\) 应该满足什么方程。但真正要落地时，还有一个更具体的问题：**在已经知道环境模型的前提下，如果价值表或策略一开始只是随便初始化的，怎样一步步得到最优策略？**
+
+这一节讨论的是有模型情况下的动态规划控制。所谓“有模型”，就是算法可以查询或枚举
+
+\[
+p(r,s'|s,a),
+\]
+
+因此能够计算“在状态 \(s\) 选择动作 \(a\) 后，所有可能奖励和下一状态的期望后果”。在这个前提下，第 5 节的三个方法分别解决同一个问题的不同侧面：
+
+- **Value Iteration**：不显式维护一个稳定的当前策略，直接把价值表不断推向 BOE 的固定点。
+- **Policy Iteration**：显式维护当前策略，先问“这个策略到底多好”，再问“能不能按这个评价让策略变好”。
+- **Truncated Policy Iteration**：不把策略评价做到底，只评价几步就改进，折中每轮成本和改进频率。
+
+GPI，也就是 generalized policy iteration，不是第四个具体算法，而是一种统一视角：很多 RL 算法都在同时做两件事，一边估计当前策略或当前目标的 value，一边用这个 value 推动 policy 改进。
 
 > **本节主线**
-> Value iteration 每轮只做少量评价就立即改进；policy iteration 先把当前策略评得更充分再改进；GPI 把二者视为持续相互推动的两个过程。
+> BOE 给出“最优价值应该满足什么”，value iteration 选择直接逼近这个固定点；policy iteration 选择绕一步，先评价当前策略再贪心改进；truncated policy iteration 说明“评价到多准再改进”本身是一条连续谱；GPI 则把这条连续谱抽象成 value estimate 和 policy improvement 的相互推动。
 
 ### 5.1 Value Iteration
 
-Value iteration 直接迭代 BOE：
+Value iteration 解决的问题是：**能不能不显式保存一个当前策略，只靠反复更新价值表，直接算出最优价值？**
+
+答案是可以。因为第 4 节已经说明，Bellman optimality operator 在 \(\gamma<1\) 时是压缩映射，反复应用它会收敛到唯一固定点 \(v_*\)。所以 value iteration 直接迭代 BOE：
 
 \[
 v_{k+1}=\max_{\pi\in\Pi}(r_\pi+\gamma P_\pi v_k).
@@ -627,7 +645,7 @@ v_{k+1}(s)=\max_a\sum_{r,s'}p(r,s'|s,a)
 
 即可得到最优策略。
 
-Value iteration 的特点是“评价很浅，改进很频繁”。每一轮只用当前 \(v_k\) 做一步 lookahead，并不完整评估某个固定策略。但由于它直接使用 BOE 的最优 backup，每次都把价值估计往最优不动点推。
+Value iteration 的特点是“评价很浅，改进很频繁”。每一轮只用当前 \(v_k\) 做一步 lookahead，并不完整评估某个固定策略；但它在这一步里已经对动作取最大值，因此相当于边估值边做贪心改进。由于它直接使用 BOE 的最优 backup，每次都把价值估计往最优不动点推。
 
 如果用伪代码表达，它是：
 
@@ -646,7 +664,9 @@ Value iteration 的特点是“评价很浅，改进很频繁”。每一轮只�
 
 ### 5.2 Policy Iteration
 
-Policy iteration 则显式区分两个步骤。
+Policy iteration 解决的是另一个自然问题：**既然第 3 节已经会评价一个给定策略，第 4 节又说明可以按价值贪心改进策略，能不能把这两个动作交替起来？**
+
+这就是 policy iteration。它显式维护一个策略 \(\pi_k\)，并把每一轮拆成两个步骤。
 
 第一步是策略评价：
 
@@ -669,7 +689,7 @@ v_{\pi_k}=r_{\pi_k}+\gamma P_{\pi_k}v_{\pi_k}.
 \left[r+\gamma v_{\pi_k}(s')\right].
 \]
 
-这其实就是“先评估当前策略，再贪心地让策略变好”。
+这其实就是“先评估当前策略，再贪心地让策略变好”。和 value iteration 相比，它不是直接追 BOE 的最优固定点，而是先在当前策略 \(\pi_k\) 上求解普通 Bellman 方程，得到 \(v_{\pi_k}\)，再用这个评价结果产生更好的 \(\pi_{k+1}\)。
 
 ![Generalized policy iteration](assets/gpi_loop.png)
 
@@ -683,17 +703,32 @@ v_{\pi_{k+1}}(s)\ge v_{\pi_k}(s),\quad \forall s.
 
 这也是为什么 policy iteration 很有启发性。它把“学习一个好策略”拆成两个更容易理解的问题：如何评价一个策略，如何基于评价改进它。后面的 MC control 和 Sarsa control 都是在没有模型的情况下复刻这两个步骤。
 
-### 5.3 Truncated Policy Iteration
+### 5.3 Truncated Policy Iteration 与 GPI
 
-Value iteration 和 policy iteration 的差别可以理解为“策略评价做多深”。
+Value iteration 和 policy iteration 看起来不同，但差别可以理解为一个问题：**策略评价到底要做多深，才值得改进一次策略？**
 
 Policy iteration 每轮几乎完整求解 \(v_{\pi_k}\)，评价很充分，但每轮代价较大。Value iteration 每轮只做一步浅评价，随后立刻改进策略，每轮便宜但可能需要更多轮。Truncated policy iteration 介于两者之间：每轮只做有限次策略评价，再做策略改进。
 
-这引出一个贯穿全书的视角：**强化学习算法大多可以看成 generalized policy iteration**。value 和 policy 不断互相校正，直到抵达稳定点。
+因此可以把三者放在一条谱上：
+
+| 方法 | 每轮评价做多深 | 策略什么时候改进 | 适合怎样理解 |
+|---|---:|---|---|
+| Value Iteration | 一步 | 几乎每次 value backup 都隐含改进 | 直接逼近 BOE 固定点 |
+| Policy Iteration | 接近完整评价 | 当前策略评清楚后再改进 | 评价与改进分成两个清晰阶段 |
+| Truncated Policy Iteration | 有限多步 | 评价若干步后改进 | 在每轮成本和改进频率之间折中 |
+
+这引出一个贯穿全书的视角：**强化学习算法大多可以看成 generalized policy iteration**。GPI 的核心不是某一个特定更新公式，而是两个过程的互动：
+
+1. **policy evaluation**：根据当前策略或当前目标，估计状态或动作有多好；
+2. **policy improvement**：根据当前 value 估计，让策略更倾向于高价值动作。
+
+value 和 policy 不断互相校正，直到抵达稳定点。在动态规划里，这两个过程可以写得很干净；到了后面的 model-free 和 deep RL，它们通常都只是近似执行。
 
 GPI 也是连接理论和工程的桥。真实系统中，我们很少把某个阶段做到数学上完全精确。比如 actor-critic 中，critic 的 value 估计还没完全收敛，actor 就已经在更新策略；DQN 中，Q 网络也只是近似满足 Bellman optimality target。尽管如此，只要两个过程互相推动而不是互相破坏，系统仍可能朝更好的策略前进。
 
 ### 本节小结
+
+这一节的三个算法可以用一句话区分：value iteration 直接迭代 BOE 来逼近最优价值；policy iteration 交替执行策略评价和策略改进；truncated policy iteration 在“完整评价”和“一步就改进”之间折中。GPI 则把它们背后的共同结构抽象出来：value estimate 和 policy improvement 持续互相推动。
 
 到这里的所有方法都依赖环境模型：算法需要知道每个动作可能到达哪些下一状态以及对应概率。现实中这个条件通常不成立。下一节开始，文章从“根据模型计算”转向“根据交互数据估计”。
 
