@@ -255,7 +255,7 @@ G_t=R_{t+1}+\gamma R_{t+2}+\gamma^2R_{t+3}+\cdots
 
 !!! abstract "本节主线"
 
-    先把位置、动作、规则和奖励分别抽象出来，再说明为什么“当前状态”必须包含预测下一步所需的信息。此时只是在描述问题，还没有开始求最优策略。
+    具体故事已经有了，但算法需要一套能迁移到其他任务的语言。本节把位置、动作、转移、奖励和折扣因子抽象成 MDP，说明强化学习问题到底由哪些对象组成。读完这一节，我们只完成“描述问题”，还没有回答怎样评价一个策略，因此下一节会引入 return 和 value。
 
 导入案例已经给出了一个完整但具体的强化学习任务。现在要做的不是再讲一次网格，而是把它压缩成一套能迁移到其他任务的数学语言。
 
@@ -310,7 +310,7 @@ G_t=R_{t+1}+\gamma R_{t+2}+\gamma^2R_{t+3}+\cdots
 
 !!! abstract "本节主线"
 
-    Return 评价一次实际经历；value 把许多可能经历平均起来。State value 回答“处在这里总体怎样”，action value 回答“在这里先做这个动作怎样”。
+    MDP 只说明了环境和策略如何交互，还没有给出“好坏”的数值尺度。本节先用 return 评价一条实际经历，再把随机策略和随机环境下的许多可能经历平均成 value。state value 回答“处在这里总体怎样”，action value 回答“在这里先做这个动作怎样”，这为后面的策略评价和策略改进打基础。
 
 导入案例中，我们用 return 比较了两条确定性轨迹。现在把它写成适用于任意时间步、任意长度 trajectory 的形式。给定一条轨迹，从时间 \(t\) 开始的折扣回报定义为
 
@@ -382,7 +382,7 @@ action value 需要借助 state value 理解：先执行动作 \(a\)，获得即
 
 !!! abstract "本节主线"
 
-    推导只走三步：先把无限回报拆成“当前奖励 + 剩余回报”，再取条件期望，最后对策略选择和环境转移两层随机性分别加权。
+    上一节定义了 value，但如果每次都枚举所有未来轨迹，value 几乎无法计算。本节用 Bellman 方程把无限未来拆成“当前一步 + 下一状态的 value”，让策略评价变成递推问题。推导的主线是：拆 return，取条件期望，再分别处理策略选择和环境转移的随机性。
 
 如果只记一个 RL 公式，应该记 Bellman 方程。它的作用不是又定义了一个新量，而是揭示 value 的内部结构：一个状态的价值，可以被拆成“一步之后发生什么”和“之后继续遵循同一个策略会怎样”。这让无限长的未来不再需要一次性展开，而可以通过递推关系求解。
 
@@ -499,7 +499,7 @@ v_{k+1}=r_\pi+\gamma P_\pi v_k.
 
 !!! abstract "本节主线"
 
-    环境的随机结果仍需取期望，因为智能体不能指定下一状态；只有动作选择从 evaluation 变成了 control。
+    Bellman expectation equation 只能回答“给定策略有多好”，但强化学习最终要找的是“什么策略最好”。本节把动作选择从按当前策略求平均，改成对动作取最大，从而得到 Bellman 最优性方程。要注意，智能体只能选择动作，不能选择随机环境落到哪个下一状态，所以环境结果仍然要取期望。
 
 Bellman expectation equation 解决的是“给定策略 \(\pi\)，它有多好”。强化学习最终要解决的是“什么策略最好”。因此需要定义最优状态价值：
 
@@ -599,7 +599,7 @@ v_{k+1}=f(v_k)
 
 !!! abstract "本节主线"
 
-    BOE 给出“最优价值应该满足什么”，value iteration 选择直接逼近这个固定点；policy iteration 选择绕一步，先评价当前策略再贪心改进；truncated policy iteration 说明“评价到多准再改进”本身是一条连续谱；GPI 则把这条连续谱抽象成 value estimate 和 policy improvement 的相互推动。
+    BOE 说明了最优 value 应该满足什么方程，但方程本身还不是可执行算法。本节讨论在已知环境模型时，怎样把 BOE 变成动态规划控制方法：value iteration 直接逼近最优固定点，policy iteration 先评价当前策略再贪心改进，truncated policy iteration 处在两者之间。最后用 GPI 把这些方法统一成 value estimate 和 policy improvement 的相互推动。
 
 有了 BOE，我们知道最优价值 \(v_*\) 应该满足什么方程。但真正要落地时，还有一个更具体的问题：**在已经知道环境模型的前提下，如果价值表或策略一开始只是随便初始化的，怎样一步步得到最优策略？**
 
@@ -743,7 +743,7 @@ GPI 也是连接理论和工程的桥。真实系统中，我们很少把某个�
 
 !!! abstract "本节主线"
 
-    MC 不再枚举所有可能下一状态，而是实际走完整个 episode；它用数据换掉模型，代价是必须等 episode（一轮完整交互）结束，而且单条 return 的波动可能很大。
+    前面的动态规划方法都依赖环境模型，但真实任务里往往不知道 \(p(r,s'|s,a)\)。Monte Carlo 的转向是：不再枚举所有可能下一状态，而是实际采样完整 episode，用真实 return 的平均值估计 value。这样摆脱了模型，但必须等 episode 结束，而且单条 return 的方差会比较大。
 
 动态规划需要模型，也就是 \(p(r,s'|s,a)\)。但很多问题中，智能体不知道环境模型，只能通过交互得到样本。Monte Carlo 是最直接的 model-free 起点。
 
@@ -942,7 +942,7 @@ a^*=\arg\max_a q(s,a).
 
 !!! abstract "本节主线"
 
-    TD 把 MC 的“等完整 return”改成“用一步样本加下一状态估计先更新”；随机逼近解释为什么这种 noisy target 可以通过“误差 × 学习率”逐步逼近正确 value。下一节会把这个模板具体写成 TD、Sarsa 和 Q-learning。
+    MC 已经不需要模型，但仍要等完整 episode 才能更新。TD 想把更新提前到每一步：用刚看到的一步奖励，加上下一状态的当前 value 估计，先构造一个 noisy target。随机逼近解释为什么这种“误差 × 学习率”的增量更新能够逐步消化样本噪声，下一节会把这个模板写成 TD、Sarsa 和 Q-learning。
 
 Monte Carlo 方法是非增量的。它必须等到 episode 结束，才能计算完整 return。TD learning 则想解决这个等待问题：**不等整条 episode 结束，只用刚刚发生的一步经验，就先修正当前 value 估计。**
 
@@ -1027,7 +1027,7 @@ r_{t+1}+\gamma v(s_{t+1})
 
 !!! abstract "本节主线"
 
-    TD 学 state value；Sarsa 用当前策略实际选择的下一动作学习 \(q_\pi\)；Q-learning 用下一状态的最大 action value 学 \(q_*\)。读公式时先找 target，不必先盯住所有下标。
+    上一节解释了 TD 更新为什么可信，本节把它落成三类表格算法。TD state-value learning 评价当前策略的状态价值；Sarsa 用当前策略实际选择的下一动作学习 \(q_\pi\)；Q-learning 在 target 中直接使用下一状态最大 action value，学习 \(q_*\)。读公式时先找 target，再看它到底是在评价当前策略还是逼近最优策略。
 
 上一节已经说明，TD 的目标是用一步经验提前更新 value。现在把这个想法写成具体算法。
 
@@ -1226,7 +1226,7 @@ R_{t+1}+\gamma\max_{a'}q_*(S_{t+1},a')
 
 !!! abstract "本节主线"
 
-    表格更新只改变一个格子；函数近似更新会同时改变许多状态的预测。DQN 的 replay buffer 和 target network，分别缓解样本相关性与移动目标问题。
+    表格 TD 假设每个状态或状态动作对都有独立表项，但图像、连续控制和语言上下文不可能逐格保存 value。本节把 value table 换成参数化函数，说明一次参数更新为什么会同时影响许多状态的预测。DQN 是这一思想在深度网络中的代表，replay buffer 和 target network 分别缓解样本相关性与移动目标问题。
 
 到目前为止，value 都被表格保存。表格方法在小状态空间中清晰，但在大规模问题中不可行。比如图像状态、连续控制状态或语言交互状态，状态空间巨大甚至连续，无法为每个状态单独保存一个 value。
 
@@ -1416,7 +1416,7 @@ y=r+\gamma\max_{a'}Q(s',a',w_T).
 
 !!! abstract "本节主线"
 
-    更新信号始终由两部分组成：score function 告诉参数怎样改变动作概率，return 或 action value 告诉这次动作值不值得被强化。
+    value-based 方法先估计 value，再从 value 导出策略；当动作空间很大、连续，或我们希望显式学习随机策略时，这条路会变得笨重。本节转向直接参数化策略，并推导 policy gradient 如何告诉参数应该怎样改变动作概率。更新信号可以拆成两部分：score function 给方向，return 或 action value 给这次动作的权重。
 
 前面的大部分方法都是 value-based：先估计 value，再从 value 导出策略。Policy gradient 走另一条路：直接把策略表示为参数化函数，并直接优化它。
 
@@ -1550,7 +1550,7 @@ G_t=\sum_{k=t}^{T-1}\gamma^{k-t}r_{k+1}.
 
 !!! abstract "本节主线"
 
-    REINFORCE 等到整条轨迹结束才知道结果；Actor-Critic 用 value 和 TD error 提前构造评价信号，从而更及时、通常也更低方差地更新策略。
+    Policy gradient 可以直接优化策略，但 REINFORCE 依赖完整 return，更新信号来得晚且方差高。本节引入 Actor-Critic：Actor 负责选择和更新策略，Critic 负责用 value 或 advantage 评价动作。Critic 常用 TD error 提前给出学习信号，从而让策略更新更及时、通常也更稳定。
 
 Actor-Critic 仍然属于 policy gradient 方法。它的名字强调结构：
 
@@ -1760,7 +1760,7 @@ w_{t+1}
 
 !!! abstract "本节主线"
 
-    Probability ratio 负责测量“变了多少”，advantage 决定“应该增大还是减小”，clipping 防止在一批旧数据上把概率推得过远。
+    Actor-Critic 降低了 policy gradient 的方差，但还没有约束“同一批数据上策略可以改多远”。PPO 的核心是把新旧策略的动作概率比值放进目标函数：probability ratio 衡量变化幅度，advantage 决定概率该增还是该减，clipping 阻止策略在旧数据上被推得过远。这样它在样本利用率和更新稳定性之间折中。
 
 Actor-Critic 解决了 REINFORCE 方差过大的问题，但还留下一个实际困难：**同一批数据上，策略究竟可以更新多远？**
 
@@ -1887,7 +1887,7 @@ L^{\mathrm{CLIP}}(\theta)
 
 !!! abstract "本节主线"
 
-    PPO-based RLHF 不是一个与 PPO 并列的新优化器，而是一套训练流程：先得到可用策略，再训练 reward model，最后让策略在线生成回答并用 PPO 更新。
+    有了 PPO 之后，可以把语言模型看成序列决策策略，把人类偏好变成奖励信号。PPO-based RLHF 不是与 PPO 并列的新优化器，而是一套训练流程：先用 SFT 得到可用策略，再训练 reward model，最后让当前策略在线生成回答并用 PPO 更新。理解这一节的关键是区分优化器、奖励模型和 rollout 系统各自承担什么。
 
 把 PPO 用于大语言模型时，强化学习的基本对象只是换了含义：
 
@@ -1947,7 +1947,7 @@ r_\psi(x,y)
 
 !!! abstract "本节主线"
 
-    DPO 不解决在线探索问题。它解决的是：在固定偏好数据上，怎样直接拉大 chosen 与 rejected 相对 reference policy 的概率差距。
+    PPO-based RLHF 需要在线采样、reward model 和 critic，系统成本较高。DPO 换了一个问题设定：不再在线探索，而是在固定偏好数据上直接训练策略，让 chosen 相对 reference policy 的概率高于 rejected。它用离线分类式目标绕开显式 reward model 和 value critic，但也失去了在线发现新行为的能力。
 
 PPO-based RLHF 的复杂性自然引出另一个问题：如果手里已经有大量 chosen/rejected 偏好对，是否一定要训练 reward model，再让策略在线 rollout？DPO 的回答是否定的。
 
@@ -2066,7 +2066,7 @@ DPO 与 RL 有明确的数学联系，但它不是标准的在线 Actor-Critic�
 
 !!! abstract "本节主线"
 
-    回答的绝对分数并不直接决定更新；真正使用的是它相对同组其他回答高多少或低多少。
+    DPO 使用固定偏好对，PPO-based RLHF 使用在线奖励和 critic；GRPO 则保留在线采样，但试图去掉 value critic。它对同一个 prompt 生成一组回答，用组内相对奖励估计 advantage：一个回答的绝对分数不直接决定更新，关键是它比同组其他回答高多少或低多少。本节要看清楚 GRPO 在系统成本、方差和奖励比较方式上的取舍。
 
 DPO 不在线探索；PPO-based RLHF 在线探索，但通常要训练 value critic。GRPO 处理的是第三种条件：奖励可以通过规则、测试程序或 reward model 在线计算，希望保留 rollout，又想省掉 value critic。
 
@@ -2140,7 +2140,7 @@ r_i(\theta)\hat A_i,\,
 
 !!! abstract "本节主线"
 
-    长程任务并不只是 response 更长。环境会在每一步返回新观察，后续状态取决于早期动作，错误还可能经过很多轮才暴露。因此训练同时面对信用分配、探索、非平稳环境反馈和高昂 rollout 成本。
+    单轮回答的 RL 已经能用 PPO、DPO 或 GRPO 描述，但 Agent 任务会把问题拉长到多轮交互。模型的早期工具调用、计划修改和记忆操作会影响很久之后的成败，最终奖励往往迟到且稀疏。本节讨论长程 Agent RL 的核心困难：信用分配、探索、非平稳反馈和高昂 rollout 成本，而不是简单把 response 变长。
 
 前面的语言模型 RL 大多把“一次回答”当作一条 episode。长程 Agent 任务则不同：模型可能先读任务，再搜索、调用工具、观察结果、修改计划、写入记忆，经过几十轮甚至跨会话交互后才知道最终是否成功。
 
@@ -2224,7 +2224,7 @@ r_i(\theta)\hat A_i,\,
 
 !!! abstract "本节主线"
 
-    不再引入新算法，而是从模型、数据来源、bootstrap、学习对象和信用粒度五个维度，把全文方法重新放回同一张地图。
+    前面已经从 MDP、Bellman、MC、TD、policy gradient 一路走到 PPO、DPO、GRPO 和长程 Agent RL。本节不再引入新算法，而是把这些方法放回同一张地图：它们是否需要模型，数据来自采样还是离线偏好，是否 bootstrap，学习对象是 value 还是 policy，信用分配粒度到哪里。目标是让读者看到新方法时能判断它到底改的是哪一层。
 
 下面用一张表把核心方法按“是否需要模型、是否 bootstrap、是否直接优化策略”串起来。
 
