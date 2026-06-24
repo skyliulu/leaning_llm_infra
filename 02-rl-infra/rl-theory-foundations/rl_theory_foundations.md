@@ -1895,7 +1895,7 @@ L^{\mathrm{CLIP}}(\theta)
 |---|---|
 | state \(s_t\) | prompt 与已生成的 token 前缀 |
 | action \(a_t\) | 下一个 token |
-| policy \(\pi_\theta(a_t|s_t)\) | next-token distribution |
+| policy \(\pi_\theta(a_t \mid s_t)\) | next-token distribution |
 | trajectory | 一整段 response |
 | reward | 对 response 的偏好、正确性或规则评分 |
 | episode | 从 prompt 到 response 结束 |

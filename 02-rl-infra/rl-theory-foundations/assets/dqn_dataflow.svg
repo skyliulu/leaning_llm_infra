@@ -1,44 +1,79 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="540" viewBox="0 0 1160 540" role="img" aria-label="DQN dataflow with replay buffer and target network">
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-label="Deep Q-learning dataflow with replay buffer target network loss and gradient update">
   <defs>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L0,6 L9,3 z" fill="#111"/>
+    <marker id="arrow" markerWidth="11" markerHeight="11" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,7 L10,3.5 z" fill="#1f2933"/>
     </marker>
     <style>
-      .box { fill:#f8f8f8; stroke:#111; stroke-width:2; rx:6; }
-      .text { font-family:Arial, Helvetica, sans-serif; fill:#111; font-size:23px; font-weight:700; }
-      .small { font-family:Arial, Helvetica, sans-serif; fill:#111; font-size:18px; }
-      .math { font-family:"Times New Roman", Times, serif; fill:#111; font-size:23px; }
-      .line { stroke:#111; stroke-width:2.2; fill:none; marker-end:url(#arrow); }
-      .dash { stroke:#111; stroke-width:2; fill:none; stroke-dasharray:7 5; marker-end:url(#arrow); }
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 30px; font-weight: 700; fill: #111827; }
+      .heading { font-family: Arial, Helvetica, sans-serif; font-size: 23px; font-weight: 700; fill: #111827; }
+      .label { font-family: Arial, Helvetica, sans-serif; font-size: 18px; fill: #111827; }
+      .small { font-family: Arial, Helvetica, sans-serif; font-size: 16px; fill: #374151; }
+      .band { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.5; }
+      .node { fill: #ffffff; stroke: #111827; stroke-width: 1.8; }
+      .data { fill: #eef6ff; stroke: #2563eb; stroke-width: 1.8; }
+      .target { fill: #f0fdf4; stroke: #15803d; stroke-width: 1.8; }
+      .loss { fill: #fff7ed; stroke: #c2410c; stroke-width: 1.8; }
+      .line { stroke: #1f2933; stroke-width: 2.4; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #4b5563; stroke-width: 2.2; fill: none; stroke-dasharray: 8 6; marker-end: url(#arrow); }
     </style>
   </defs>
-  <rect width="100%" height="100%" fill="#fff"/>
-  <text x="390" y="52" class="text">Deep Q-learning dataflow</text>
-  <rect x="60" y="150" width="190" height="95" class="box"/>
-  <text x="96" y="190" class="text">Environment</text>
-  <text x="88" y="222" class="math">(s, a, r, s')</text>
-  <rect x="340" y="145" width="210" height="105" class="box"/>
-  <text x="380" y="188" class="text">Replay buffer</text>
-  <text x="368" y="222" class="small">stores transitions</text>
-  <rect x="655" y="90" width="230" height="100" class="box"/>
-  <text x="708" y="132" class="text">Main network</text>
-  <text x="698" y="165" class="math">Q(s,a,w)</text>
-  <rect x="655" y="305" width="230" height="100" class="box"/>
-  <text x="704" y="347" class="text">Target network</text>
-  <text x="690" y="380" class="math">Q(s,a,w_T)</text>
-  <rect x="950" y="195" width="180" height="115" class="box"/>
-  <text x="995" y="236" class="text">Loss</text>
-  <text x="970" y="272" class="math">(y - Q)^2</text>
-  <path d="M250 198 L338 198" class="line"/>
-  <path d="M550 190 C610 145 625 140 653 140" class="line"/>
-  <text x="570" y="122" class="small">mini-batch</text>
-  <path d="M550 215 C620 300 625 355 653 355" class="line"/>
-  <text x="565" y="330" class="small">same mini-batch</text>
-  <path d="M885 140 C920 155 940 185 960 210" class="line"/>
-  <path d="M885 355 C930 335 948 305 960 285" class="line"/>
-  <path d="M1035 310 C990 455 770 455 770 405" class="line"/>
-  <text x="860" y="465" class="small">gradient update</text>
-  <path d="M770 190 L770 303" class="dash"/>
-  <text x="790" y="242" class="small">periodic copy</text>
-  <text x="790" y="266" class="small">of parameters</text>
+
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <text x="640" y="58" class="title" text-anchor="middle">Deep Q-learning dataflow</text>
+
+  <rect x="55" y="98" width="1170" height="150" rx="8" class="band"/>
+  <text x="82" y="130" class="small">Collect and store experience</text>
+
+  <rect x="85" y="155" width="170" height="70" rx="7" class="node"/>
+  <text x="170" y="184" class="heading" text-anchor="middle">Environment</text>
+  <text x="170" y="209" class="small" text-anchor="middle">transitions</text>
+
+  <rect x="320" y="148" width="190" height="84" rx="7" class="data"/>
+  <text x="415" y="181" class="heading" text-anchor="middle">Replay buffer</text>
+  <text x="415" y="207" class="small" text-anchor="middle">stored experience</text>
+
+  <rect x="575" y="155" width="170" height="70" rx="7" class="data"/>
+  <text x="660" y="184" class="heading" text-anchor="middle">Mini-batch</text>
+  <text x="660" y="209" class="small" text-anchor="middle">sampled data</text>
+
+  <path d="M255 190 L317 190" class="line"/>
+  <path d="M510 190 L572 190" class="line"/>
+
+  <rect x="55" y="285" width="1170" height="335" rx="8" class="band"/>
+  <text x="82" y="318" class="small">Compute the online prediction and the delayed target, then compare them.</text>
+
+  <rect x="155" y="355" width="200" height="82" rx="7" class="node"/>
+  <text x="255" y="388" class="heading" text-anchor="middle">Main network</text>
+  <text x="255" y="414" class="small" text-anchor="middle">current estimate</text>
+
+  <rect x="450" y="355" width="185" height="82" rx="7" class="node"/>
+  <text x="542" y="388" class="heading" text-anchor="middle">Prediction</text>
+  <text x="542" y="414" class="small" text-anchor="middle">online value</text>
+
+  <rect x="155" y="520" width="200" height="76" rx="7" class="target"/>
+  <text x="255" y="551" class="heading" text-anchor="middle">Target network</text>
+  <text x="255" y="576" class="small" text-anchor="middle">delayed copy</text>
+
+  <rect x="450" y="520" width="185" height="76" rx="7" class="target"/>
+  <text x="542" y="551" class="heading" text-anchor="middle">TD target</text>
+  <text x="542" y="576" class="small" text-anchor="middle">bootstrapped value</text>
+
+  <rect x="875" y="420" width="185" height="100" rx="7" class="loss"/>
+  <text x="968" y="459" class="heading" text-anchor="middle">Loss</text>
+  <text x="968" y="488" class="small" text-anchor="middle">prediction error</text>
+
+  <path d="M660 225 L660 300 L542 300 L542 352" class="line"/>
+
+  <path d="M660 225 L710 225 L710 492 L542 492 L542 517" class="line"/>
+
+  <path d="M355 396 L447 396" class="line"/>
+  <path d="M355 558 L447 558" class="line"/>
+  <path d="M635 396 L872 450" class="line"/>
+  <path d="M635 558 L872 492" class="line"/>
+
+  <path d="M968 420 L968 78 L60 78 L60 396 L152 396" class="line"/>
+  <text x="610" y="92" class="small" text-anchor="middle">gradient update</text>
+
+  <path d="M255 438 L255 517" class="dash"/>
+  <text x="425" y="482" class="small" text-anchor="middle">periodic parameter copy</text>
 </svg>
